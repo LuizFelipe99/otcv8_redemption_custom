@@ -1,0 +1,143 @@
+ElementalBuildMissionRow < UIWidget
+  height: 48
+  margin-bottom: 4
+  padding: 8
+  background-color: #2e2e2e
+  border-width: 1
+  border-color: #3a3a3a
+
+  Label
+    id: missionName
+    anchors.left: parent.left
+    anchors.top: parent.top
+    anchors.right: viewButton.left
+    margin-top: 4
+    margin-right: 4
+    font: verdana-11px-antialised
+    color: #e0e0e0
+    text-auto-resize: false
+    text-wrap: false
+
+  Label
+    id: missionSubtitle
+    anchors.left: parent.left
+    anchors.top: missionName.bottom
+    anchors.right: viewButton.left
+    margin-top: 2
+    margin-right: 4
+    font: verdana-11px-antialised
+    color: #888888
+    text-auto-resize: false
+    text-wrap: false
+
+  Button
+    id: viewButton
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    width: 50
+    height: 22
+    font: verdana-11px-antialised
+    text: View
+
+  Panel
+    id: progressBarBg
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 3
+    background-color: #1a1a1a
+
+    Panel
+      id: progressBarFill
+      anchors.left: parent.left
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      width: 0
+      background-color: #4a90d9
+
+ElementalBuildMissionFilterPanel < UIWidget
+  height: 28
+  margin-bottom: 6
+
+  Label
+    id: progressLabel
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-antialised
+    color: #888888
+    text-auto-resize: true
+
+  Button
+    id: filterAllButton
+    anchors.right: filterPendingButton.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 4
+    width: 36
+    height: 20
+    font: verdana-11px-antialised
+    text: All
+    @onClick: setMissionFilter("all")
+
+  Button
+    id: filterPendingButton
+    anchors.right: filterDoneButton.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-right: 4
+    width: 56
+    height: 20
+    font: verdana-11px-antialised
+    text: Pending
+    @onClick: setMissionFilter("pending")
+
+  Button
+    id: filterDoneButton
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    width: 44
+    height: 20
+    font: verdana-11px-antialised
+    text: Done
+    @onClick: setMissionFilter("done")
+
+ElementalBuildModalItemSlot < UIWidget
+  height: 40
+  margin-bottom: 4
+  background-color: #252525
+  border-width: 1
+  border-color: #3a3a3a
+
+  Label
+    id: itemName
+    anchors.left: parent.left
+    anchors.top: parent.top
+    margin-top: 6
+    margin-left: 8
+    font: verdana-11px-antialised
+    color: #d0d0d0
+    text-auto-resize: true
+
+  Label
+    id: itemProgress
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-top: 6
+    margin-right: 8
+    font: verdana-11px-antialised
+    color: #4a90d9
+    text-auto-resize: true
+
+  Panel
+    id: progressBarBg
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 3
+    background-color: #1a1a1a
+
+    Panel
+      id: progressBarFill
+      anchors.left: parent.left
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      width: 0
+      background-color: #4a90d9

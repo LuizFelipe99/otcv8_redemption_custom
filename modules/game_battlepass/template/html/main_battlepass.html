@@ -1,0 +1,99 @@
+<link href="template/css/battlepass_main.css" />
+
+<html>
+<window id="battlepassWindow" class="battlepassWindow" placement="center"
+    title="Battle Pass" onescape="self:hide()">
+
+    <div class="bpSubHeader">
+        <label class="bpSeasonLabel">{{self.seasonName}}</label>
+        <label class="bpDayBadge">Day {{self.currentDay}}/{{self.totalDays}}</label>
+        <label class="bpDateLabel">{{self.dateRange}}</label>
+    </div>
+
+    <div class="bpProgressRow">
+        <div class="bpProgressTrack">
+            <div class="bpProgressFill" *style-width="tostring(self.progressPct) .. '%'"></div>
+            <label class="bpProgressCenterLabel">{{self.completedMissions}}/{{self.totalMissions}} Missions</label>
+        </div>
+        <label class="bpProgressSideLabel">Free: {{self.freeProgress}} | Pro: {{self.proProgress}}</label>
+    </div>
+
+    <div class="bpMainArea">
+
+        <div class="bpDayGrid" title="Select a Day">
+            <div class="bpDayCards" layout="type: grid; cell-size: 96 85; cell-spacing: 4; num-columns: 4">
+                <div *for="local day in self.days"
+                    class="bpDayCard"
+                    *class-bpDayCardCurrent="day.isCurrent"
+                    *class-bpDayCardDone="day.isDone"
+                    onclick="self:selectDay(day.number)">
+                    <label class="bpDayNumber">{{day.number}}</label>
+                    <UIItem class="bpDayItem"
+                        *visible="day.itemId and day.itemId > 0"
+                        *item-id="day.itemId or 1"
+                        virtual="true"></UIItem>
+                    <label class="bpDayCardLabel">{{day.label}}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="bpDayDetail" style="float:right;">
+
+            <div class="bpDetailHeader">
+                <label class="bpDetailDayLabel">{{self.selectedDayLabel}}</label>
+                <!-- <label class="bpDetailSubtitle">{{self.selectedDaySubtitle}}</label> -->
+            </div>
+
+            <div class="bpMissionPanel" title="Mission">
+                <label class="bpMissionTitle">MISSION:</label>
+                <label class="bpMissionDesc">{{self.missionDescription}}</label>
+                <label class="bpMissionProgress">{{self.missionProgress}}</label>
+                <UIItem class="bpMissionItem"
+                    *visible="self.missionItemId and self.missionItemId > 0"
+                    *item-id="self.missionItemId or 1"
+                    virtual="true">
+                </UIItem>
+            </div>
+
+            <div class="bpRewardsRow">
+                <div class="bpRewardBox" title="Free">
+                    <label class="bpRewardTrackLabel bpFreeLabel">FREE</label>
+                    <UIItem class="bpRewardItem"
+                        *visible="self.freeRewardItemId and self.freeRewardItemId > 0"
+                        *item-id="self.freeRewardItemId or 1"
+                        virtual="true"></UIItem>
+                    <label class="bpRewardItemLabel">{{self.freeRewardLabel}}</label>
+                    <button class="bpRewardBtn" onclick="self:claimFreeReward()">{{self.freeRewardStatus}}</button>
+                </div>
+                <div class="bpRewardBox right" title="Pro">
+                    <label class="bpRewardTrackLabel bpProLabel">PRO</label>
+                    <UIItem class="bpRewardItem"
+                        *visible="self.proRewardItemId and self.proRewardItemId > 0"
+                        *item-id="self.proRewardItemId or 1"
+                        virtual="true"></UIItem>
+                    <label class="bpRewardItemLabel">{{self.proRewardLabel}}</label>
+                    <button class="bpRewardBtn" onclick="self:claimProReward()">{{self.proRewardStatus}}</button>
+                </div>
+            </div>
+
+            <button class="bpStatusBtn" onclick="self:onStatusAction()">{{self.dayStatusText}}</button>
+
+        </div>
+    </div>
+
+    <hr style="height: 2px; width: 97%; margin-left:12px">
+
+    <div class="bpFooter" title="Final Reward">
+        <label class="bpFinalLabel">FINAL REWARD:</label>
+        <label class="bpFinalSubLabel">(only for PRO)</label>
+        <UIItem class="bpFinalItem"
+            *visible="self.finalRewardItemId and self.finalRewardItemId > 0"
+            *item-id="self.finalRewardItemId or 1"
+            virtual="true"></UIItem>
+        <label class="bpFinalItemName">{{self.finalRewardLabel}}</label>
+        <!-- <label class="bpDayCounter">{{self.dayCounterText}}</label> -->
+        <button class="bpCloseBtn" onclick="self:hide()" text="Close"></button>
+    </div>
+
+</window>
+</html>

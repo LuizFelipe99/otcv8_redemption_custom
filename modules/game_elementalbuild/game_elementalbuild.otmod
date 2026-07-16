@@ -1,0 +1,7 @@
+Module
+  name: game_elementalbuild
+  description: Elemental Build
+  author: CrystalServer
+  scripts: [ elementalbuild ]
+  @onLoad: init()
+  @onUnload: terminate()

@@ -1,0 +1,9 @@
+Module
+  name: game_craftbench
+  description: Craft Bench
+  author: CrystalServer
+  sandboxed: true
+  autoload: true
+  scripts: [ craftbench ]
+  @onLoad: init()
+  @onUnload: terminate()

@@ -1,0 +1,105 @@
+PotionCooldownRow < UIWidget
+  id: potionRowPanel
+  size: 147 31
+  margin: 3 0 0 4
+
+  UIItem
+    id: potionIcon
+    size: 32 32
+    anchors.top: parent.top
+    anchors.left: parent.left
+    virtual: true
+    phantom: true
+
+  Label
+    id: potionName
+    anchors.left: prev.right
+    anchors.top: prev.top
+    text-auto-resize: true
+    margin-top: 1
+    margin-left: 5
+    !text: tr('Potion Name')
+    font: Verdana Bold-11px
+    color: #f4f4f4
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: potionCooldownLabel
+    anchors.top: prev.bottom
+    anchors.left: potionIcon.right
+    text-auto-resize: true
+    margin-top: 1
+    margin-left: 5
+    !text: tr('No Cooldown')
+    font: Verdana Bold-11px
+    color: #c0c0c0
+    text-auto-resize: true
+    phantom: true
+
+MiniWindow
+  id: potionCooldownMiniWindow
+  &type: 'potionCooldowns'
+  !text: tr('Potion Cooldowns')
+  height: 225
+  &save: true
+  focusable: true
+  @onOpen: modules.game_potioncooldown.onWindowOpened()
+  @onClose: modules.game_potioncooldown.onWindowClosed()
+
+  UIWidget
+    id: miniwindowIcon
+    anchors.top: miniwindowHeader.top
+    anchors.left: miniwindowHeader.left
+    margin-top: 2
+    margin-left: 4
+    size: 12 12
+    image-source: /images/icons/icon-bosstracker-widget
+    image-smooth: false
+
+  Label
+    id: miniwindowTitle
+    anchors.top: miniwindowHeader.top
+    anchors.left: miniwindowHeader.left
+    anchors.right: miniwindowHeader.right
+    margin-top: 2
+    margin-left: 20
+    margin-right: 50
+    font: verdana-11px-monochrome
+    height: 13
+    color: #9d9d9dff
+    !text: tr('Potion Cooldowns')
+
+  ScrollablePanel
+    id: contentsPanel
+    anchors.fill: parent
+    margin: 16 18 5 5
+    step: 20
+    vertical-scrollbar: miniwindowScrollBar
+
+    Panel
+      id: potions
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      layout:
+        type: verticalBox
+
+  UIWidget
+    id: miniborder
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    image-source: /images/ui/miniborder
+    size: 14 14
+    margin-left: 2
+    margin-bottom: 2
+
+  ResizeBorder
+    id: bottomResizeBorder
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 3
+    minimum: 64
+    margin-left: 3
+    margin-right: 3

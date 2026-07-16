@@ -1,0 +1,268 @@
+.cbWindow {
+    width: 760px;
+    height: 500px;
+    display: block;
+}
+
+.cbMainArea {
+    width: 732px;
+    height: 418px;
+    margin: 6px 14px 0 14px;
+    display: block;
+}
+
+.cbRecipeList {
+    width: 440px;
+    height: 418px;
+    float: left;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 8px 6px 8px;
+    overflow: hidden;
+}
+
+.cbSearchInput {
+    width: 424px;
+    height: 22px;
+    display: block;
+    margin-bottom: 6px;
+    font: verdana-11px-antialised;
+    color: #ffffff;
+    padding-left: 4px;
+}
+
+.cbRecipeRows {
+    width: 424px;
+    height: 336px;
+    display: block;
+    overflow: hidden;
+}
+
+.cbRecipeRow {
+    width: 424px;
+    height: 48px;
+    display: block;
+    position: relative;
+    margin-bottom: 6px;
+    --image-source: /images/ui/back-icons;
+    --image-border: 1;
+    cursor: pointer;
+}
+
+.cbRecipeRowHighlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-width: 2px;
+    border-color: #60c0f0;
+    background-color: #60c0f020;
+}
+
+.cbRecipeResultIcon {
+    width: 32px;
+    height: 32px;
+    float: left;
+    margin: 8px 10px 0 8px;
+}
+
+.cbRecipeResultInfo {
+    float: left;
+    height: 48px;
+    display: block;
+    justify-content: center;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.cbRecipeResultName {
+    font: verdana-11px-antialised;
+    color: #60c0f0;
+    display: block;
+    width: 360px;
+    height: 16px;
+}
+
+.cbRecipeResultAmount {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    display: block;
+    width: 360px;
+    height: 14px;
+}
+
+.cbSidePanel {
+    width: 276px;
+    height: 418px;
+    float: right;
+    display: block;
+}
+
+.cbResultBox {
+    width: 256px;
+    height: 100px;
+    display: block;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 8px 8px 8px;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.cbResultIcon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 4px auto;
+    display: block;
+}
+
+.cbResultName {
+    font: verdana-11px-antialised;
+    color: #60c0f0;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.cbResultAmount {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.cbIngredientsBox {
+    width: 256px;
+    height: 200px;
+    display: block;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 8px 8px 8px;
+    margin-bottom: 6px;
+}
+
+.cbIngSlot {
+    width: 240px;
+    height: 40px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.cbIngIcon {
+    width: 32px;
+    height: 32px;
+    float: left;
+    margin-right: 8px;
+    margin-top: 4px;
+}
+
+.cbIngName {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    float: left;
+    margin-top: 6px;
+    width: 160px;
+    height: 14px;
+    overflow: hidden;
+}
+
+.cbIngAmount {
+    font: verdana-11px-antialised;
+    color: #60c0f0;
+    float: left;
+    margin-top: 20px;
+    width: 160px;
+    height: 14px;
+}
+
+.cbIngPlus {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    display: block;
+    text-align: center;
+    width: 240px;
+    height: 10px;
+    margin-bottom: 2px;
+}
+
+.cbCraftBtn {
+    width: 256px;
+    height: 20px;
+    display: block;
+    font: verdana-11px-antialised;
+    text-align: center;
+    color: #80e080;
+    --image-source: /images/ui/buttons-blue;
+    --image-border: 1;
+}
+
+.cbPaginationRow {
+    width: 424px;
+    height: 24px;
+    position: relative;
+    margin-top: 4px;
+}
+
+.cbPrevBtn {
+    width: 40px;
+    height: 12px;
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    font: verdana-11px-antialised;
+}
+
+.cbNextBtn {
+    width: 40px;
+    height: 12px;
+    position: absolute;
+    right: 0;
+    bottom: 6px;
+    font: verdana-11px-antialised;
+}
+
+.cbPageLabel {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    text-align: center;
+    position: absolute;
+    width: 200px;
+    left: 112px;
+    top: 4px;
+}
+
+.cbFooter {
+    width: 732px;
+    height: 28px;
+    margin: 4px 14px 0 14px;
+    display: block;
+}
+
+.cbCloseBtn {
+    float: right;
+    min-width: 60px;
+    height: 10px;
+    --image-source: /images/ui/buttons-red;
+    --image-border: 1;
+}
+
+.cbFooterResultIcon {
+    width: 32px;
+    height: 32px;
+    float: left;
+    margin-right: 8px;
+    margin-top: 2px;
+}
+
+.cbFooterDescription {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    float: left;
+    margin-top: 8px;
+    width: 580px;
+    height: 14px;
+    overflow: hidden;
+}

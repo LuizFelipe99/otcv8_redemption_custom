@@ -1,0 +1,95 @@
+<link href="template/css/runeshop_main.css" />
+
+<html>
+<window id="runeShopWindow" class="runeShopWindow" placement="center"
+    title="Rune Shop" onescape="self:hide()">
+
+    <div class="rsHeader">
+        <label class="rsTitle">Rune Shop</label>
+        <div class="rsBalancePanel">
+            <!-- <label class="rsBalanceLabel">Balance: {{self.playerBalance}}</label> -->
+            <label class="rsDetailPrice" *text="'Balance: ' .. self.playerBalance"></label>
+        </div>
+    </div>
+
+    <div class="rsMainArea">
+
+        <div class="rsRuneGrid" title="Runes">
+            <div class="rsRuneCards" layout="type: grid; cell-size: 108 88; cell-spacing: 4; num-columns: 4">
+                <div *for="local rune in self.visibleRunes"
+                    class="rsRuneCard"
+                    onclick="self:selectRune(rune.index)">
+                    <div class="rsRuneCardHighlight" *visible="self.selectedRuneIndex == rune.index"></div>
+                    <label class="rsRuneName">{{rune.shortName}}</label>
+                    <UIItem class="rsRuneItem"
+                        *visible="rune.clientId and rune.clientId > 0"
+                        *item-id="rune.clientId or 1"
+                        virtual="true"></UIItem>
+                </div>
+            </div>
+
+            <div class="rsPaginationRow">
+                <button class="rsPrevBtn"
+                    *visible="self.currentPage > 1"
+                    onclick="self:prevPage()"
+                    text="Prev"></button>
+                <label class="rsPageLabel">{{self.pageLabel}}</label>
+                <button class="rsNextBtn"
+                    *visible="self.currentPage < self.totalPages"
+                    onclick="self:nextPage()"
+                    text="Next"></button>
+            </div>
+        </div>
+
+        <div class="rsDetailPanel" style="float:right;">
+
+            <div class="rsDetailHeader" title="Selected Rune">
+                <UIItem class="rsDetailItem"
+                    *visible="self.selectedClientId and self.selectedClientId > 0"
+                    *item-id="self.selectedClientId or 1"
+                    virtual="true"></UIItem>
+                <label class="rsDetailName">{{self.selectedRuneName}}</label>
+                <!-- <label class="rsDetailPrice">{{self.selectedRunePrice}}</label> -->
+                <label class="rsDetailPrice" *text="self.selectedRunePrice .. ' gold each'"></label>
+            </div>
+
+            <div class="rsQuantityPanel" title="Quantity">
+                <label class="rsQuantityTitle">Select Quantity:</label>
+
+                <RadioGroup id="quantityRadioGroup" />
+
+                <RadioButton id="qty100" class="rsRadioBtn" text="100 runes"
+                    *checked="self.selectedQuantity == 100"
+                    onclick="self:selectQuantity(100)"/>
+
+                <RadioButton id="qty300" class="rsRadioBtn" text="300 runes"
+                    *checked="self.selectedQuantity == 300"
+                    onclick="self:selectQuantity(300)"/>
+
+                <RadioButton id="qty500" class="rsRadioBtn" text="500 runes"
+                    *checked="self.selectedQuantity == 500"
+                    onclick="self:selectQuantity(500)"/>
+
+                <RadioButton id="qty1000" class="rsRadioBtn" text="1000 runes"
+                    *checked="self.selectedQuantity == 1000"
+                    onclick="self:selectQuantity(1000)"/>
+            </div>
+
+            <div class="rsTotalPanel" title="Total">
+                <label class="rsTotalLabel">Total:</label>
+                <label class="rsTotalValue">{{self.totalPrice }} -gold</label>
+            </div>
+
+            <button class="rsBuyBtn" onclick="self:buyRune()">{{self.buyBtnText}}</button>
+
+        </div>
+    </div>
+
+    <hr style="height: 2px; width: 97%; margin-left:12px">
+
+    <div class="rsFooter">
+        <button class="rsCloseBtn" onclick="self:hide()" text="Exit"></button>
+    </div>
+
+</window>
+</html>

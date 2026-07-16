@@ -1,0 +1,1149 @@
+CraftBenchRecipeRow < UICheckBox
+  height: 48
+  margin-bottom: 1
+  padding: 6
+  focusable: false
+  border-width: 0
+  border-color: alpha
+  background-color: #2e2e2e
+  @onClick: modules.game_craftbench.onRecipeRowClicked(self)
+
+  UIItem
+    id: icon
+    size: 32 32
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    border-width: 2
+    border-color: #9d9d9d
+    virtual: true
+
+  Label
+    id: classificationBadge
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-top: 6
+    margin-right: 6
+    font: verdana-11px-antialised
+    color: #4a90d9
+    text-auto-resize: true
+    visible: false
+
+  Label
+    id: name
+    anchors.left: icon.right
+    anchors.top: parent.top
+    anchors.right: classificationBadge.left
+    margin-left: 10
+    margin-top: 6
+    margin-right: 6
+    font: verdana-11px-antialised
+    color: #e0e0e0
+    text-auto-resize: false
+    text-wrap: false
+
+  Label
+    id: subtitle
+    anchors.left: icon.right
+    anchors.top: name.bottom
+    margin-left: 10
+    margin-top: 2
+    font: verdana-11px-antialised
+    color: #888888
+    text-auto-resize: true
+
+  $checked:
+    background-color: #1c3d5c
+    border-width: 1
+    border-color: #4a90d9
+
+CraftBenchIngredientSlot < UIWidget
+  height: 44
+  margin-bottom: 4
+  background-color: #2a2a2a
+  border-width: 1
+  border-color: #3a3a3a
+
+  UIItem
+    id: icon
+    size: 32 32
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 8
+    virtual: true
+
+  Label
+    id: name
+    anchors.left: icon.right
+    anchors.top: parent.top
+    margin-left: 10
+    margin-top: 8
+    font: verdana-11px-antialised
+    color: #d0d0d0
+    text-auto-resize: true
+
+  Label
+    id: amount
+    anchors.left: icon.right
+    anchors.top: name.bottom
+    margin-left: 10
+    margin-top: 2
+    font: verdana-11px-antialised
+    color: #4a90d9
+    text-auto-resize: true
+
+CraftBenchResourceSlot < UIWidget
+  height: 32
+  background-color: #252525
+  border-width: 1
+  border-color: #3a3a3a
+
+  UIItem
+    id: icon
+    size: 20 20
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    virtual: true
+
+  Label
+    id: amount
+    anchors.left: icon.right
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 6
+    margin-right: 4
+    font: verdana-11px-antialised
+    color: #e0e0e0
+    text: 0
+    text-auto-resize: false
+    text-wrap: false
+
+CraftBenchFilterToggle < UICheckBox
+  height: 20
+  focusable: false
+  border-width: 1
+  border-color: #3a3a3a
+  background-color: #1c1c1c
+  color: #aaaaaa
+  font: verdana-11px-antialised
+  text-align: center
+
+  $checked:
+    background-color: #1c3d5c
+    border-width: 1
+    border-color: #4a90d9
+
+MainWindow
+  id: craftBenchWindow
+  size: 720 590
+  @onEscape: modules.game_craftbench.hide()
+
+  Panel
+    id: resourceBar
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 36
+    background-color: #1a1a1a
+
+    CraftBenchResourceSlot
+      id: goldSlot
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      width: 160
+
+    CraftBenchResourceSlot
+      id: goldenRubyNv1
+      anchors.left: goldSlot.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: goldenRubyNv2
+      anchors.left: goldenRubyNv1.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: goldenRubyNv3
+      anchors.left: goldenRubyNv2.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: goldenRubyNv4
+      anchors.left: goldenRubyNv3.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: platinumRubyNv1
+      anchors.left: goldenRubyNv4.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: platinumRubyNv2
+      anchors.left: platinumRubyNv1.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: platinumRubyNv3
+      anchors.left: platinumRubyNv2.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 76
+
+    CraftBenchResourceSlot
+      id: platinumRubyNv4
+      anchors.left: platinumRubyNv3.right
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+
+  Panel
+    id: tabBar
+    anchors.top: resourceBar.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 26
+    background-color: #1e1e1e
+
+    Button
+      id: craftTabButton
+      anchors.left: parent.left
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      width: 240
+      font: verdana-11px-antialised
+      text: Craft
+      @onClick: modules.game_craftbench.switchTab("craft")
+
+    Button
+      id: desmancheTabButton
+      anchors.left: craftTabButton.right
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      width: 240
+      font: verdana-11px-antialised
+      text: Dismantle
+      @onClick: modules.game_craftbench.switchTab("desmanche")
+
+    Button
+      id: fusaoTabButton
+      anchors.left: desmancheTabButton.right
+      anchors.right: parent.right
+      anchors.top: parent.top
+      anchors.bottom: parent.bottom
+      font: verdana-11px-antialised
+      text: Fusion
+      @onClick: modules.game_craftbench.switchTab("fusao")
+
+  Panel
+    id: craftTab
+    anchors.top: tabBar.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: footerSeparator.top
+    margin-bottom: 10
+
+    Panel
+      id: leftPanel
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      width: 220
+
+      Label
+        id: listHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        margin-bottom: 4
+        text: Craftable Items
+        font: verdana-11px-antialised
+        color: #aaaaaa
+        text-align: center
+        background-color: #252525
+
+      ComboBox
+        id: classFilterComboBox
+        anchors.top: listHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 22
+        margin-top: 4
+        @onOptionChange: modules.game_craftbench.onCategoryFilterChange("craft", self)
+
+      Panel
+        id: materialFilterBar
+        anchors.top: classFilterComboBox.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 22
+        margin-top: 4
+
+        CraftBenchFilterToggle
+          id: materialGoldToggle
+          anchors.left: parent.left
+          anchors.top: parent.top
+          anchors.bottom: parent.bottom
+          width: 109
+          text: Gold material
+          @onCheckChange: modules.game_craftbench.setMaterialFilter("craft", "gold", self:isChecked())
+
+        CraftBenchFilterToggle
+          id: materialPlatinumToggle
+          anchors.left: materialGoldToggle.right
+          anchors.right: parent.right
+          anchors.top: parent.top
+          anchors.bottom: parent.bottom
+          margin-left: 2
+          text: Platinum material
+          @onCheckChange: modules.game_craftbench.setMaterialFilter("craft", "platinum", self:isChecked())
+
+      TextEdit
+        id: searchInput
+        anchors.top: materialFilterBar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        margin-top: 4
+        margin-bottom: 4
+        placeholder: Search recipe...
+        @onTextChange: modules.game_craftbench.onSearchChange("craft", self:getText())
+
+      FlatPanel
+        id: recipeListPanel
+        anchors.top: searchInput.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-top: 4
+        padding: 2
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        UIScrollArea
+          id: recipeRows
+          anchors.fill: parent
+          margin-right: 14
+          vertical-scrollbar: recipeScrollBar
+          layout:
+            type: verticalBox
+
+        VerticalScrollBar
+          id: recipeScrollBar
+          anchors.top: recipeRows.top
+          anchors.bottom: recipeRows.bottom
+          anchors.right: parent.right
+          step: 48
+          pixels-scroll: true
+
+    Panel
+      id: rightPanel
+      anchors.top: parent.top
+      anchors.left: leftPanel.right
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-left: 10
+
+      Label
+        id: processHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        text: Crafting Process
+        font: verdana-11px-antialised
+        color: #aaaaaa
+        text-align: center
+        background-color: #252525
+
+      FlatPanel
+        id: ingredientsPanel
+        anchors.top: processHeader.bottom
+        anchors.left: parent.left
+        width: 260
+        anchors.bottom: resultSeparator.top
+        margin-top: 6
+        margin-bottom: 6
+        padding: 6
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Label
+          id: ingredientsHeader
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Ingredients
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        UIScrollArea
+          id: ingredientSlots
+          anchors.top: ingredientsHeader.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
+          margin-top: 4
+          margin-right: 14
+          vertical-scrollbar: ingredientScrollBar
+          layout:
+            type: verticalBox
+
+        VerticalScrollBar
+          id: ingredientScrollBar
+          anchors.top: ingredientSlots.top
+          anchors.bottom: ingredientSlots.bottom
+          anchors.right: parent.right
+          step: 44
+          pixels-scroll: true
+
+      HorizontalSeparator
+        id: resultSeparator
+        anchors.left: parent.left
+        width: 260
+        anchors.bottom: resultPanel.top
+        margin-bottom: 6
+
+      FlatPanel
+        id: resultPanel
+        anchors.left: parent.left
+        width: 260
+        anchors.bottom: actionButton.top
+        height: 120
+        margin-bottom: 6
+        padding: 6
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Label
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Result
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        UIItem
+          id: resultIcon
+          size: 32 32
+          anchors.top: prev.bottom
+          anchors.left: parent.left
+          margin-top: 4
+          margin-left: 8
+          border-width: 2
+          border-color: #9d9d9d
+          virtual: true
+          visible: false
+
+        Label
+          id: resultName
+          anchors.left: resultIcon.right
+          anchors.verticalCenter: resultIcon.verticalCenter
+          margin-left: 10
+          font: verdana-11px-antialised
+          color: #60c0f0
+          text: Select a recipe
+          text-auto-resize: true
+
+        Label
+          id: resultAmount
+          anchors.top: resultIcon.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 2
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        Label
+          id: costLabel
+          anchors.top: resultAmount.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 4
+          font: verdana-11px-antialised
+          color: #f0c060
+          text-auto-resize: true
+          visible: false
+
+        Label
+          id: chanceLabel
+          anchors.top: costLabel.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 2
+          font: verdana-11px-antialised
+          color: #d0a0f0
+          text-auto-resize: true
+          visible: false
+
+      Button
+        id: actionButton
+        anchors.left: parent.left
+        width: 220
+        anchors.bottom: parent.bottom
+        height: 24
+        !text: tr('CRAFT')
+        @onClick: modules.game_craftbench.performTabAction()
+
+      FlatPanel
+        id: descriptionPanel
+        anchors.top: processHeader.bottom
+        anchors.left: ingredientsPanel.right
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-top: 6
+        margin-left: 10
+        padding: 8
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Panel
+          id: descriptionIconFrame
+          size: 270 119
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 8
+          image-source: /images/custom/icon-masterylevel-6
+
+        UIItem
+          id: descriptionIcon
+          size: 44 44
+          anchors.horizontalCenter: descriptionIconFrame.horizontalCenter
+          anchors.verticalCenter: descriptionIconFrame.verticalCenter
+          virtual: true
+          visible: false
+          margin-bottom: 6
+          margin-right: 4
+
+        Label
+          id: descriptionName
+          anchors.top: descriptionIconFrame.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 3
+          font: verdana-11px-antialised
+          color: #4a90d9
+          text-align: center
+          image-source: /images/custom/moldura_text
+          size: 180 40
+
+        Label
+          id: descriptionText
+          anchors.top: descriptionName.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+          margin-left: 6
+          margin-right: 6
+          font: verdana-11px-antialised
+          color: #aaaaaa
+          text-wrap: true
+          text-auto-resize: true
+
+  Panel
+    id: desmancheTab
+    anchors.top: tabBar.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: footerSeparator.top
+    margin-bottom: 10
+    visible: false
+
+    Panel
+      id: leftPanel
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      width: 220
+
+      Label
+        id: listHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        margin-bottom: 4
+        text: Dismantlable Items
+        font: verdana-11px-antialised
+        color: #aaaaaa
+        text-align: center
+        background-color: #252525
+
+      ComboBox
+        id: classFilterComboBox
+        anchors.top: listHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 22
+        margin-top: 4
+        @onOptionChange: modules.game_craftbench.onCategoryFilterChange("desmanche", self)
+
+      Panel
+        id: materialFilterBar
+        anchors.top: classFilterComboBox.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 22
+        margin-top: 4
+
+        CraftBenchFilterToggle
+          id: materialGoldToggle
+          anchors.left: parent.left
+          anchors.top: parent.top
+          anchors.bottom: parent.bottom
+          width: 109
+          text: Gold material
+          @onCheckChange: modules.game_craftbench.setMaterialFilter("desmanche", "gold", self:isChecked())
+
+        CraftBenchFilterToggle
+          id: materialPlatinumToggle
+          anchors.left: materialGoldToggle.right
+          anchors.right: parent.right
+          anchors.top: parent.top
+          anchors.bottom: parent.bottom
+          margin-left: 2
+          text: Platinum material
+          @onCheckChange: modules.game_craftbench.setMaterialFilter("desmanche", "platinum", self:isChecked())
+
+      CraftBenchFilterToggle
+        id: ownedOnlyCheckbox
+        anchors.top: materialFilterBar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 4
+        text: Only items I own
+        @onCheckChange: modules.game_craftbench.setOwnedOnlyFilter("desmanche", self:isChecked())
+
+      TextEdit
+        id: searchInput
+        anchors.top: ownedOnlyCheckbox.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        margin-top: 4
+        margin-bottom: 4
+        placeholder: Search item...
+        @onTextChange: modules.game_craftbench.onSearchChange("desmanche", self:getText())
+
+      FlatPanel
+        id: recipeListPanel
+        anchors.top: searchInput.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-top: 4
+        padding: 2
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        UIScrollArea
+          id: recipeRows
+          anchors.fill: parent
+          margin-right: 14
+          vertical-scrollbar: recipeScrollBar
+          layout:
+            type: verticalBox
+
+        VerticalScrollBar
+          id: recipeScrollBar
+          anchors.top: recipeRows.top
+          anchors.bottom: recipeRows.bottom
+          anchors.right: parent.right
+          step: 48
+          pixels-scroll: true
+
+    Panel
+      id: rightPanel
+      anchors.top: parent.top
+      anchors.left: leftPanel.right
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-left: 10
+
+      Label
+        id: processHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        text: Dismantling Process
+        font: verdana-11px-antialised
+        color: #aaaaaa
+        text-align: center
+        background-color: #252525
+
+      FlatPanel
+        id: ingredientsPanel
+        anchors.top: processHeader.bottom
+        anchors.left: parent.left
+        width: 260
+        anchors.bottom: resultSeparator.top
+        margin-top: 6
+        margin-bottom: 6
+        padding: 6
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Label
+          id: ingredientsHeader
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Resulting materials
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        UIScrollArea
+          id: ingredientSlots
+          anchors.top: ingredientsHeader.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
+          margin-top: 4
+          margin-right: 14
+          vertical-scrollbar: ingredientScrollBar
+          layout:
+            type: verticalBox
+
+        VerticalScrollBar
+          id: ingredientScrollBar
+          anchors.top: ingredientSlots.top
+          anchors.bottom: ingredientSlots.bottom
+          anchors.right: parent.right
+          step: 44
+          pixels-scroll: true
+
+      HorizontalSeparator
+        id: resultSeparator
+        anchors.left: parent.left
+        width: 260
+        anchors.bottom: resultPanel.top
+        margin-bottom: 6
+
+      FlatPanel
+        id: resultPanel
+        anchors.left: parent.left
+        width: 260
+        anchors.bottom: actionButton.top
+        height: 120
+        margin-bottom: 6
+        padding: 6
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Label
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Item
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        UIItem
+          id: resultIcon
+          size: 32 32
+          anchors.top: prev.bottom
+          anchors.left: parent.left
+          margin-top: 4
+          margin-left: 8
+          border-width: 2
+          border-color: #9d9d9d
+          virtual: true
+          visible: false
+
+        Label
+          id: resultName
+          anchors.left: resultIcon.right
+          anchors.verticalCenter: resultIcon.verticalCenter
+          margin-left: 10
+          font: verdana-11px-antialised
+          color: #60c0f0
+          text: Select an item
+          text-auto-resize: true
+
+        Label
+          id: resultAmount
+          anchors.top: resultIcon.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 2
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        Label
+          id: costLabel
+          anchors.top: resultAmount.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 4
+          font: verdana-11px-antialised
+          color: #f0c060
+          text-auto-resize: true
+          visible: false
+
+        Label
+          id: chanceLabel
+          anchors.top: costLabel.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 2
+          font: verdana-11px-antialised
+          color: #d0a0f0
+          text-auto-resize: true
+          visible: false
+
+      Button
+        id: actionButton
+        anchors.left: parent.left
+        width: 220
+        anchors.bottom: parent.bottom
+        height: 24
+        !text: tr('DISMANTLE')
+        @onClick: modules.game_craftbench.performTabAction()
+
+      FlatPanel
+        id: descriptionPanel
+        anchors.top: processHeader.bottom
+        anchors.left: ingredientsPanel.right
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-top: 6
+        margin-left: 10
+        padding: 8
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        UIItem
+          id: descriptionIcon
+          size: 48 48
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 8
+          border-width: 2
+          border-color: #9d9d9d
+          virtual: true
+          visible: false
+
+        Label
+          id: descriptionName
+          anchors.top: descriptionIcon.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 8
+          font: verdana-11px-antialised
+          color: #60c0f0
+          text-auto-resize: true
+
+        Label
+          id: descriptionText
+          anchors.top: descriptionName.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+          margin-left: 6
+          margin-right: 6
+          font: verdana-11px-antialised
+          color: #aaaaaa
+          text-wrap: true
+          text-auto-resize: true
+
+  Panel
+    id: fusaoTab
+    anchors.top: tabBar.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: footerSeparator.top
+    margin-bottom: 10
+    visible: false
+
+    Panel
+      id: leftPanel
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      width: 220
+
+      Label
+        id: listHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        margin-bottom: 4
+        text: Fusable Items
+        font: verdana-11px-antialised
+        color: #aaaaaa
+        text-align: center
+        background-color: #252525
+
+      TextEdit
+        id: searchInput
+        anchors.top: listHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        margin-top: 4
+        margin-bottom: 4
+        placeholder: Search fusion...
+        @onTextChange: modules.game_craftbench.onSearchChange("fusao", self:getText())
+
+      FlatPanel
+        id: recipeListPanel
+        anchors.top: searchInput.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-top: 4
+        padding: 2
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        UIScrollArea
+          id: recipeRows
+          anchors.fill: parent
+          margin-right: 14
+          vertical-scrollbar: recipeScrollBar
+          layout:
+            type: verticalBox
+
+        VerticalScrollBar
+          id: recipeScrollBar
+          anchors.top: recipeRows.top
+          anchors.bottom: recipeRows.bottom
+          anchors.right: parent.right
+          step: 48
+          pixels-scroll: true
+
+    Panel
+      id: rightPanel
+      anchors.top: parent.top
+      anchors.left: leftPanel.right
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-left: 10
+
+      Label
+        id: processHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
+        text: Fusion Process
+        font: verdana-11px-antialised
+        color: #aaaaaa
+        text-align: center
+        background-color: #252525
+
+      FlatPanel
+        id: ingredientsPanel
+        anchors.top: processHeader.bottom
+        anchors.left: parent.left
+        width: 220
+        anchors.bottom: resultSeparator.top
+        margin-top: 6
+        margin-bottom: 6
+        padding: 6
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Label
+          id: ingredientsHeader
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Items to fuse
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        UIScrollArea
+          id: ingredientSlots
+          anchors.top: ingredientsHeader.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.bottom: parent.bottom
+          margin-top: 4
+          margin-right: 14
+          vertical-scrollbar: ingredientScrollBar
+          layout:
+            type: verticalBox
+
+        VerticalScrollBar
+          id: ingredientScrollBar
+          anchors.top: ingredientSlots.top
+          anchors.bottom: ingredientSlots.bottom
+          anchors.right: parent.right
+          step: 44
+          pixels-scroll: true
+
+      HorizontalSeparator
+        id: resultSeparator
+        anchors.left: parent.left
+        width: 220
+        anchors.bottom: resultPanel.top
+        margin-bottom: 6
+
+      FlatPanel
+        id: resultPanel
+        anchors.left: parent.left
+        width: 220
+        anchors.bottom: actionButton.top
+        height: 120
+        margin-bottom: 6
+        padding: 6
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        Label
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Result
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        UIItem
+          id: resultIcon
+          size: 32 32
+          anchors.top: prev.bottom
+          anchors.left: parent.left
+          margin-top: 4
+          margin-left: 8
+          border-width: 2
+          border-color: #9d9d9d
+          virtual: true
+          visible: false
+
+        Label
+          id: resultName
+          anchors.left: resultIcon.right
+          anchors.verticalCenter: resultIcon.verticalCenter
+          margin-left: 10
+          font: verdana-11px-antialised
+          color: #60c0f0
+          text: Select a fusion
+          text-auto-resize: true
+
+        Label
+          id: resultAmount
+          anchors.top: resultIcon.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 2
+          font: verdana-11px-antialised
+          color: #888888
+          text-auto-resize: true
+
+        Label
+          id: costLabel
+          anchors.top: resultAmount.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 4
+          font: verdana-11px-antialised
+          color: #f0c060
+          text-auto-resize: true
+          visible: false
+
+        Label
+          id: chanceLabel
+          anchors.top: costLabel.bottom
+          anchors.left: parent.left
+          margin-left: 8
+          margin-top: 2
+          font: verdana-11px-antialised
+          color: #d0a0f0
+          text-auto-resize: true
+          visible: false
+
+      Button
+        id: actionButton
+        anchors.left: parent.left
+        width: 220
+        anchors.bottom: parent.bottom
+        height: 24
+        !text: tr('FUSE')
+        @onClick: modules.game_craftbench.performTabAction()
+
+      FlatPanel
+        id: descriptionPanel
+        anchors.top: processHeader.bottom
+        anchors.left: ingredientsPanel.right
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        margin-top: 6
+        margin-left: 10
+        padding: 8
+        image-source: /images/ui/panel_flat
+        image-border: 1
+
+        UIItem
+          id: descriptionIcon
+          size: 48 48
+          anchors.top: parent.top
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 8
+          border-width: 2
+          border-color: #9d9d9d
+          virtual: true
+          visible: false
+
+        Label
+          id: descriptionName
+          anchors.top: descriptionIcon.bottom
+          anchors.horizontalCenter: parent.horizontalCenter
+          margin-top: 8
+          font: verdana-11px-antialised
+          color: #60c0f0
+          text-auto-resize: true
+
+        Label
+          id: descriptionText
+          anchors.top: descriptionName.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          margin-top: 8
+          margin-left: 6
+          margin-right: 6
+          font: verdana-11px-antialised
+          color: #aaaaaa
+          text-wrap: true
+          text-auto-resize: true
+
+  HorizontalSeparator
+    id: footerSeparator
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: statusBanner.top
+    margin-bottom: 6
+
+  Label
+    id: statusBanner
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: footer.top
+    height: 20
+    margin-bottom: 4
+    font: verdana-11px-antialised
+    text-align: center
+    text: ""
+    visible: false
+
+  Panel
+    id: footer
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 28
+
+    Button
+      id: closeButton
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 60
+      !text: tr('Close')
+      @onClick: modules.game_craftbench.hide()

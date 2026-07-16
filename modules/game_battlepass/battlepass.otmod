@@ -1,0 +1,9 @@
+Module
+  name: game_battlepass
+  description: Battle Pass
+  author: CrystalServer
+  sandboxed: true
+  autoload: true
+  scripts: [ battlepass ]
+  @onLoad: init()
+  @onUnload: terminate()

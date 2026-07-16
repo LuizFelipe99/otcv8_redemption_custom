@@ -1,0 +1,306 @@
+.runeShopWindow {
+    width: 800px;
+    height: 560px;
+    display: block;
+}
+
+.rsHeader {
+    width: 770px;
+    height: 24px;
+    margin: 6px 14px 2px 14px;
+    display: block;
+}
+
+.rsTitle {
+    font: verdana-11px-antialised;
+    color: #f0c060;
+    float: left;
+    margin-top: 4px;
+}
+
+.rsBalancePanel {
+    float: right;
+    height: 22px;
+    width: 150px;
+    --image-source: /images/ui/infoPanel;
+    --image-border: 2;
+}
+
+.rsBalanceLabel {
+    font: verdana-11px-rounded;
+    color: #c0c0c0;
+    /* text-align: center; */
+    width: 100%;
+    height: 100%;
+    margin-top: 3px;
+    display: block;
+}
+
+.rsMainArea {
+    width: 772px;
+    height: 466px;
+    margin: 4px 14px 0 14px;
+    display: block;
+}
+
+.rsRuneGrid {
+    width: 490px;
+    height: 466px;
+    float: left;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 6px 6px 6px;
+    overflow: hidden;
+}
+
+.rsRuneCards {
+    width: 478px;
+    height: 406px;
+    display: block;
+    overflow: hidden;
+}
+
+.rsRuneCard {
+    width: 108px;
+    height: 88px;
+    text-align: center;
+    position: relative;
+    --image-source: /images/ui/back-icons;
+    --image-border: 1;
+    cursor: pointer;
+}
+
+.rsRuneCardHighlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-width: 2px;
+    border-color: #f0c060;
+    background-color: #f0c06030;
+}
+
+.rsRuneCardSelected {
+    border-width: 2px;
+    border-color: #f0c060;
+    background-color: #f0c06020;
+}
+
+.rsRuneItem {
+    width: 32px;
+    height: 32px;
+    margin: 6px auto 0 auto;
+    display: block;
+}
+
+.rsRuneName {
+    color: #c0c0c0;
+    display: block;
+    text-align: center;
+    width: 108px;
+    height: 14px;
+    margin-top: 2px;
+}
+
+.rsRunePrice {
+    font: verdana-11px-antialised;
+    color: #f0c060;
+    display: block;
+    text-align: center;
+    width: 108px;
+    margin-top: 0px;
+}
+
+
+.rsDetailPanel {
+    width: 264px;
+    height: 466px;
+    float: right;
+    display: block;
+}
+
+.rsDetailHeader {
+    width: 244px;
+    height: 100px;
+    display: block;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 8px 6px 8px;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.rsDetailItem {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 4px auto;
+    display: block;
+}
+
+.rsDetailName {
+    font: verdana-11px-antialised;
+    color: #f0c060;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+.rsDetailPrice {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.rsQuantityPanel {
+    width: 244px;
+    height: 160px;
+    display: block;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 8px 8px 8px;
+    margin-bottom: 6px;
+}
+
+.rsQuantityTitle {
+    font: verdana-11px-antialised;
+    color: #ffffff;
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.rsQuantityBtn {
+    width: 220px;
+    height: 22px;
+    display: block;
+    margin: 3px auto;
+    font: verdana-11px-antialised;
+}
+
+.rsQuantityBtnSelected {
+    --image-clip: 0 46 22 23;
+    --image-border: 3;
+}
+
+.rsTotalPanel {
+    width: 244px;
+    height: 50px;
+    display: block;
+    --image-source: /images/ui/window_new;
+    --image-border: 30;
+    padding: 25px 8px 6px 8px;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.rsTotalLabel {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    float: left;
+    margin-left: 8px;
+}
+
+.rsTotalValue {
+    font: verdana-11px-antialised;
+    color: #f0c060;
+    float: right;
+    margin-right: 8px;
+}
+
+.rsBuyBtn {
+    width: 244px;
+    height: 16px;
+    display: block;
+    font: verdana-11px-antialised;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #80e080;
+    --image-source: /images/ui/buttons-blue;
+    --image-border: 1;
+}
+
+.rsFooter {
+    width: 772px;
+    height: 28px;
+    margin: 4px 14px 0 14px;
+    display: block;
+}
+
+.rsCloseBtn {
+    float: right;
+    min-width: 60px;
+    height: 10px;
+     --image-source: /images/ui/buttons-red;
+    --image-border: 1;
+    
+}
+
+.rsPaginationRow {
+    width: 478px;
+    height: 24px;
+    
+    /* display: block; */
+    position: relative;
+}
+
+.rsPrevBtn {
+    width: 40px;
+    height: 12px;
+    position: absolute;
+    /* left: 10px; */
+    bottom: 10px;
+    font: verdana-11px-antialised;
+}
+
+.rsNextBtn {
+    width: 40px;
+    height: 12px;
+    position: absolute;
+    right: 17px;
+    bottom: 10px;
+    font: verdana-11px-antialised;
+}
+
+.rsPageLabel {
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    text-align: center;
+    position: absolute;
+    width: 200px;
+    left: 139px;
+    top: 4px;
+}
+
+.rsRadioBtn {
+    width: 220px;
+    height: 16px;
+    display: block;
+    margin: 4px auto;
+    font: verdana-11px-antialised;
+    color: #c0c0c0;
+    text-align: left;
+    padding-left: 18px;
+    --text-offset: 18 0;
+    --image-source: /images/ui/checkbox;
+    --image-clip: 0 0 12 12;
+    --image-size: 12 12;
+}
+
+.rsRadioBtn:checked {
+    --image-clip: 0 12 12 12;
+}
+
+.rsRadioBtn:disabled {
+    --image-clip: 0 24 12 12;
+}
+
+.rsRadioBtn:hover {
+    color: #ffffff;
+}
