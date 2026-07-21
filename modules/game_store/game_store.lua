@@ -1282,3 +1282,13 @@ function search()
     end
     g_game.sendRequestStoreSearch(controllerShop.ui.SearchEdit:getText(), 0, 1)
 end
+
+function onSearchEditKeyPress(widget, keyCode, keyboardModifiers)
+  local isEnterKey = keyCode == KeyEnter or keyCode == KeyReturn
+
+  if not isEnterKey then
+    return
+  end
+
+  search()
+end

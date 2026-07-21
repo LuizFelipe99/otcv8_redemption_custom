@@ -1094,7 +1094,7 @@ ForgeController.conversion = {
     dustMaxIncreaseCost = 100,
     dustToSilverLabel = "Generate 3",
     sliverToCoreLabel = "Generate 1",
-    dustMaxLabel = "Raise limit from\n100 to 101",
+    dustMaxLabel = "Limit from\n100 to 101",
     disableDustConversion = true,
     disableSliverConversion = true,
     disableIncreaseDustLimit = true,
@@ -1120,7 +1120,7 @@ function ForgeController.conversion.handleButtons()
         ForgeController.conversion.dustMaxLabel = "Maximum Reached"
         ForgeController.conversion.disableIncreaseDustLimit = true
     else
-        ForgeController.conversion.dustMaxLabel = string.format("Raise limit from\n%d to %d", dustMax, dustMax + 1)
+        ForgeController.conversion.dustMaxLabel = string.format("Limit from\n%d to %d", dustMax, dustMax + 1)
     end
 end
 

@@ -1,18 +1,18 @@
 local BATTLEPASS_OPCODE = 10
 
-local CURRENT_DAY_BORDER_COLOR  = "#c28400"
-local CURRENT_DAY_BG_COLOR      = "#26200a"
-local DEFAULT_DAY_BG_COLOR      = "#18162a"
-local DEFAULT_DAY_BORDER_COLOR  = "#2e2b4a"
-local SELECTED_DAY_BG_COLOR     = "#12213a"
+local CURRENT_DAY_BORDER_COLOR  = "#c0c0c0"
+local CURRENT_DAY_BG_COLOR      = "#262626"
+local DEFAULT_DAY_BG_COLOR      = "#262626"
+local DEFAULT_DAY_BORDER_COLOR  = "#3a3a3a"
+local SELECTED_DAY_BG_COLOR     = "#262626"
 local SELECTED_DAY_BORDER_COLOR = "#4a90d9"
-local DONE_DAY_BG_COLOR         = "#0a2a0a"
-local DONE_DAY_BORDER_COLOR     = "#3a9a3a"
-local DONE_DAY_STATUS_COLOR     = "#5c5878"
-local LOCKED_DAY_STATUS_COLOR   = "#585070"
-local CURRENT_DAY_STATUS_COLOR  = "#c08000"
-local PRO_REWARD_BORDER_COLOR   = "#6a4a00"
-local FREE_REWARD_BORDER_COLOR  = "#1a4a1a"
+local DONE_DAY_BG_COLOR         = "#262626"
+local DONE_DAY_BORDER_COLOR     = "#4caf50"
+local DONE_DAY_STATUS_COLOR     = "#4caf50"
+local LOCKED_DAY_STATUS_COLOR   = "#707070"
+local CURRENT_DAY_STATUS_COLOR  = "#c0c0c0"
+local PRO_REWARD_BORDER_COLOR   = "#6b5b3a"
+local FREE_REWARD_BORDER_COLOR  = "#3a5a3a"
 
 local battlePassWindow
 local battlePassButton
@@ -198,8 +198,8 @@ end
 
 local function updateFooter()
     local footer = battlePassWindow.footer
-    applyItemWidget(footer.finalItem, finalRewardItemId)
-    footer.finalItemName:setText(finalRewardLabel)
+    applyItemWidget(footer.finalRewardFrame.finalItem, finalRewardItemId)
+    footer.finalRewardFrame.finalItemName:setText(finalRewardLabel)
     footer.dayCounterLabel:setText(dayCounterText)
 end
 

@@ -55,7 +55,6 @@ Module
     - game_forge
     - game_tutorial
     - game_inspect
-    - game_taskboard
     - game_wheel
     - game_proficiency
     - game_battlepass
@@ -64,6 +63,7 @@ Module
     - game_craftbench
     - game_elementalbuild
     - game_potioncooldown
+    - game_tasks_mission
 
   @onLoad: init()
   @onUnload: terminate()

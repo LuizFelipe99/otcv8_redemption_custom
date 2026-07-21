@@ -1,8 +1,8 @@
 BattlePassDay < UIWidget
   size: 90 70
-  background-color: #18162a
+  background-color: #262626
   border-width: 1
-  border-color: #2e2b4a
+  border-color: #3a3a3a
   focusable: false
   @onClick: modules.game_battlepass.onDayClicked(self)
 
@@ -13,7 +13,7 @@ BattlePassDay < UIWidget
     anchors.right: parent.right
     margin-top: 8
     font: verdana-11px-antialised
-    color: #8078a0
+    color: #909090
     text-align: center
     phantom: true
 
@@ -33,54 +33,55 @@ BattlePassDay < UIWidget
     anchors.right: parent.right
     margin-bottom: 8
     font: verdana-11px-antialised
-    color: #585070
+    color: #707070
     text: Locked
     text-align: center
     phantom: true
 
   $current:
     border-width: 2
-    border-color: #c28400
-    background-color: #26200a
+    border-color: #c0c0c0
 
   $done:
     border-width: 2
+    border-color: #4caf50
 
 BattlePassRewardItem < UIWidget
-  size: 84 125
+  size: 84 130
   focusable: false
 
   UIItem
     id: icon
-    size: 36 36
+    size: 34 34
     anchors.top: parent.top
     anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 10
     virtual: true
-    border-width: 1
-    border-color: #2e2b4a
 
   Label
     id: qty
-    anchors.top: icon.bottom
+    size: 50 14
+    anchors.top: parent.top
     anchors.horizontalCenter: parent.horizontalCenter
-    margin-top: 3
+    margin-top: 62
     font: verdana-11px-antialised
-    color: #a89cc0
+    color: #f0ded0
     text-align: center
-    text-auto-resize: true
 
   Label
     id: itemName
-    anchors.top: qty.bottom
+    anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
-    margin-top: 2
+    margin-top: 78
+    margin-left: 5
+    margin-right: 5
     font: verdana-11px-antialised
-    color: #6c6488
+    color: #a0a0a0
     text-align: center
     text-wrap: true
     text-auto-resize: false
-    height: 72
+    height: 48
 
 MainWindow
   id: battlePassWindow
@@ -103,7 +104,7 @@ MainWindow
     anchors.left: parent.left
     anchors.right: parent.right
     height: 24
-    background-color: #1c1930
+    background-color: #262626
 
     Label
       id: seasonLabel
@@ -111,7 +112,7 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-left: 8
       font: verdana-11px-antialised
-      color: #e0b050
+      color: #c0c0c0
       text-auto-resize: true
 
     Label
@@ -120,7 +121,7 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-right: 12
       font: verdana-11px-antialised
-      color: #e0b050
+      color: #c0c0c0
       text-auto-resize: true
 
     Label
@@ -129,7 +130,7 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-right: 8
       font: verdana-11px-antialised
-      color: #8078a0
+      color: #808080
       text-auto-resize: true
 
   Panel
@@ -139,7 +140,7 @@ MainWindow
     anchors.right: parent.right
     height: 24
     margin-top: 4
-    background-color: #1c1930
+    background-color: #262626
 
     Label
       id: progressLabel
@@ -147,7 +148,7 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-left: 8
       font: verdana-11px-antialised
-      color: #8078a0
+      color: #808080
       text: PROGRESS:
       text-auto-resize: true
 
@@ -159,7 +160,7 @@ MainWindow
       margin-left: 8
       margin-right: 12
       height: 16
-      background-color: #8a5a00
+      background-color: #cce6a3
 
     Label
       id: progressSideLabel
@@ -168,7 +169,7 @@ MainWindow
       margin-right: 8
       margin-left: 12
       font: verdana-11px-antialised
-      color: #8078a0
+      color: #808080
       text-auto-resize: true
 
   Panel
@@ -179,7 +180,7 @@ MainWindow
     width: 460
     margin-top: 8
     margin-bottom: 12
-    background-color: #18162a
+    background-color: #202020
 
     UIScrollArea
       id: dayScrollArea
@@ -210,10 +211,9 @@ MainWindow
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.bottom: parent.bottom
-      height: 80
-      background-color: #1c1930
-      border-top-width: 1
-      border-color: #2e2b4a
+      height: 88
+      image-source: /images/ui/panel_flat
+      image-border: 1
       padding: 8
 
       Label
@@ -221,7 +221,7 @@ MainWindow
         anchors.top: parent.top
         anchors.left: parent.left
         font: verdana-11px-antialised
-        color: #a090c0
+        color: #b0b0b0
         text: MISSION
 
       Label
@@ -229,36 +229,43 @@ MainWindow
         anchors.top: parent.top
         anchors.right: parent.right
         font: verdana-11px-antialised
-        color: #6c6488
+        color: #707070
         text-auto-resize: true
+
+      Panel
+        id: missionIconFrame
+        size: 45 55
+        anchors.top: missionSectionTitle.bottom
+        anchors.left: parent.left
+        margin-top: 3
+        image-source: /images/custom/icon-masterylevel-1
 
       UIItem
         id: missionItem
         size: 32 32
-        anchors.top: missionSectionTitle.bottom
-        anchors.left: parent.left
-        margin-top: 4
+        margin-bottom: 3
+        anchors.centerIn: missionIconFrame
         virtual: true
 
       Label
         id: missionDesc
-        anchors.top: missionSectionTitle.bottom
-        anchors.left: missionItem.right
+        anchors.top: missionIconFrame.top
+        anchors.left: missionIconFrame.right
         anchors.right: parent.right
-        margin-left: 8
-        margin-top: 4
+        margin-left: 10
         font: verdana-11px-antialised
-        color: #c0b8d8
+        color: #c0c0c0
         text-wrap: true
         text-auto-resize: true
 
       Label
         id: missionProgress
-        anchors.top: missionItem.bottom
-        anchors.left: parent.left
-        margin-top: 4
+        anchors.top: missionDesc.bottom
+        anchors.left: missionIconFrame.right
+        margin-top: 5
+        margin-left: 3
         font: verdana-11px-antialised
-        color: #507050
+        color: #4caf50
 
   Panel
     id: rightPanel
@@ -270,7 +277,7 @@ MainWindow
     margin-left: 8
     margin-right: 8
     margin-bottom: 12
-    background-color: #18162a
+    background-color: #202020
 
     Panel
       id: detailHeader
@@ -278,9 +285,9 @@ MainWindow
       anchors.left: parent.left
       anchors.right: parent.right
       height: 28
-      background-color: #1c1930
+      background-color: #262626
       border-bottom-width: 1
-      border-color: #2e2b4a
+      border-color: #3a3a3a
 
       Label
         id: detailDayLabel
@@ -288,7 +295,7 @@ MainWindow
         anchors.verticalCenter: parent.verticalCenter
         margin-left: 8
         font: verdana-11px-antialised
-        color: #a090c0
+        color: #b0b0b0
         text-auto-resize: true
 
     Panel
@@ -298,9 +305,9 @@ MainWindow
       anchors.right: parent.right
       height: 204
       margin-top: 8
-      background-color: #1c1930
+      background-color: #262626
       border-left-width: 3
-      border-color: #c28400
+      border-color: #6b5b3a
 
       Label
         id: proTrackLabel
@@ -309,7 +316,7 @@ MainWindow
         margin-top: 8
         margin-left: 8
         font: verdana-11px-antialised
-        color: #c28400
+        color: #a08a5a
         text: PRO
         text-auto-resize: true
 
@@ -351,10 +358,10 @@ MainWindow
         margin-bottom: 8
         height: 22
         font: verdana-11px-antialised
-        color: #c28400
-        background-color: #2a1e00
+        color: #a08a5a
+        background-color: #303030
         border-width: 1
-        border-color: #6a4a00
+        border-color: #4a4a4a
         @onClick: modules.game_battlepass.claimProReward()
 
     Panel
@@ -364,9 +371,9 @@ MainWindow
       anchors.right: parent.right
       height: 204
       margin-top: 8
-      background-color: #1c1930
+      background-color: #262626
       border-left-width: 3
-      border-color: #3a9a3a
+      border-color: #3a5a3a
 
       Label
         id: freeTrackLabel
@@ -375,7 +382,7 @@ MainWindow
         margin-top: 8
         margin-left: 8
         font: verdana-11px-antialised
-        color: #3a9a3a
+        color: #6a9a6a
         text: FREE
         text-auto-resize: true
 
@@ -417,10 +424,10 @@ MainWindow
         margin-bottom: 8
         height: 22
         font: verdana-11px-antialised
-        color: #3a9a3a
-        background-color: #0a200a
+        color: #6a9a6a
+        background-color: #303030
         border-width: 1
-        border-color: #1a5a1a
+        border-color: #4a4a4a
         @onClick: modules.game_battlepass.claimFreeReward()
 
     Button
@@ -433,10 +440,10 @@ MainWindow
       margin-right: 8
       height: 24
       font: verdana-11px-antialised
-      color: #c0b8d8
-      background-color: #1c1930
+      color: #c0c0c0
+      background-color: #262626
       border-width: 1
-      border-color: #2e2b4a
+      border-color: #3a3a3a
       @onClick: modules.game_battlepass.onStatusAction()
 
   HorizontalSeparator
@@ -451,8 +458,9 @@ MainWindow
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    height: 36
-    background-color: #1c1930
+    height: 46
+    background-color: #262626
+    
 
     Label
       id: finalLabel
@@ -460,7 +468,7 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-left: 8
       font: verdana-11px-antialised
-      color: #e0b050
+      color: #c0c0c0
       text: FINAL REWARD:
 
     Label
@@ -469,24 +477,36 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-left: 6
       font: verdana-11px-antialised
-      color: #6c6488
+      color: #707070
       text: (only for PRO)
 
-    UIItem
-      id: finalItem
-      size: 32 32
+    Panel
+      id: finalRewardFrame
+      size: 190 55
       anchors.left: finalSubLabel.right
       anchors.verticalCenter: parent.verticalCenter
       margin-left: 10
-      virtual: true
+      image-source: /images/custom/moldura_text
 
-    Label
-      id: finalItemName
-      anchors.left: finalItem.right
-      anchors.verticalCenter: parent.verticalCenter
-      margin-left: 6
-      font: verdana-11px-antialised
-      color: #a89cc0
+      UIItem
+        id: finalItem
+        size: 31 31
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 10
+        virtual: true
+
+      Label
+        id: finalItemName
+        anchors.left: finalItem.right
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 6
+        margin-right: 6
+        font: verdana-11px-antialised
+        color: #a0a0a0
+        text-wrap: true
+        text-auto-resize: false
 
     Label
       id: dayCounterLabel
@@ -494,7 +514,7 @@ MainWindow
       anchors.verticalCenter: parent.verticalCenter
       margin-right: 12
       font: verdana-11px-antialised
-      color: #6c6488
+      color: #707070
 
     Button
       id: closeButton

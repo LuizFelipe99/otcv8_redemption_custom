@@ -1,0 +1,8 @@
+Module
+  name: game_tasks_mission
+  author: Sherrat
+  sandboxed: true
+  autoload: true
+  scripts: [ tasks ]
+  @onLoad: init()
+  @onUnload: terminate()

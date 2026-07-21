@@ -242,7 +242,7 @@ SpellInfo = {
         ['Mass Spirit Mend'] = { id = 296, name = 'Mass Spirit Mend', words = 'exura mas nia', type = 'Instant', level = 150, mana = 250, soul = 0, maglevel = 0, icon = '', clientId = 184, group = { [2] = 2000 }, needTarget = false, parameter = false, range = -1, exhaustion = 8000, premium = true, vocations = {9, 10}, special = false, source = 0, },
         ['Restore Balance'] = { id = 297, name = 'Restore Balance', words = 'exura tio sio', type = 'Instant', level = 18, mana = 120, soul = 0, maglevel = 0, icon = '', clientId = 185, group = { [2] = 1000 }, needTarget = true, parameter = true, range = -1, exhaustion = 2000, premium = true, vocations = {9, 10}, special = false, source = 0, },
         ['Max Berserk'] = {id = 298,name = 'Max Berserk',words = 'max exori',type = 'Instant',level = 600,mana = 175,soul = 0,maglevel = 0,icon = '',clientId = 187,group = {[1] = 2000},needTarget = false,parameter = false,range = -1,exhaustion = 3000,premium = true,vocations = {4, 8},special = false,source = 0},
-        ['Super Divine Caldera'] = {id = 299,name = 'Exevo Gran Mas San',words = 'exevo gran mas san',type = 'Instant',level = 600,mana = 230,soul = 0,maglevel = 0,icon = '',clientId = 188,group = {[1] = 2000},needTarget = false,parameter = false,range = -1,exhaustion = 3000,premium = true,vocations = {4, 8},special = false,source = 0},
+        ['Super Divine Caldera'] = {id = 299,name = 'Exevo Gran Mas San',words = 'exevo gran mas san',type = 'Instant',level = 600,mana = 230,soul = 0,maglevel = 0,icon = '',clientId = 188,group = {[1] = 2000},needTarget = false,parameter = false,range = -1,exhaustion = 3000,premium = true,vocations = {3, 7},special = false,source = 0},
     }
 }
 
