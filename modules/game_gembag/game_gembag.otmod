@@ -1,0 +1,9 @@
+Module
+  name: game_gembag
+  description: Gem Bag equipment system
+  author: Crystal Server
+  website: www.crystalserver.com
+  sandboxed: true
+  scripts: [ gembag ]
+  @onLoad: init()
+  @onUnload: terminate()

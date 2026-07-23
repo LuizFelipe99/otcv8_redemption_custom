@@ -1,0 +1,111 @@
+GemBagSlot < UIItem
+  size: 34 34
+  image-source: /images/ui/containerslot
+
+MainWindow
+  id: gemBagWindow
+  !text: tr('Bag Gem')
+  size: 190 170
+  @onEscape: modules.game_gembag.toggle()
+
+  UIWidget
+    id: helpIcon
+    size: 11 11
+    anchors.top: parent.top
+    anchors.right: parent.right
+    margin-top: -6
+    margin-right: -6
+    image-source: /images/skin/show-gui-help-blue
+    !tooltip: tr('- Equip gems to grant your character special attributes.\n- Right-click a socketed gem to remove it.')
+
+  Panel
+    id: slotsPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 10
+    height: 130
+
+    UIItem
+      id: helmetSlotIcon
+      size: 34 34
+      anchors.left: parent.left
+      anchors.top: parent.top
+      margin-left: 5
+      virtual: true
+      phantom: true
+
+    GemBagSlot
+      id: gemSlot0
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 8
+
+    GemBagSlot
+      id: gemSlot1
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 8
+
+    GemBagSlot
+      id: gemSlot2
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 8
+
+    UIItem
+      id: bodySlotIcon
+      size: 34 34
+      anchors.left: parent.left
+      anchors.top: helmetSlotIcon.bottom
+      margin-left: 5
+      margin-top: 6
+      virtual: true
+      phantom: true
+
+    GemBagSlot
+      id: gemSlot3
+      anchors.left: prev.right
+      anchors.top: bodySlotIcon.top
+      margin-left: 8
+
+    GemBagSlot
+      id: gemSlot4
+      anchors.left: prev.right
+      anchors.top: bodySlotIcon.top
+      margin-left: 8
+
+    GemBagSlot
+      id: gemSlot5
+      anchors.left: prev.right
+      anchors.top: bodySlotIcon.top
+      margin-left: 8
+
+    UIItem
+      id: weaponSlotIcon
+      size: 34 34
+      anchors.left: parent.left
+      anchors.top: bodySlotIcon.bottom
+      margin-left: 5
+      margin-top: 6
+      virtual: true
+      phantom: true
+
+    GemBagSlot
+      id: gemSlot6
+      anchors.left: prev.right
+      anchors.top: weaponSlotIcon.top
+      margin-left: 8
+
+    GemBagSlot
+      id: gemSlot7
+      anchors.left: prev.right
+      anchors.top: weaponSlotIcon.top
+      margin-left: 8
+
+    GemBagSlot
+      id: gemSlot8
+      anchors.left: prev.right
+      anchors.top: weaponSlotIcon.top
+      margin-left: 8
+      

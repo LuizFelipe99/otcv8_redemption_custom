@@ -7,7 +7,15 @@ local difficultyFilterOptions = {
 	{ label = 'Hard', value = 'hard' }
 }
 
-local selectedDifficultyFilter = 'all'
+local statusFilterOptions = {
+	{ label = 'All', value = 'all' },
+	{ label = 'Available', value = 'available' },
+	{ label = 'In Progress', value = 'inProgress' },
+	{ label = 'Completed', value = 'completed' }
+}
+
+local selectedDifficultyFilter = 'easy'
+local selectedStatusFilter = 'all'
 
 local window = nil
 local selectedEntry = nil
@@ -92,8 +100,15 @@ local function createTaskButton(task, taskState)
 		return button
 	end
 
+	if taskState == 'onCooldown' then
+		button.kills:setText('Done - back tomorrow')
+		button.progress:setWidth(button.progressEmpty:getWidth())
+		return button
+	end
+
 	button.kills:setText('Kills: ' .. task.done .. '/' .. task.kills)
-	button.progress:setWidth(159 * task.done / task.kills)
+	local fullProgressWidth = button.progressEmpty:getWidth()
+	button.progress:setWidth(fullProgressWidth * task.done / task.kills)
 	return button
 end
 
@@ -105,8 +120,22 @@ local function setupDifficultyFilter()
 		comboBox:addOption(option.label)
 	end
 
-	selectedDifficultyFilter = 'all'
+	selectedDifficultyFilter = 'easy'
+	comboBox:setCurrentOption('Easy')
 	comboBox.onOptionChange = onDifficultyFilterChange
+end
+
+local function setupStatusFilter()
+	local comboBox = window.listSearch.statusFilterComboBox
+	comboBox:clearOptions()
+
+	for _, option in ipairs(statusFilterOptions) do
+		comboBox:addOption(option.label)
+	end
+
+	selectedStatusFilter = 'all'
+	comboBox:setCurrentOption('All')
+	comboBox.onOptionChange = onStatusFilterChange
 end
 
 function init()
@@ -118,6 +147,7 @@ function init()
 	window = g_ui.displayUI('tasks')
 	window:setVisible(false)
 	setupDifficultyFilter()
+	setupStatusFilter()
 
 	Keybind.new('Windows', 'show/hide Tasks Windows', 'Ctrl+A', '')
 	Keybind.bind('Windows', 'show/hide Tasks Windows', {
@@ -152,6 +182,7 @@ function onGameStart()
 	window:setVisible(false)
 	window.listSearch.search.onKeyPress = onFilterSearch
 	setupDifficultyFilter()
+	setupStatusFilter()
 end
 
 function destroy()
@@ -189,6 +220,10 @@ function onItemSelect(list, focusedChild, unfocusedChild, reason)
 		return
 	end
 
+	if focusedChild.taskState == 'onCooldown' then
+		return
+	end
+
 	window.startButton:show()
 end
 
@@ -200,8 +235,11 @@ function onFilterSearch()
 		for _, child in ipairs(children) do
 			local matchesSearch = searchText:len() == 0 or child.name:getText():lower():find(searchText)
 			local matchesDifficulty = selectedDifficultyFilter == 'all' or child.taskDifficulty == selectedDifficultyFilter
+			local matchesStatus = selectedStatusFilter == 'all'
+				or child.taskState == selectedStatusFilter
+				or (selectedStatusFilter == 'completed' and child.taskState == 'onCooldown')
 
-			if matchesSearch and matchesDifficulty then
+			if matchesSearch and matchesDifficulty and matchesStatus then
 				child:show()
 			else
 				child:hide()
@@ -214,6 +252,16 @@ function onDifficultyFilterChange(comboBox, optionText)
 	for _, option in ipairs(difficultyFilterOptions) do
 		if option.label == optionText then
 			selectedDifficultyFilter = option.value
+		end
+	end
+
+	onFilterSearch()
+end
+
+function onStatusFilterChange(comboBox, optionText)
+	for _, option in ipairs(statusFilterOptions) do
+		if option.label == optionText then
+			selectedStatusFilter = option.value
 		end
 	end
 
@@ -293,12 +341,18 @@ function updateTasks(data)
 
 	for _, task in ipairs(data['allTasks']) do
 		if not table.contains(playerTaskIds, task.id) then
-			createTaskButton(task, 'available')
+			local taskState = task.onCooldownToday and 'onCooldown' or 'available'
+			createTaskButton(task, taskState)
 		end
 	end
 
-	selectionList:focusChild(selectionList:getFirstChild())
+	local firstChild = selectionList:getFirstChild()
+	selectionList:focusChild(firstChild)
 	onFilterSearch()
+
+	if firstChild then
+		onItemSelect(selectionList, firstChild)
+	end
 end
 
 function toggleWindow()
@@ -365,26 +419,58 @@ function showTaskDetails(taskId)
 		return
 	end
 
-	local detailTab = window.detailTab
-	detailTab.creatureName:setText(task.name)
-	detailTab.creatureImage:setOutfit(task.looktype)
-	detailTab.creatureImage:getCreature():setStaticWalking(1000)
+	local detailScene = window.detailTab.detailScene
+	local statsBlock = window.detailTab.detailInfo.statsBlock
+	local itemsBlock = window.detailTab.detailInfo.itemsBlock
+	local statusBlock = window.detailTab.detailInfo.statusBlock
 
-	if task.done then
-		detailTab.detailKills:setText("Kills: " .. task.done .. " / " .. task.kills)
-	else
-		detailTab.detailKills:setText("Kills: " .. task.kills)
+	detailScene.creatureName:setText(task.name)
+
+	detailScene.creatureRow:destroyChildren()
+
+	local monsterLooktypes = task.monsterLooktypes or { task.looktype }
+	local creatureSize = 84
+	local creatureSpacing = 20
+
+	for _, monsterLooktype in ipairs(monsterLooktypes) do
+		local creatureWidget = g_ui.createWidget('UICreature', detailScene.creatureRow)
+		creatureWidget:setPhantom(true)
+		creatureWidget:resize(creatureSize, creatureSize)
+		creatureWidget:setOutfit(monsterLooktype)
+		creatureWidget:getCreature():setStaticWalking(1000)
 	end
 
-	detailTab.detailExp:setText("Experience: " .. task.exp)
+	local creatureCount = #monsterLooktypes
+	local rowWidth = (creatureCount * creatureSize) + ((creatureCount - 1) * creatureSpacing)
+	detailScene.creatureRow:setWidth(rowWidth)
 
-	detailTab.rewardItems:destroyChildren()
+	if task.done then
+		statsBlock.detailKills:setText("Kills: " .. task.done .. " / " .. task.kills)
+	else
+		statsBlock.detailKills:setText("Kills: " .. task.kills)
+	end
+
+	statsBlock.detailExp:setText("Experience: " .. task.exp)
+
+	if task.onCooldownToday then
+		statusBlock.detailStatus:setText("Already completed today")
+		statusBlock.detailStatus:setColor('#ff5252')
+	else
+		statusBlock.detailStatus:setText("Available today")
+		statusBlock.detailStatus:setColor('#00e676')
+	end
+
+	if task.monsterNames then
+		statusBlock.detailMonsterNames:setText(table.concat(task.monsterNames, ", "))
+	end
+
+	itemsBlock.rewardItems:destroyChildren()
 
 	if task.itemRewards and #task.itemRewards > 0 then
-		detailTab.rewardTitle:setVisible(true)
+		itemsBlock.rewardTitle:setVisible(true)
 
 		for _, item in ipairs(task.itemRewards) do
-			local itemWidget = g_ui.createWidget('Item', detailTab.rewardItems)
+			local itemWidget = g_ui.createWidget('Item', itemsBlock.rewardItems)
 			itemWidget:setItemId(item.clientId)
 			itemWidget:setItemCount(item.count)
 			itemWidget:setVirtual(true)
@@ -394,7 +480,7 @@ function showTaskDetails(taskId)
 			end
 		end
 	else
-		detailTab.rewardTitle:setVisible(false)
+		itemsBlock.rewardTitle:setVisible(false)
 	end
 
 	window.listSearch:setVisible(false)
@@ -403,5 +489,5 @@ function showTaskDetails(taskId)
 	hideAllActionButtons()
 	window.info:setVisible(false)
 
-	detailTab:setVisible(true)
+	window.detailTab:setVisible(true)
 end

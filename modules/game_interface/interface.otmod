@@ -64,6 +64,7 @@ Module
     - game_elementalbuild
     - game_potioncooldown
     - game_tasks_mission
+    - game_gembag
 
   @onLoad: init()
   @onUnload: terminate()
