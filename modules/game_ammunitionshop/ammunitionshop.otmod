@@ -4,6 +4,6 @@ Module
   author: CrystalServer
   sandboxed: true
   autoload: true
-  scripts: [ammunitionshop]
-  @onLoad: AmmunitionShopController:init()
-  @onUnload: AmmunitionShopController:terminate()
+  scripts: [ ammunitionshop ]
+  @onLoad: init()
+  @onUnload: terminate()
