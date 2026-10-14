@@ -93,15 +93,18 @@ local function updateSlotVisual(slotIndex, itemId, slotDetails)
 		return
 	end
 
-	if itemId == 0 then
+	local isSocketFilled = itemId ~= 0
+	slotWidget.activeRing:setVisible(isSocketFilled)
+	slotWidget.activeGlow:setVisible(isSocketFilled)
+	slotWidget:setOn(isSocketFilled)
+
+	if not isSocketFilled then
 		slotWidget:setItemId(0)
-		slotWidget:setOn(false)
 		slotWidget:setTooltip(tr('Empty socket. Drag a gem here.'))
 		return
 	end
 
 	slotWidget:setItemId(itemId)
-	slotWidget:setOn(true)
 	slotWidget:setTooltip(buildSlotTooltip(slotDetails))
 end
 
