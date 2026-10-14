@@ -1,398 +1,571 @@
-PanelTop < Panel
-  text-offset: 0 3
-  text-align: top
-  padding-left: 7
-  padding-bottom: 7
-  padding-top: 24
-  padding-right: 7
-
-SelectionButton < Panel
-  image-source: /images/ui/miniwindow
+TaskSummaryBox < UIWidget
+  height: 22
+  width: 170
+  image-source: /images/ui/1pixel-down-frame
   image-border: 1
-  border-width: 1
-  border-color: black
-  focusable: true
-  phantom: false
-  @onDoubleClick: modules.game_tasks_mission.onTaskClick(self)
+  background-color: #00000066
+  padding-left: 6
+  padding-right: 6
 
-  $hover:
-    border-color: white
+  UIWidget
+    id: icon
+    size: 12 12
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /modules/game_tasks_mission/images/taskIconColorless
+    image-smooth: true
+    phantom: true
+
+  Label
+    id: caption
+    anchors.left: icon.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 6
+    font: verdana-11px-rounded
+    color: #c0c0c0
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: value
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-rounded
+    color: #f0c060
+    text-auto-resize: true
+    phantom: true
+
+TaskDifficultyTab < UIButton
+  height: 26
+  image-source: /images/ui/tabbutton_rounded
+  image-color: #dfdfdf
+  image-clip: 0 0 22 23
+  image-border: 3
+  font: verdana-11px-rounded
+  color: #a8a8a8
+  text-offset: 12 1
+  icon-align: left
+  icon-offset: 10 0
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !on:
+    image-clip: 0 23 22 23
+    color: #dfdfdf
+
+  $on:
+    image-clip: 0 46 22 23
+    color: #f0c060
+
+TaskListRow < UIWidget
+  height: 46
+  focusable: true
+  background-color: #00000033
+  border-width: 1
+  border-color: #00000000
+  padding: 3
+
+  $hover !focus:
+    background-color: #ffffff12
 
   $focus:
-    border-color: white
+    background-color: #c2840026
+    border-color: #c28400
+
+  UIWidget
+    id: creatureBox
+    size: 40 40
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000066
+    clipping: true
+    phantom: true
+
+    UICreature
+      id: creature
+      size: 40 40
+      anchors.centerIn: parent
+      creature-center: true
+      phantom: true
+
+  UIWidget
+    id: difficultyBadge
+    anchors.right: parent.right
+    anchors.top: parent.top
+    margin-right: 2
+    margin-top: 1
+    phantom: true
 
   Label
     id: name
+    anchors.left: creatureBox.right
+    anchors.right: difficultyBadge.left
     anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
-    margin-top: 2
-    text-align: top
-    text-wrap: true
-    text-border: 5 black
-
-  UICreature
-    id: creature
-    size: 60 60
+    margin-left: 8
+    margin-top: 5
+    margin-right: 6
+    font: verdana-11px-rounded
+    color: #e8e8e8
+    text-auto-resize: false
     phantom: true
+
+  Label
+    id: state
+    anchors.left: name.left
     anchors.top: name.bottom
-    anchors.horizontalCenter: parent.horizontalCenter
-    margin-top: 10
+    margin-top: 3
+    font: verdana-11px-rounded
+    color: #9d9d9d
+    text-auto-resize: true
+    phantom: true
 
-  Label
-    id: reward
-    anchors.bottom: parent.bottom
-    anchors.left: parent.left
-    anchors.right: parent.right
-    text-align: center
-    margin-bottom: 39
-    text-wrap: true
-
-  Button
-    id: detailButton
-    size: 44 20
-    anchors.bottom: parent.bottom
-    anchors.right: parent.right
-    margin-right: 3
-    margin-bottom: 3
-    font: verdana-11px-antialised
-    text: Detail
-    @onClick: modules.game_tasks_mission.onTaskClick(self:getParent())
-
-  Panel
-    id: progressEmpty
-    border: 1 black
-    margin-left: 3
-    margin-right: 4
-    margin-bottom: 3
-    anchors.bottom: parent.bottom
-    anchors.left: parent.left
-    anchors.right: detailButton.left
-    size: 0 20
-
-  Panel
+  ProgressBar
     id: progress
-    image-source: /images/ui/panel_flat
-    image-color: #00ff00
-    margin-left: 3
-    margin-bottom: 3
+    width: 116
+    height: 14
+    anchors.right: parent.right
     anchors.bottom: parent.bottom
+    margin-right: 2
+    margin-bottom: 3
+    background-color: #c28400
+    font: verdana-11px-rounded
+    text-offset: 0 1
+    phantom: true
+
+TaskSectionHeader < UIWidget
+  height: 20
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000088
+  padding-left: 6
+
+  UIWidget
+    id: icon
+    size: 12 12
     anchors.left: parent.left
-    size: 0 20
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /modules/game_tasks_mission/images/taskIconColorless
+    image-smooth: true
+    phantom: true
 
   Label
-    id: kills
-    anchors.bottom: parent.bottom
+    id: title
+    anchors.left: icon.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 6
+    font: verdana-11px-rounded
+    color: #f0c060
+    text-auto-resize: true
+    phantom: true
+
+TaskMonsterRow < UIWidget
+  height: 34
+  phantom: true
+
+  UIWidget
+    id: creatureBox
+    size: 34 34
     anchors.left: parent.left
-    anchors.right: detailButton.left
-    text-align: center
-    margin-bottom: 5
-    text-wrap: true
+    anchors.verticalCenter: parent.verticalCenter
+    clipping: true
+    phantom: true
+
+    UICreature
+      id: creature
+      size: 34 34
+      anchors.centerIn: parent
+      creature-center: true
+      phantom: true
+
+  Label
+    id: name
+    anchors.left: creatureBox.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 6
+    font: verdana-11px-rounded
+    color: #c0c0c0
+    text-auto-resize: true
+    phantom: true
+
+TaskRewardItemRow < UIWidget
+  height: 36
+  phantom: true
+
+  Item
+    id: item
+    size: 34 34
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    virtual: true
+
+  Label
+    id: name
+    anchors.left: item.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 8
+    font: verdana-11px-rounded
+    color: #6fd38a
+    text-auto-resize: true
+    phantom: true
+
+TaskActionButton < Button
+  width: 82
+  height: 22
 
 MainWindow
-  size: 915 510
   id: tasksWindow
-  anchors.verticalCenter: parent.verticalCenter
-  anchors.HorizontalCenter: parent.HorizontalCenter
-  text: Task
-  text-offset: 0 10
+  size: 820 560
+  text: Tasks
 
   Panel
-    id: listSearch
+    id: summaryBar
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
-    height: 21
-    margin-left: 15
-    margin-right: 15
-    margin-top: 17
+    height: 22
 
-    ComboBox
-      id: difficultyFilterComboBox
-      anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
-      width: 130
+    TaskSummaryBox
+      id: activeSummary
+      anchors.left: parent.left
+      anchors.top: parent.top
+
+    TaskSummaryBox
+      id: readySummary
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 6
+
+    TaskSummaryBox
+      id: cooldownSummary
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 6
 
     ComboBox
       id: statusFilterComboBox
-      anchors.right: difficultyFilterComboBox.left
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 140
+
+    Label
+      id: statusFilterLabel
+      anchors.right: statusFilterComboBox.left
       anchors.verticalCenter: parent.verticalCenter
       margin-right: 6
-      width: 120
-
-    UITextEdit
-      id: search
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      anchors.left: parent.left
-      anchors.right: statusFilterComboBox.left
-      margin-right: 6
-      background-color: #1c1c1c
-      border-width: 1
-      border-color: #3a3a3a
       font: verdana-11px-rounded
-      placeholder: Search by name
+      color: #9d9d9d
+      text: Show:
+      text-auto-resize: true
 
-  FlatPanel
-    id: taskListPanel
-    anchors.top: listSearch.bottom
+  Panel
+    id: difficultyTabs
+    anchors.top: summaryBar.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.bottom: parent.bottom
+    height: 26
     margin-top: 8
-    margin-left: 12
-    margin-right: 12
-    margin-bottom: 38
+    layout:
+      type: horizontalBox
+      spacing: 4
+
+    TaskDifficultyTab
+      id: tabAll
+      width: 194
+      @onClick: modules.game_tasks_mission.onDifficultyTabClick('all')
+
+    TaskDifficultyTab
+      id: tabEasy
+      width: 194
+      icon: /modules/game_tasks_mission/images/difficulty_easy
+      @onClick: modules.game_tasks_mission.onDifficultyTabClick('easy')
+
+    TaskDifficultyTab
+      id: tabMedium
+      width: 194
+      icon: /modules/game_tasks_mission/images/difficulty_medium
+      @onClick: modules.game_tasks_mission.onDifficultyTabClick('medium')
+
+    TaskDifficultyTab
+      id: tabHard
+      width: 194
+      icon: /modules/game_tasks_mission/images/difficulty_hard
+      @onClick: modules.game_tasks_mission.onDifficultyTabClick('hard')
+
+  UIWidget
+    id: listPanel
+    anchors.top: difficultyTabs.bottom
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    width: 390
+    margin-top: 6
+    margin-bottom: 32
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000044
     padding: 4
-    image-source: /images/ui/3pixel_frame_borderimage
-    image-border: 3
+
+    TextEdit
+      id: search
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 20
+      font: verdana-11px-rounded
+      placeholder: Search task or monster...
+
+    Panel
+      id: listHeader
+      anchors.top: search.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 18
+      margin-top: 4
+
+      Label
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 4
+        font: verdana-11px-rounded
+        color: #888888
+        text: Task
+        text-auto-resize: true
+
+      Label
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-right: 54
+        font: verdana-11px-rounded
+        color: #888888
+        text: Progress
+        text-auto-resize: true
 
     ScrollablePanel
       id: selectionList
-      anchors.top: parent.top
+      anchors.top: listHeader.bottom
       anchors.left: parent.left
-      anchors.right: parent.right
+      anchors.right: selectionScroll.left
       anchors.bottom: parent.bottom
-      margin-top: 5
-      margin-right: 14
+      margin-top: 2
+      margin-right: 3
       vertical-scrollbar: selectionScroll
       layout:
-        type: grid
-        cell-size: 200 150
-        cell-spacing: 12
-        flow: true
+        type: verticalBox
+        spacing: 3
 
     VerticalScrollBar
       id: selectionScroll
-      anchors.top: selectionList.top
-      anchors.bottom: selectionList.bottom
+      anchors.top: listHeader.bottom
+      margin-top: 2
+      anchors.bottom: parent.bottom
       anchors.right: parent.right
-      step: 80
+      step: 49
       pixel-scroll: true
 
-  Label
-    id: info
-    anchors.bottom: parent.bottom
-    anchors.left: parent.left
-    width: 140
-    height: 45
-    margin-right: 25
-    margin-bottom: 8
-    text-align: center
-    text-wrap: true
+    Label
+      id: emptyListLabel
+      anchors.centerIn: selectionList
+      font: verdana-11px-rounded
+      color: #707070
+      text: No tasks match this filter.
+      text-auto-resize: true
+      visible: false
 
-  Button
-    id: toggleButton
-    anchors.bottom: parent.bottom
+  UIWidget
+    id: detailPanel
+    anchors.top: listPanel.top
+    anchors.left: listPanel.right
     anchors.right: parent.right
-    text: Close
-    width: 65
-    margin-right: 25
-    margin-bottom: 12
-    @onClick: modules.game_tasks_mission.toggleWindow()
+    anchors.bottom: listPanel.bottom
+    margin-left: 8
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000044
+    padding: 6
 
-  Button
-    id: finishButton
-    anchors.bottom: parent.bottom
-    anchors.right: toggleButton.left
-    text: Finish
-    width: 55
-    margin-right: 5
-    margin-bottom: 12
-    visible: false
-    @onClick: modules.game_tasks_mission.finish()
-
-  Button
-    id: startButton
-    anchors.bottom: parent.bottom
-    anchors.right: toggleButton.left
-    text: Start
-    width: 55
-    margin-right: 5
-    margin-bottom: 12
-    visible: false
-    @onClick: modules.game_tasks_mission.start()
-
-  Button
-    id: abortButton
-    anchors.bottom: parent.bottom
-    anchors.right: toggleButton.left
-    text: Abort
-    width: 55
-    margin-right: 5
-    margin-bottom: 12
-    visible: false
-    @onClick: modules.game_tasks_mission.abort()
-
-  PanelTop
-    id: detailTab
-    anchors.fill: parent
-    padding: 20
-    visible: false
-
-    Panel
-      id: detailScene
+    UIWidget
+      id: titleBar
       anchors.top: parent.top
       anchors.left: parent.left
       anchors.right: parent.right
-      height: 190
-      image-source: /modules/game_tasks_mission/images/battlepass-background_10
-      image-fixed-ratio: true
-      image-smooth: true
+      height: 22
+      image-source: /images/ui/1pixel-down-frame
+      image-border: 1
+      background-color: #00000088
 
       Label
-        id: creatureName
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
+        id: title
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 8
         font: verdana-11px-rounded
+        color: #f0c060
         text-auto-resize: true
-        margin-top: 10
-        color: #ff8400
 
-      Panel
-        id: creatureRow
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        height: 120
-        margin-bottom: 6
-        layout:
-          type: horizontalBox
-          spacing: 20
-          align-center: true
+    UIWidget
+      id: creatureBox
+      size: 76 76
+      anchors.top: titleBar.bottom
+      anchors.left: parent.left
+      margin-top: 8
+      image-source: /images/ui/1pixel-down-frame
+      image-border: 1
+      background-color: #00000066
+      clipping: true
+      phantom: true
+
+      UICreature
+        id: creature
+        size: 76 76
+        anchors.centerIn: parent
+        creature-center: true
+        phantom: true
+
+    UIWidget
+      id: difficultyBadge
+      anchors.top: creatureBox.top
+      anchors.left: creatureBox.right
+      margin-left: 10
+      phantom: true
+
+    Label
+      id: name
+      anchors.verticalCenter: difficultyBadge.verticalCenter
+      anchors.left: difficultyBadge.right
+      anchors.right: parent.right
+      margin-left: 8
+      font: verdana-11px-rounded
+      color: #ffffff
+
+    Label
+      id: status
+      anchors.top: difficultyBadge.bottom
+      anchors.left: creatureBox.right
+      anchors.right: parent.right
+      margin-left: 10
+      margin-top: 6
+      font: verdana-11px-rounded
+      color: #c0c0c0
+
+    ProgressBar
+      id: progress
+      anchors.bottom: creatureBox.bottom
+      anchors.left: creatureBox.right
+      anchors.right: parent.right
+      margin-left: 10
+      height: 18
+      background-color: #c28400
+      font: verdana-11px-rounded
+      text-offset: 0 2
+
+    TaskSectionHeader
+      id: monstersHeader
+      anchors.top: creatureBox.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+
+    ScrollablePanel
+      id: monsterList
+      anchors.top: monstersHeader.bottom
+      anchors.left: parent.left
+      anchors.right: monsterScroll.left
+      height: 110
+      margin-top: 4
+      margin-left: 4
+      vertical-scrollbar: monsterScroll
+      layout:
+        type: grid
+        cell-size: 178 34
+        cell-spacing: 2
+        flow: true
+
+    VerticalScrollBar
+      id: monsterScroll
+      anchors.top: monstersHeader.bottom
+      height: 110
+      margin-top: 4
+      anchors.right: parent.right
+      step: 36
+      pixel-scroll: true
+
+    TaskSectionHeader
+      id: rewardsHeader
+      anchors.top: monsterList.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+
+    Label
+      id: experienceReward
+      anchors.top: rewardsHeader.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 6
+      margin-left: 6
+      font: verdana-11px-rounded
+      color: #6fd38a
 
     Panel
-      id: detailInfo
-      anchors.top: detailScene.bottom
+      id: rewardItems
+      anchors.top: experienceReward.bottom
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.bottom: parent.bottom
-      margin-top: 10
+      margin-top: 6
+      margin-left: 4
+      layout:
+        type: grid
+        cell-size: 178 36
+        cell-spacing: 2
+        flow: true
 
-      Panel
-        id: itemsBlock
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: 220
-        image-source: /images/ui/2pixel_up_frame_borderimage_dark_reversed
-        image-border: 2
+    Label
+      id: emptyDetailLabel
+      anchors.centerIn: parent
+      font: verdana-11px-rounded
+      color: #707070
+      text: Select a task to see its details.
+      text-auto-resize: true
+      visible: false
 
-        Label
-          text: "Reward"
-          anchors.top: parent.top
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 8
-          font: verdana-11px-rounded
-          color: #aaaaaa
+  TaskActionButton
+    id: startButton
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    text: Start
+    @onClick: modules.game_tasks_mission.start()
 
-        Label
-          id: rewardTitle
-          text: "Items:"
-          anchors.top: parent.top
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 30
-          font: verdana-11px-rounded
-          visible: false
+  TaskActionButton
+    id: finishButton
+    anchors.left: prev.right
+    anchors.bottom: parent.bottom
+    margin-left: 6
+    text: Hand In
+    @onClick: modules.game_tasks_mission.finish()
 
-        Panel
-          id: rewardItems
-          anchors.top: parent.top
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 55
-          width: 190
-          height: 120
-          layout:
-            type: grid
-            cell-size: 34 34
-            cell-spacing: 4
-            flow: true
+  TaskActionButton
+    id: abortButton
+    anchors.left: prev.right
+    anchors.bottom: parent.bottom
+    margin-left: 6
+    text: Abort
+    @onClick: modules.game_tasks_mission.abort()
 
-      Panel
-        id: statsBlock
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: itemsBlock.left
-        margin-right: 10
-        image-source: /images/ui/2pixel_up_frame_borderimage_dark_reversed
-        image-border: 2
+  TaskActionButton
+    id: toggleButton
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    text: Close
+    @onClick: modules.game_tasks_mission.toggleWindow()
 
-        Label
-          text: "Kills"
-          anchors.top: parent.top
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 8
-          font: verdana-11px-rounded
-          color: #aaaaaa
-
-        Label
-          id: detailKills
-          anchors.top: parent.top
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 30
-          width: 150
-          text-align: center
-
-        Label
-          id: detailExp
-          anchors.top: prev.bottom
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 5
-          color: white
-
-      Panel
-        id: statusBlock
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.left: itemsBlock.right
-        margin-left: 10
-        image-source: /images/ui/2pixel_up_frame_borderimage_dark_reversed
-        image-border: 2
-
-        Label
-          text: "About"
-          anchors.top: parent.top
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 8
-          font: verdana-11px-rounded
-          color: #aaaaaa
-
-        Label
-          id: detailStatus
-          anchors.top: parent.top
-          anchors.left: parent.left
-          anchors.right: parent.right
-          margin-top: 30
-          margin-left: 6
-          margin-right: 6
-          text-align: center
-          text-wrap: true
-
-        Label
-          text: "Counts as:"
-          anchors.top: prev.bottom
-          anchors.horizontalCenter: parent.horizontalCenter
-          margin-top: 16
-          font: verdana-11px-rounded
-          color: #aaaaaa
-
-        Label
-          id: detailMonsterNames
-          anchors.top: prev.bottom
-          anchors.left: parent.left
-          anchors.right: parent.right
-          margin-top: 6
-          margin-left: 6
-          margin-right: 6
-          text-align: center
-          text-wrap: true
-
-      Button
-        id: backButton
-        text: "Back"
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: 80
-        margin-bottom: 20
-        @onClick: modules.game_tasks_mission.openMainModule()
+  Label
+    id: info
+    anchors.left: abortButton.right
+    anchors.right: toggleButton.left
+    anchors.verticalCenter: toggleButton.verticalCenter
+    margin-left: 10
+    margin-right: 10
+    font: verdana-11px-rounded
+    text-align: center

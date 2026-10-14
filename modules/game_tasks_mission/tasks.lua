@@ -1,10 +1,14 @@
 local taskOpcode = 17
+local consoleMessageDurationMs = 5000
+local imagesPath = '/modules/game_tasks_mission/images/'
+local creatureFramebufferSize = 64
+local creatureBoxFillRatio = 0.85
+local maximumCreatureUpscale = 2
 
-local difficultyFilterOptions = {
-	{ label = 'All difficulties', value = 'all' },
-	{ label = 'Easy', value = 'easy' },
-	{ label = 'Medium', value = 'medium' },
-	{ label = 'Hard', value = 'hard' }
+local difficultyDefinitions = {
+	{ value = 'easy', label = 'Easy', badge = imagesPath .. 'difficulty_easy', tabId = 'tabEasy' },
+	{ value = 'medium', label = 'Medium', badge = imagesPath .. 'difficulty_medium', tabId = 'tabMedium' },
+	{ value = 'hard', label = 'Hard', badge = imagesPath .. 'difficulty_hard', tabId = 'tabHard' }
 }
 
 local statusFilterOptions = {
@@ -14,7 +18,14 @@ local statusFilterOptions = {
 	{ label = 'Completed', value = 'completed' }
 }
 
-local selectedDifficultyFilter = 'easy'
+local taskStateAppearance = {
+	available = { label = 'Available', detailLabel = 'Available', color = '#9d9d9d', barColor = '#c28400' },
+	inProgress = { label = 'In progress', detailLabel = 'In progress', color = '#f0c060', barColor = '#c28400' },
+	completed = { label = 'Ready to hand in', detailLabel = 'Ready to hand in', color = '#6fd38a', barColor = '#2f9e44' },
+	onCooldown = { label = 'Done today', detailLabel = 'Completed today - available again tomorrow', color = '#707070', barColor = '#3d5a40' }
+}
+
+local selectedDifficultyFilter = 'all'
 local selectedStatusFilter = 'all'
 
 local window = nil
@@ -23,12 +34,7 @@ local consoleEvent = nil
 local cancelConfirmWindow = nil
 local taskButton = nil
 local tasksData = {}
-
-local function hideAllActionButtons()
-	window.finishButton:hide()
-	window.startButton:hide()
-	window.abortButton:hide()
-end
+local taskStateById = {}
 
 local function sendOpcode(data)
 	local protocolGame = g_game.getProtocolGame()
@@ -37,6 +43,80 @@ local function sendOpcode(data)
 	end
 
 	protocolGame:sendExtendedOpcode(taskOpcode, json.encode(data))
+end
+
+local function formatNumber(number)
+	local formattedNumber = tostring(math.floor(tonumber(number) or 0))
+	local thousandsPattern = '^(-?%d+)(%d%d%d)'
+
+	while true do
+		local replacedNumber, replacementCount = formattedNumber:gsub(thousandsPattern, '%1,%2')
+		formattedNumber = replacedNumber
+		if replacementCount == 0 then
+			return formattedNumber
+		end
+	end
+end
+
+local function findDifficultyDefinition(difficultyValue)
+	for _, difficultyDefinition in ipairs(difficultyDefinitions) do
+		if difficultyDefinition.value == difficultyValue then
+			return difficultyDefinition
+		end
+	end
+
+	return nil
+end
+
+local function getDifficultyLabel(difficultyValue)
+	local difficultyDefinition = findDifficultyDefinition(difficultyValue)
+	if difficultyDefinition then
+		return difficultyDefinition.label
+	end
+
+	local fallbackLabel = tostring(difficultyValue or '')
+	return fallbackLabel:sub(1, 1):upper() .. fallbackLabel:sub(2)
+end
+
+local function applyDifficultyBadge(badgeWidget, difficultyValue)
+	local difficultyDefinition = findDifficultyDefinition(difficultyValue)
+	if not difficultyDefinition then
+		badgeWidget:setImageSource('')
+		badgeWidget:resize(0, 20)
+		return
+	end
+
+	badgeWidget:setImageSource(difficultyDefinition.badge)
+	badgeWidget:resize(badgeWidget:getImageTextureWidth(), badgeWidget:getImageTextureHeight())
+end
+
+local function calculateCreatureDrawSize(creature, boxSize)
+	local exactSpriteSize = creature:getExactSize(0, 0, 0, 0, 0)
+	if not exactSpriteSize or exactSpriteSize <= 0 then
+		return boxSize
+	end
+
+	local fillingDrawSize = math.floor(boxSize * creatureFramebufferSize * creatureBoxFillRatio / exactSpriteSize)
+	return math.max(boxSize, math.min(fillingDrawSize, boxSize * maximumCreatureUpscale))
+end
+
+local function applyCreatureOutfit(creatureBox, outfit)
+	if not outfit then
+		return
+	end
+
+	local creatureWidget = creatureBox.creature
+	creatureWidget:setOutfit(outfit)
+
+	local creature = creatureWidget:getCreature()
+	if not creature then
+		return
+	end
+
+	creature:setStaticWalking(1000)
+
+	local creatureDrawSize = calculateCreatureDrawSize(creature, creatureBox:getWidth())
+	creatureWidget:resize(creatureDrawSize, creatureDrawSize)
 end
 
 local function setTaskConsoleText(text, color)
@@ -53,8 +133,12 @@ local function setTaskConsoleText(text, color)
 	end
 
 	consoleEvent = scheduleEvent(function()
+		consoleEvent = nil
+		if not window then
+			return
+		end
 		window.info:setText('')
-	end, 5000)
+	end, consoleMessageDurationMs)
 end
 
 local function requireSelectedEntry()
@@ -62,7 +146,7 @@ local function requireSelectedEntry()
 		return true
 	end
 
-	setTaskConsoleText("Please select a task from the list.", "red")
+	setTaskConsoleText('Please select a task from the list.', 'red')
 	return false
 end
 
@@ -84,49 +168,265 @@ local function findTaskById(taskId)
 	return findTaskInList(tasksData.playerTasks, taskId) or findTaskInList(tasksData.allTasks, taskId)
 end
 
-local function createTaskButton(task, taskState)
-	local button = g_ui.createWidget("SelectionButton", window.taskListPanel.selectionList)
-	button:setId(task.id)
-	button.taskState = taskState
-	button.taskDifficulty = task.difficulty
-	button.creature:setOutfit(task.looktype)
-	button.creature:getCreature():setStaticWalking(1000)
-	button.name:setText(task.name)
-	button.reward:setText('Reward: ' .. task.exp .. ' exp')
-
-	if taskState == 'available' then
-		button.kills:setText('Kills: ' .. task.kills)
-		button.progress:setWidth(0)
-		return button
-	end
-
+local function getKillsDone(task, taskState)
 	if taskState == 'onCooldown' then
-		button.kills:setText('Done - back tomorrow')
-		button.progress:setWidth(button.progressEmpty:getWidth())
-		return button
+		return task.kills
 	end
 
-	button.kills:setText('Kills: ' .. task.done .. '/' .. task.kills)
-	local fullProgressWidth = button.progressEmpty:getWidth()
-	button.progress:setWidth(fullProgressWidth * task.done / task.kills)
-	return button
+	return math.min(task.done or 0, task.kills)
 end
 
-local function setupDifficultyFilter()
-	local comboBox = window.listSearch.difficultyFilterComboBox
-	comboBox:clearOptions()
+local function fillProgressBar(progressBar, task, taskState)
+	local killsDone = getKillsDone(task, taskState)
+	local progressPercent = task.kills > 0 and (killsDone * 100 / task.kills) or 0
 
-	for _, option in ipairs(difficultyFilterOptions) do
-		comboBox:addOption(option.label)
+	progressBar:setOn(true)
+	progressBar:setPercent(progressPercent)
+	progressBar:setBackgroundColor(taskStateAppearance[taskState].barColor)
+	progressBar:setText(formatNumber(killsDone) .. ' / ' .. formatNumber(task.kills))
+end
+
+local function matchesSearchText(task, searchText)
+	if searchText:len() == 0 then
+		return true
 	end
 
-	selectedDifficultyFilter = 'easy'
-	comboBox:setCurrentOption('Easy')
-	comboBox.onOptionChange = onDifficultyFilterChange
+	if task.name:lower():find(searchText, 1, true) then
+		return true
+	end
+
+	for _, monsterName in ipairs(task.monsterNames or {}) do
+		if monsterName:lower():find(searchText, 1, true) then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function matchesStatusFilter(taskState)
+	if selectedStatusFilter == 'all' then
+		return true
+	end
+
+	if selectedStatusFilter == 'completed' then
+		return taskState == 'completed' or taskState == 'onCooldown'
+	end
+
+	return taskState == selectedStatusFilter
+end
+
+local function updateActionButtons(taskState)
+	if not window then
+		return
+	end
+
+	window.startButton:setEnabled(taskState == 'available')
+	window.finishButton:setEnabled(taskState == 'completed')
+	window.abortButton:setEnabled(taskState == 'inProgress')
+end
+
+local function clearTaskDetails()
+	local detailPanel = window.detailPanel
+
+	for _, child in ipairs(detailPanel:getChildren()) do
+		child:setVisible(child:getId() == 'emptyDetailLabel')
+	end
+
+	updateActionButtons(nil)
+end
+
+local function showDetailWidgets()
+	for _, child in ipairs(window.detailPanel:getChildren()) do
+		child:setVisible(child:getId() ~= 'emptyDetailLabel')
+	end
+end
+
+local function fillMonsterList(monsterList, task)
+	monsterList:destroyChildren()
+
+	local monsterNames = task.monsterNames or { task.name }
+	local monsterLooktypes = task.monsterLooktypes or { task.looktype }
+
+	for monsterIndex, monsterName in ipairs(monsterNames) do
+		local monsterRow = g_ui.createWidget('TaskMonsterRow', monsterList)
+		monsterRow.name:setText(monsterName)
+		applyCreatureOutfit(monsterRow.creatureBox, monsterLooktypes[monsterIndex] or task.looktype)
+	end
+end
+
+local function fillRewardItems(rewardItemsPanel, task)
+	rewardItemsPanel:destroyChildren()
+
+	for _, itemReward in ipairs(task.itemRewards or {}) do
+		local rewardRow = g_ui.createWidget('TaskRewardItemRow', rewardItemsPanel)
+		rewardRow.item:setItemId(itemReward.clientId)
+		rewardRow.item:setItemCount(itemReward.count)
+		rewardRow.item:setVirtual(true)
+
+		local itemName = itemReward.name or 'item'
+		rewardRow.name:setText(formatNumber(itemReward.count) .. 'x ' .. itemName)
+		rewardRow.item:setTooltip(itemName .. ' (' .. itemReward.count .. 'x)')
+	end
+end
+
+function showTaskDetails(taskId)
+	if not window then
+		return
+	end
+
+	local task = findTaskById(taskId)
+	if not task then
+		clearTaskDetails()
+		return
+	end
+
+	local taskState = taskStateById[task.id] or 'available'
+	local detailPanel = window.detailPanel
+	local monsterCount = #(task.monsterNames or { task.name })
+
+	showDetailWidgets()
+
+	detailPanel.titleBar.title:setText(task.name)
+	detailPanel.name:setText(task.name)
+	applyDifficultyBadge(detailPanel.difficultyBadge, task.difficulty)
+	applyCreatureOutfit(detailPanel.creatureBox, task.looktype)
+
+	local stateAppearance = taskStateAppearance[taskState]
+	detailPanel.status:setText(getDifficultyLabel(task.difficulty) .. '  -  ' .. stateAppearance.detailLabel)
+	detailPanel.status:setColor(stateAppearance.color)
+	fillProgressBar(detailPanel.progress, task, taskState)
+
+	detailPanel.monstersHeader.title:setText('Monsters (' .. monsterCount .. ')')
+	fillMonsterList(detailPanel.monsterList, task)
+
+	detailPanel.rewardsHeader.title:setText('Rewards')
+	detailPanel.experienceReward:setText(formatNumber(task.exp) .. ' experience')
+	fillRewardItems(detailPanel.rewardItems, task)
+
+	updateActionButtons(taskState)
+end
+
+local function createTaskRow(task, taskState)
+	local taskRow = g_ui.createWidget('TaskListRow', window.listPanel.selectionList)
+	taskRow:setId(task.id)
+	taskRow.taskId = task.id
+	taskRow.taskState = taskState
+	taskRow.taskDifficulty = task.difficulty
+	taskRow.task = task
+
+	taskRow.name:setText(task.name)
+	applyCreatureOutfit(taskRow.creatureBox, task.looktype)
+	applyDifficultyBadge(taskRow.difficultyBadge, task.difficulty)
+
+	local stateAppearance = taskStateAppearance[taskState]
+	taskRow.state:setText(stateAppearance.label)
+	taskRow.state:setColor(stateAppearance.color)
+	fillProgressBar(taskRow.progress, task, taskState)
+
+	return taskRow
+end
+
+local function countTasksByDifficulty()
+	local taskCountByDifficulty = { all = 0 }
+
+	for _, task in ipairs(tasksData.allTasks or {}) do
+		taskCountByDifficulty.all = taskCountByDifficulty.all + 1
+		taskCountByDifficulty[task.difficulty] = (taskCountByDifficulty[task.difficulty] or 0) + 1
+	end
+
+	return taskCountByDifficulty
+end
+
+local function updateDifficultyTabs()
+	if not window then
+		return
+	end
+
+	local tabsPanel = window.difficultyTabs
+	local taskCountByDifficulty = countTasksByDifficulty()
+
+	tabsPanel.tabAll:setText('All tasks (' .. taskCountByDifficulty.all .. ')')
+	tabsPanel.tabAll:setOn(selectedDifficultyFilter == 'all')
+
+	for _, difficultyDefinition in ipairs(difficultyDefinitions) do
+		local difficultyTab = tabsPanel[difficultyDefinition.tabId]
+		local taskCount = taskCountByDifficulty[difficultyDefinition.value] or 0
+		difficultyTab:setText(difficultyDefinition.label .. ' (' .. taskCount .. ')')
+		difficultyTab:setOn(selectedDifficultyFilter == difficultyDefinition.value)
+	end
+end
+
+local function updateSummaryBar()
+	if not window then
+		return
+	end
+
+	local readyTaskCount = 0
+	local cooldownTaskCount = 0
+
+	for _, taskState in pairs(taskStateById) do
+		if taskState == 'completed' then
+			readyTaskCount = readyTaskCount + 1
+		elseif taskState == 'onCooldown' then
+			cooldownTaskCount = cooldownTaskCount + 1
+		end
+	end
+
+	local summaryBar = window.summaryBar
+	summaryBar.activeSummary.caption:setText('Active tasks')
+	summaryBar.activeSummary.value:setText(#(tasksData.playerTasks or {}))
+	summaryBar.readySummary.caption:setText('Ready to hand in')
+	summaryBar.readySummary.value:setText(readyTaskCount)
+	summaryBar.cooldownSummary.caption:setText('Completed today')
+	summaryBar.cooldownSummary.value:setText(cooldownTaskCount)
+end
+
+local function focusFirstVisibleRow()
+	local selectionList = window.listPanel.selectionList
+
+	for _, taskRow in ipairs(selectionList:getChildren()) do
+		if taskRow:isVisible() then
+			selectionList:focusChild(taskRow, ActiveFocusReason)
+			return
+		end
+	end
+
+	selectedEntry = nil
+	clearTaskDetails()
+end
+
+local function applyListFilters()
+	if not window then
+		return
+	end
+
+	local searchText = window.listPanel.search:getText():lower():trim()
+	local selectionList = window.listPanel.selectionList
+	local visibleRowCount = 0
+
+	for _, taskRow in ipairs(selectionList:getChildren()) do
+		local matchesDifficulty = selectedDifficultyFilter == 'all' or taskRow.taskDifficulty == selectedDifficultyFilter
+		local isRowVisible = matchesDifficulty and matchesStatusFilter(taskRow.taskState) and matchesSearchText(taskRow.task, searchText)
+		taskRow:setVisible(isRowVisible)
+
+		if isRowVisible then
+			visibleRowCount = visibleRowCount + 1
+		end
+	end
+
+	window.listPanel.emptyListLabel:setVisible(visibleRowCount == 0)
+
+	local focusedRow = selectionList:getFocusedChild()
+	if focusedRow and focusedRow:isVisible() then
+		return
+	end
+
+	focusFirstVisibleRow()
 end
 
 local function setupStatusFilter()
-	local comboBox = window.listSearch.statusFilterComboBox
+	local comboBox = window.summaryBar.statusFilterComboBox
 	comboBox:clearOptions()
 
 	for _, option in ipairs(statusFilterOptions) do
@@ -138,16 +438,26 @@ local function setupStatusFilter()
 	comboBox.onOptionChange = onStatusFilterChange
 end
 
+local function createWindow()
+	window = g_ui.displayUI('tasks')
+	window:setVisible(false)
+	window.listPanel.search.onTextChange = onFilterSearch
+	window.listPanel.selectionList.onChildFocusChange = onItemSelect
+	selectedDifficultyFilter = 'all'
+	selectedEntry = nil
+	setupStatusFilter()
+	updateDifficultyTabs()
+	updateSummaryBar()
+	clearTaskDetails()
+end
+
 function init()
 	connect(g_game, {
 		onGameStart = onGameStart,
 		onGameEnd = destroy
 	})
 
-	window = g_ui.displayUI('tasks')
-	window:setVisible(false)
-	setupDifficultyFilter()
-	setupStatusFilter()
+	createWindow()
 
 	Keybind.new('Windows', 'show/hide Tasks Windows', 'Ctrl+A', '')
 	Keybind.bind('Windows', 'show/hide Tasks Windows', {
@@ -158,40 +468,52 @@ function init()
 	})
 
 	g_keyboard.bindKeyDown('Escape', hideWindowOnEscape)
-	taskButton = modules.client_topmenu.addLeftGameButton('taskButton', tr('Tasks'), '/modules/game_tasks_mission/images/taskIcon', toggleWindow)
+	taskButton = modules.client_topmenu.addLeftGameButton('taskButton', tr('Tasks'), imagesPath .. 'taskIcon', toggleWindow)
 	ProtocolGame.registerExtendedOpcode(taskOpcode, parseOpcode)
 end
 
 function terminate()
 	disconnect(g_game, {
+		onGameStart = onGameStart,
 		onGameEnd = destroy
 	})
 	ProtocolGame.unregisterExtendedOpcode(taskOpcode)
-	taskButton:destroy()
+	g_keyboard.unbindKeyDown('Escape', hideWindowOnEscape)
+
+	if taskButton then
+		taskButton:destroy()
+		taskButton = nil
+	end
+
 	destroy()
 	Keybind.delete('Windows', 'show/hide Tasks Windows')
 end
 
 function onGameStart()
-	if window then
-		window:destroy()
-		window = nil
-	end
-
-	window = g_ui.displayUI('tasks')
-	window:setVisible(false)
-	window.listSearch.search.onKeyPress = onFilterSearch
-	setupDifficultyFilter()
-	setupStatusFilter()
+	destroy()
+	createWindow()
 end
 
 function destroy()
+	if consoleEvent then
+		removeEvent(consoleEvent)
+		consoleEvent = nil
+	end
+
+	if cancelConfirmWindow then
+		cancelConfirmWindow:destroy()
+		cancelConfirmWindow = nil
+	end
+
 	if not window then
 		return
 	end
 
 	window:destroy()
 	window = nil
+	tasksData = {}
+	taskStateById = {}
+	selectedEntry = nil
 end
 
 function parseOpcode(protocol, opcode, buffer)
@@ -203,59 +525,34 @@ function onItemSelect(list, focusedChild, unfocusedChild, reason)
 		return
 	end
 
-	selectedEntry = tonumber(focusedChild:getId())
-	if not selectedEntry then
+	local focusedTaskId = tonumber(focusedChild:getId())
+	if not focusedTaskId then
 		return
 	end
 
-	hideAllActionButtons()
-
-	if focusedChild.taskState == 'completed' then
-		window.finishButton:show()
-		return
-	end
-
-	if focusedChild.taskState == 'inProgress' then
-		window.abortButton:show()
-		return
-	end
-
-	if focusedChild.taskState == 'onCooldown' then
-		return
-	end
-
-	window.startButton:show()
+	selectedEntry = focusedTaskId
+	showTaskDetails(focusedTaskId)
 end
 
 function onFilterSearch()
-	addEvent(function()
-		local searchText = window.listSearch.search:getText():lower():trim()
-		local children = window.taskListPanel.selectionList:getChildren()
+	addEvent(applyListFilters)
+end
 
-		for _, child in ipairs(children) do
-			local matchesSearch = searchText:len() == 0 or child.name:getText():lower():find(searchText)
-			local matchesDifficulty = selectedDifficultyFilter == 'all' or child.taskDifficulty == selectedDifficultyFilter
-			local matchesStatus = selectedStatusFilter == 'all'
-				or child.taskState == selectedStatusFilter
-				or (selectedStatusFilter == 'completed' and child.taskState == 'onCooldown')
-
-			if matchesSearch and matchesDifficulty and matchesStatus then
-				child:show()
-			else
-				child:hide()
-			end
-		end
-	end)
+function onDifficultyTabClick(difficultyValue)
+	selectedDifficultyFilter = difficultyValue
+	updateDifficultyTabs()
+	applyListFilters()
 end
 
 function onDifficultyFilterChange(comboBox, optionText)
-	for _, option in ipairs(difficultyFilterOptions) do
-		if option.label == optionText then
-			selectedDifficultyFilter = option.value
+	for _, difficultyDefinition in ipairs(difficultyDefinitions) do
+		if difficultyDefinition.label == optionText then
+			onDifficultyTabClick(difficultyDefinition.value)
+			return
 		end
 	end
 
-	onFilterSearch()
+	onDifficultyTabClick('all')
 end
 
 function onStatusFilterChange(comboBox, optionText)
@@ -307,11 +604,27 @@ function abort()
 		cancelConfirmWindow = nil
 	end
 
-	cancelConfirmWindow = displayGeneralBox(tr('Tasks'), tr("Do you really want to abort this task?"), {
+	cancelConfirmWindow = displayGeneralBox(tr('Tasks'), tr('Do you really want to abort this task?'), {
 		{ text = tr('Yes'), callback = onConfirm },
 		{ text = tr('No'), callback = onDeny },
 		anchor = AnchorHorizontalCenter
 	}, onConfirm, onDeny)
+end
+
+local function resolveAvailableTaskState(task)
+	if task.onCooldownToday then
+		return 'onCooldown'
+	end
+
+	return 'available'
+end
+
+local function resolvePlayerTaskState(task)
+	if task.done >= task.kills then
+		return 'completed'
+	end
+
+	return 'inProgress'
 end
 
 function updateTasks(data)
@@ -325,33 +638,44 @@ function updateTasks(data)
 	end
 
 	tasksData = data
+	taskStateById = {}
 
-	local selectionList = window.taskListPanel.selectionList
-	selectionList.onChildFocusChange = onItemSelect
+	local previouslySelectedEntry = selectedEntry
+	local selectionList = window.listPanel.selectionList
+	selectionList.onChildFocusChange = nil
 	selectionList:destroyChildren()
-	hideAllActionButtons()
 
 	local playerTaskIds = {}
 
-	for _, task in ipairs(data['playerTasks']) do
-		table.insert(playerTaskIds, task.id)
-		local taskState = task.done >= task.kills and 'completed' or 'inProgress'
-		createTaskButton(task, taskState)
+	for _, task in ipairs(data['playerTasks'] or {}) do
+		playerTaskIds[task.id] = true
+		local taskState = resolvePlayerTaskState(task)
+		taskStateById[task.id] = taskState
+		createTaskRow(task, taskState)
 	end
 
-	for _, task in ipairs(data['allTasks']) do
-		if not table.contains(playerTaskIds, task.id) then
-			local taskState = task.onCooldownToday and 'onCooldown' or 'available'
-			createTaskButton(task, taskState)
+	for _, task in ipairs(data['allTasks'] or {}) do
+		if not playerTaskIds[task.id] then
+			local taskState = resolveAvailableTaskState(task)
+			taskStateById[task.id] = taskState
+			createTaskRow(task, taskState)
 		end
 	end
 
-	local firstChild = selectionList:getFirstChild()
-	selectionList:focusChild(firstChild)
-	onFilterSearch()
+	selectionList.onChildFocusChange = onItemSelect
+	updateDifficultyTabs()
+	updateSummaryBar()
 
-	if firstChild then
-		onItemSelect(selectionList, firstChild)
+	local previouslySelectedRow = previouslySelectedEntry and selectionList:getChildById(tostring(previouslySelectedEntry))
+	if previouslySelectedRow then
+		selectionList:focusChild(previouslySelectedRow, ActiveFocusReason)
+	end
+
+	applyListFilters()
+
+	local focusedRow = selectionList:getFocusedChild()
+	if focusedRow then
+		onItemSelect(selectionList, focusedRow)
 	end
 end
 
@@ -373,6 +697,8 @@ function toggleWindow()
 	openMainModule()
 	sendOpcode({ action = 'info' })
 	window:setVisible(true)
+	window:raise()
+	window:focus()
 end
 
 function hideWindowOnEscape()
@@ -397,97 +723,10 @@ function openMainModule()
 		return
 	end
 
-	window.detailTab:setVisible(false)
-	window.listSearch:setVisible(true)
-	window.taskListPanel:setVisible(true)
-	window.toggleButton:setVisible(true)
-	window.info:setVisible(true)
-
-	local focused = window.taskListPanel.selectionList:getFocusedChild()
-	if focused then
-		onItemSelect(window.taskListPanel.selectionList, focused)
-	end
-end
-
-function onTaskClick(widget)
-	showTaskDetails(tonumber(widget:getId()))
-end
-
-function showTaskDetails(taskId)
-	local task = findTaskById(taskId)
-	if not task then
+	local focusedRow = window.listPanel.selectionList:getFocusedChild()
+	if not focusedRow then
 		return
 	end
 
-	local detailScene = window.detailTab.detailScene
-	local statsBlock = window.detailTab.detailInfo.statsBlock
-	local itemsBlock = window.detailTab.detailInfo.itemsBlock
-	local statusBlock = window.detailTab.detailInfo.statusBlock
-
-	detailScene.creatureName:setText(task.name)
-
-	detailScene.creatureRow:destroyChildren()
-
-	local monsterLooktypes = task.monsterLooktypes or { task.looktype }
-	local creatureSize = 84
-	local creatureSpacing = 20
-
-	for _, monsterLooktype in ipairs(monsterLooktypes) do
-		local creatureWidget = g_ui.createWidget('UICreature', detailScene.creatureRow)
-		creatureWidget:setPhantom(true)
-		creatureWidget:resize(creatureSize, creatureSize)
-		creatureWidget:setOutfit(monsterLooktype)
-		creatureWidget:getCreature():setStaticWalking(1000)
-	end
-
-	local creatureCount = #monsterLooktypes
-	local rowWidth = (creatureCount * creatureSize) + ((creatureCount - 1) * creatureSpacing)
-	detailScene.creatureRow:setWidth(rowWidth)
-
-	if task.done then
-		statsBlock.detailKills:setText("Kills: " .. task.done .. " / " .. task.kills)
-	else
-		statsBlock.detailKills:setText("Kills: " .. task.kills)
-	end
-
-	statsBlock.detailExp:setText("Experience: " .. task.exp)
-
-	if task.onCooldownToday then
-		statusBlock.detailStatus:setText("Already completed today")
-		statusBlock.detailStatus:setColor('#ff5252')
-	else
-		statusBlock.detailStatus:setText("Available today")
-		statusBlock.detailStatus:setColor('#00e676')
-	end
-
-	if task.monsterNames then
-		statusBlock.detailMonsterNames:setText(table.concat(task.monsterNames, ", "))
-	end
-
-	itemsBlock.rewardItems:destroyChildren()
-
-	if task.itemRewards and #task.itemRewards > 0 then
-		itemsBlock.rewardTitle:setVisible(true)
-
-		for _, item in ipairs(task.itemRewards) do
-			local itemWidget = g_ui.createWidget('Item', itemsBlock.rewardItems)
-			itemWidget:setItemId(item.clientId)
-			itemWidget:setItemCount(item.count)
-			itemWidget:setVirtual(true)
-
-			if item.name then
-				itemWidget:setTooltip(item.name .. " (" .. item.count .. "x)")
-			end
-		end
-	else
-		itemsBlock.rewardTitle:setVisible(false)
-	end
-
-	window.listSearch:setVisible(false)
-	window.taskListPanel:setVisible(false)
-	window.toggleButton:setVisible(false)
-	hideAllActionButtons()
-	window.info:setVisible(false)
-
-	window.detailTab:setVisible(true)
+	onItemSelect(window.listPanel.selectionList, focusedRow)
 end
