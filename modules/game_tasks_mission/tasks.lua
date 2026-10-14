@@ -255,6 +255,29 @@ local function fillMonsterList(monsterList, task)
 	end
 end
 
+local function describeTokenReward(tokenReward)
+	local rewardText = formatNumber(tokenReward.count) .. 'x ' .. (tokenReward.name or 'task token')
+	if (tokenReward.chance or 0) >= 100 then
+		return rewardText
+	end
+
+	return rewardText .. ' (' .. tokenReward.chance .. '%)'
+end
+
+local function addTokenRewardRow(rewardItemsPanel, tokenReward)
+	if not tokenReward or (tokenReward.count or 0) <= 0 then
+		return
+	end
+
+	local rewardRow = g_ui.createWidget('TaskRewardItemRow', rewardItemsPanel)
+	rewardRow.item:setItemId(tokenReward.clientId or tokenReward.itemId)
+	rewardRow.item:setItemCount(tokenReward.count)
+	rewardRow.item:setVirtual(true)
+	rewardRow.name:setText(describeTokenReward(tokenReward))
+	rewardRow.name:setColor('#f0c060')
+	rewardRow:setTooltip(tr('%d%% chance to receive this token when you hand in the task.', tokenReward.chance or 0))
+end
+
 local function fillRewardItems(rewardItemsPanel, task)
 	rewardItemsPanel:destroyChildren()
 
@@ -268,6 +291,8 @@ local function fillRewardItems(rewardItemsPanel, task)
 		rewardRow.name:setText(formatNumber(itemReward.count) .. 'x ' .. itemName)
 		rewardRow.item:setTooltip(itemName .. ' (' .. itemReward.count .. 'x)')
 	end
+
+	addTokenRewardRow(rewardItemsPanel, task.tokenReward)
 end
 
 function showTaskDetails(taskId)
