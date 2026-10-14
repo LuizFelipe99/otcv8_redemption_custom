@@ -459,14 +459,6 @@ function init()
 
 	createWindow()
 
-	Keybind.new('Windows', 'show/hide Tasks Windows', 'Ctrl+A', '')
-	Keybind.bind('Windows', 'show/hide Tasks Windows', {
-		{
-			type = KEY_DOWN,
-			callback = toggleWindow
-		}
-	})
-
 	g_keyboard.bindKeyDown('Escape', hideWindowOnEscape)
 	taskButton = modules.client_topmenu.addLeftGameButton('taskButton', tr('Tasks'), imagesPath .. 'taskIcon', toggleWindow)
 	ProtocolGame.registerExtendedOpcode(taskOpcode, parseOpcode)
@@ -486,7 +478,6 @@ function terminate()
 	end
 
 	destroy()
-	Keybind.delete('Windows', 'show/hide Tasks Windows')
 end
 
 function onGameStart()
