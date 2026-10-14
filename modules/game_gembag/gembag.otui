@@ -1,11 +1,108 @@
 GemBagSlot < UIItem
+  size: 36 36
+  padding: 1
+  image-source: /images/game/wheel/backdrop_skillwheel_socket_inactive
+  image-color: #d0d0d0
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover:
+    image-color: #ffffff
+
+  $on:
+    image-source: /images/game/wheel/backdrop_skillwheel_socket_active
+
+GemEquipmentIcon < UIItem
   size: 34 34
-  image-source: /images/ui/containerslot
+  virtual: true
+  phantom: true
+
+GemGroupPanel < UIWidget
+  height: 62
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000055
+  padding: 6
+
+  UIWidget
+    id: equipmentFrame
+    size: 48 48
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000088
+    phantom: true
+
+  Label
+    id: groupTitle
+    anchors.left: equipmentFrame.right
+    anchors.top: parent.top
+    margin-left: 10
+    margin-top: -2
+    font: verdana-11px-rounded
+    color: #f0c060
+    text-auto-resize: true
+    phantom: true
+
+GemBonusRow < UIWidget
+  height: 18
+  phantom: true
+
+  UIWidget
+    id: icon
+    size: 12 12
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    image-smooth: true
+    phantom: true
+
+  Label
+    id: caption
+    anchors.left: icon.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 7
+    font: verdana-11px-rounded
+    color: #c0c0c0
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: value
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-rounded
+    text-auto-resize: true
+    phantom: true
+
+GemSectionHeader < UIWidget
+  height: 20
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000088
+  padding-left: 6
+
+  UIWidget
+    size: 12 12
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /images/game/wheel/icon-socketed
+    phantom: true
+
+  Label
+    id: title
+    anchors.left: prev.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 6
+    font: verdana-11px-rounded
+    color: #f0c060
+    text-auto-resize: true
+    phantom: true
 
 MainWindow
   id: gemBagWindow
   !text: tr('Bag Gem')
-  size: 190 170
+  size: 470 302
   @onEscape: modules.game_gembag.toggle()
 
   UIWidget
@@ -22,87 +119,174 @@ MainWindow
     id: slotsPanel
     anchors.top: parent.top
     anchors.left: parent.left
+    anchors.bottom: hintLabel.top
+    width: 222
+    margin-bottom: 8
+
+    GemGroupPanel
+      id: helmetGroup
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+
+      GemEquipmentIcon
+        id: helmetSlotIcon
+        anchors.centerIn: equipmentFrame
+
+      GemBagSlot
+        id: gemSlot0
+        anchors.left: equipmentFrame.right
+        anchors.bottom: parent.bottom
+        margin-left: 10
+        margin-bottom: -3
+
+      GemBagSlot
+        id: gemSlot1
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 6
+        margin-bottom: -3
+
+      GemBagSlot
+        id: gemSlot2
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 6
+        margin-bottom: -3
+
+    GemGroupPanel
+      id: bodyGroup
+      anchors.top: helmetGroup.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+
+      GemEquipmentIcon
+        id: bodySlotIcon
+        anchors.centerIn: equipmentFrame
+
+      GemBagSlot
+        id: gemSlot3
+        anchors.left: equipmentFrame.right
+        anchors.bottom: parent.bottom
+        margin-left: 10
+        margin-bottom: -3
+
+      GemBagSlot
+        id: gemSlot4
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 6
+        margin-bottom: -3
+
+      GemBagSlot
+        id: gemSlot5
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 6
+        margin-bottom: -3
+
+    GemGroupPanel
+      id: weaponGroup
+      anchors.top: bodyGroup.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+
+      GemEquipmentIcon
+        id: weaponSlotIcon
+        anchors.centerIn: equipmentFrame
+
+      GemBagSlot
+        id: gemSlot6
+        anchors.left: equipmentFrame.right
+        anchors.bottom: parent.bottom
+        margin-left: 10
+        margin-bottom: -3
+
+      GemBagSlot
+        id: gemSlot7
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 6
+        margin-bottom: -3
+
+      GemBagSlot
+        id: gemSlot8
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 6
+        margin-bottom: -3
+
+  UIWidget
+    id: bonusPanel
+    anchors.top: parent.top
+    anchors.left: slotsPanel.right
     anchors.right: parent.right
-    margin-top: 10
-    height: 130
+    anchors.bottom: slotsPanel.bottom
+    margin-left: 8
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000055
+    padding: 6
 
-    UIItem
-      id: helmetSlotIcon
-      size: 34 34
+    GemSectionHeader
+      id: bonusHeader
+      anchors.top: parent.top
       anchors.left: parent.left
-      anchors.top: parent.top
-      virtual: true
-      phantom: true
+      anchors.right: parent.right
 
-    GemBagSlot
-      id: gemSlot0
-      anchors.left: prev.right
-      anchors.top: parent.top
-      margin-left: 8
-
-    GemBagSlot
-      id: gemSlot1
-      anchors.left: prev.right
-      anchors.top: parent.top
-      margin-left: 8
-
-    GemBagSlot
-      id: gemSlot2
-      anchors.left: prev.right
-      anchors.top: parent.top
-      margin-left: 8
-
-    UIItem
-      id: bodySlotIcon
-      size: 34 34
+    Panel
+      id: bonusList
+      anchors.top: bonusHeader.bottom
       anchors.left: parent.left
-      anchors.top: helmetSlotIcon.bottom
-      margin-top: 6
-      virtual: true
-      phantom: true
+      anchors.right: parent.right
+      anchors.bottom: socketedCountLabel.top
+      margin-top: 8
+      margin-left: 4
+      margin-right: 4
+      layout:
+        type: verticalBox
+        spacing: 4
 
-    GemBagSlot
-      id: gemSlot3
-      anchors.left: prev.right
-      anchors.top: bodySlotIcon.top
-      margin-left: 8
-
-    GemBagSlot
-      id: gemSlot4
-      anchors.left: prev.right
-      anchors.top: bodySlotIcon.top
-      margin-left: 8
-
-    GemBagSlot
-      id: gemSlot5
-      anchors.left: prev.right
-      anchors.top: bodySlotIcon.top
-      margin-left: 8
-
-    UIItem
-      id: weaponSlotIcon
-      size: 34 34
+    Label
+      id: emptyBonusLabel
+      anchors.top: bonusHeader.bottom
       anchors.left: parent.left
-      anchors.top: bodySlotIcon.bottom
-      margin-top: 6
-      virtual: true
-      phantom: true
+      anchors.right: parent.right
+      margin-top: 30
+      font: verdana-11px-rounded
+      color: #707070
+      text-align: center
+      text-wrap: true
+      text-auto-resize: true
+      visible: false
 
-    GemBagSlot
-      id: gemSlot6
-      anchors.left: prev.right
-      anchors.top: weaponSlotIcon.top
-      margin-left: 8
+    Label
+      id: socketedCountLabel
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: socketedProgress.top
+      margin-bottom: 4
+      margin-left: 2
+      font: verdana-11px-rounded
+      color: #9d9d9d
 
-    GemBagSlot
-      id: gemSlot7
-      anchors.left: prev.right
-      anchors.top: weaponSlotIcon.top
-      margin-left: 8
+    ProgressBar
+      id: socketedProgress
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      height: 8
+      background-color: #c28400
+      on: true
 
-    GemBagSlot
-      id: gemSlot8
-      anchors.left: prev.right
-      anchors.top: weaponSlotIcon.top
-      margin-left: 8
-      
+  Label
+    id: hintLabel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    font: verdana-11px-rounded
+    color: #8a8a8a
+    text-align: center
+    !text: tr('Drag gems onto the sockets. Right-click a gem to remove it.')
