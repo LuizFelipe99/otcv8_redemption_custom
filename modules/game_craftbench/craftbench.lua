@@ -1,660 +1,730 @@
 local CRAFTBENCH_OPCODE = 13
-
-local RARITY_BORDER_COLORS = {
-    common    = "#9d9d9d",
-    uncommon  = "#1eaa31",
-    rare      = "#3656c4",
-    epic      = "#a335ee",
-    legendary = "#ff8000",
-}
-
-local RESOURCE_ITEM_SLOTS = {
-    { widgetId = "goldenRubyNv1",    clientId = 60483 },
-    { widgetId = "goldenRubyNv2",    clientId = 60490 },
-    { widgetId = "goldenRubyNv3",    clientId = 60497 },
-    { widgetId = "goldenRubyNv4",    clientId = 63401 },
-    { widgetId = "platinumRubyNv1",  clientId = 60482 },
-    { widgetId = "platinumRubyNv2",  clientId = 60489 },
-    { widgetId = "platinumRubyNv3",  clientId = 60496 },
-    { widgetId = "platinumRubyNv4",  clientId = 63400 },
-}
-
-local GOLD_MATERIAL_CLIENT_IDS = {
-    [60483] = true,
-    [60490] = true,
-    [60497] = true,
-    [63401] = true,
-}
-
-local PLATINUM_MATERIAL_CLIENT_IDS = {
-    [60482] = true,
-    [60489] = true,
-    [60496] = true,
-    [63400] = true,
-}
-
-local CLASSIFICATION_FILTER_OPTIONS = {
-    { label = "All",     value = "all" },
-    { label = "None",    value = "none" },
-    { label = "Class 1", value = 1 },
-    { label = "Class 2", value = 2 },
-    { label = "Class 3", value = 3 },
-    { label = "Class 4", value = 4 },
-    { label = "Class 5", value = 5 },
-}
-
-local VOCATION_FILTER_OPTIONS = {
-    { label = "All",      value = "all" },
-    { label = "Knight",   value = "knight" },
-    { label = "Paladin",  value = "paladin" },
-    { label = "Druid",    value = "druid" },
-    { label = "Sorcerer", value = "sorcerer" },
-    { label = "Monk",     value = "monk" },
-    { label = "Attribute Gem",     value = "atribute_gem" },
-}
-
-local craftBenchWindow
-local activeTabName = "craft"
-
-local tabs = {
-    craft = {
-        name           = "craft",
-        panelId        = "craftTab",
-        buttonId       = "craftTabButton",
-        recipes        = {},
-        filteredRecipes = {},
-        searchText     = "",
-        selectedIndex  = 0,
-        categoryFilterField   = "vocation",
-        categoryFilterOptions = VOCATION_FILTER_OPTIONS,
-        categoryFilter = "all",
-        materialFilters = { gold = false, platinum = false },
-        ownedOnly      = false,
-    },
-    desmanche = {
-        name           = "desmanche",
-        panelId        = "desmancheTab",
-        buttonId       = "desmancheTabButton",
-        recipes        = {},
-        filteredRecipes = {},
-        searchText     = "",
-        selectedIndex  = 0,
-        categoryFilterField   = "classification",
-        categoryFilterOptions = CLASSIFICATION_FILTER_OPTIONS,
-        categoryFilter = "all",
-        materialFilters = { gold = false, platinum = false },
-        ownedOnly      = false,
-    },
-    fusao = {
-        name           = "fusao",
-        panelId        = "fusaoTab",
-        buttonId       = "fusaoTabButton",
-        recipes        = {},
-        filteredRecipes = {},
-        searchText     = "",
-        selectedIndex  = 0,
-        categoryFilterField   = nil,
-        categoryFilterOptions = nil,
-        categoryFilter = "all",
-        materialFilters = { gold = false, platinum = false },
-        ownedOnly      = false,
-    },
-}
-
-local function getTabPanel(tab)
-    return craftBenchWindow[tab.panelId]
-end
-
-local function getRarityColor(rarity)
-    return RARITY_BORDER_COLORS[rarity or "common"] or RARITY_BORDER_COLORS.common
-end
-
-local function formatGoldCost(amount)
-    local formatted = tostring(amount)
-    local withSeparators = formatted:reverse():gsub("(%d%d%d)", "%1,"):reverse()
-    return withSeparators:gsub("^,", "")
-end
-
-local function applyResourceBar(resources)
-    if not resources then
-        return
-    end
-
-    local resourceBar = craftBenchWindow.resourceBar
-
-    resourceBar.goldSlot.icon:setVisible(true)
-    resourceBar.goldSlot.icon:setItemId(3031)
-    resourceBar.goldSlot.amount:setText(formatGoldCost(resources.gold or 0))
-
-    local itemAmounts = resources.items or {}
-
-    for _, slot in ipairs(RESOURCE_ITEM_SLOTS) do
-        local slotWidget = resourceBar[slot.widgetId]
-        local amount = itemAmounts[tostring(slot.clientId)] or 0
-
-        slotWidget.icon:setVisible(true)
-        slotWidget.icon:setItemId(slot.clientId)
-        slotWidget.amount:setText(tostring(amount))
-    end
-end
-
+local GOLD_COIN_CLIENT_ID = 3031
 local STATUS_MESSAGE_DURATION = 4000
 
-local function showStatusMessage(success, message)
-    if not message or message == "" then
-        return
-    end
+local FALLBACK_RESOURCE_SLOTS = {
+	{ clientId = 60483, name = 'Golden Ruby Crafter Nv. 1', group = 'gold' },
+	{ clientId = 60490, name = 'Golden Ruby Crafter Nv. 2', group = 'gold' },
+	{ clientId = 60497, name = 'Golden Ruby Crafter Nv. 3', group = 'gold' },
+	{ clientId = 63401, name = 'Golden Ruby Crafter Nv. 4', group = 'gold' },
+	{ clientId = 60482, name = 'Platinum Ruby Crafter Nv. 1', group = 'platinum' },
+	{ clientId = 60489, name = 'Platinum Ruby Crafter Nv. 2', group = 'platinum' },
+	{ clientId = 60496, name = 'Platinum Ruby Crafter Nv. 3', group = 'platinum' },
+	{ clientId = 63400, name = 'Platinum Ruby Crafter Nv. 4', group = 'platinum' }
+}
 
-    local statusBanner = craftBenchWindow.statusBanner
+local VOCATION_LABELS = {
+	knight = 'Knight',
+	paladin = 'Paladin',
+	druid = 'Druid',
+	sorcerer = 'Sorcerer',
+	monk = 'Monk',
+	atribute_gem = 'Attribute Gem'
+}
 
-    statusBanner:setText(message)
-    statusBanner:setColor(success and "#4caf50" or "#e05656")
-    statusBanner:setVisible(true)
+local TAB_DEFINITIONS = {
+	craft = {
+		buttonId = 'craftTabButton',
+		actionLabel = 'Craft',
+		inputHeader = 'Ingredients',
+		outputHeader = 'You receive',
+		categoryField = 'vocation',
+		allCategoriesLabel = 'All vocations',
+		consumesResult = false
+	},
+	desmanche = {
+		buttonId = 'desmancheTabButton',
+		actionLabel = 'Dismantle',
+		inputHeader = 'Item to dismantle',
+		outputHeader = 'You receive (random amount)',
+		categoryField = 'classification',
+		allCategoriesLabel = 'All classes',
+		consumesResult = true
+	},
+	fusao = {
+		buttonId = 'fusaoTabButton',
+		actionLabel = 'Fuse',
+		inputHeader = 'Gems to fuse',
+		outputHeader = 'Result',
+		categoryField = nil,
+		allCategoriesLabel = nil,
+		consumesResult = false
+	}
+}
 
-    scheduleEvent(function()
-        if statusBanner then
-            statusBanner:setVisible(false)
-        end
-    end, STATUS_MESSAGE_DURATION)
+local TAB_ORDER = { 'craft', 'desmanche', 'fusao' }
+
+local craftBenchWindow
+local activeTabName = 'craft'
+local statusMessageEvent
+local resourceSlots = FALLBACK_RESOURCE_SLOTS
+local materialGroups = nil
+local tabStates = {}
+
+local function createTabState()
+	return {
+		recipes = {},
+		filteredRecipes = {},
+		searchText = '',
+		selectedIndex = 0,
+		categoryFilter = 'all',
+		materialFilters = { gold = false, platinum = false },
+		readyOnly = false
+	}
 end
 
-local function recipeMatchesSearch(recipe, query)
-    if query == "" then
-        return true
-    end
-
-    return recipe.resultName:lower():find(query, 1, true) ~= nil
+local function resetTabStates()
+	for _, tabName in ipairs(TAB_ORDER) do
+		tabStates[tabName] = createTabState()
+	end
 end
 
-local function recipeMatchesCategory(recipe, tab)
-    local filterValue = tab.categoryFilter
-
-    if not tab.categoryFilterField then
-        return true
-    end
-
-    if filterValue == "all" then
-        return true
-    end
-
-    if tab.categoryFilterField == "classification" and filterValue == "none" then
-        return (recipe.classification or 0) == 0
-    end
-
-    return recipe[tab.categoryFilterField] == filterValue
-end
-
-local function recipeHasIngredientInSet(recipe, materialIdSet)
-    for _, ingredient in ipairs(recipe.ingredients or {}) do
-        if materialIdSet[ingredient.clientId] then
-            return true
-        end
-    end
-
-    return false
-end
-
-local function recipeMatchesMaterial(recipe, tab)
-    local materialFilters = tab.materialFilters
-    local hasActiveMaterialFilter = materialFilters.gold or materialFilters.platinum
-
-    if not hasActiveMaterialFilter then
-        return true
-    end
-
-    local matchesGold = materialFilters.gold and recipeHasIngredientInSet(recipe, GOLD_MATERIAL_CLIENT_IDS)
-    local matchesPlatinum = materialFilters.platinum and recipeHasIngredientInSet(recipe, PLATINUM_MATERIAL_CLIENT_IDS)
-
-    return matchesGold or matchesPlatinum
-end
-
-local function recipeMatchesOwnedFilter(recipe, tab)
-    if not tab.ownedOnly then
-        return true
-    end
-
-    return recipe.hasRequiredItems == true
-end
-
-local function buildFilteredRecipes(tab)
-    local query = tab.searchText:lower()
-
-    tab.filteredRecipes = {}
-
-    for _, recipe in ipairs(tab.recipes) do
-        local matches = recipeMatchesSearch(recipe, query)
-            and recipeMatchesCategory(recipe, tab)
-            and recipeMatchesMaterial(recipe, tab)
-            and recipeMatchesOwnedFilter(recipe, tab)
-
-        if matches then
-            tab.filteredRecipes[#tab.filteredRecipes + 1] = recipe
-        end
-    end
-end
-
-local function formatIngredientAmount(ingredient)
-    if ingredient.minAmount and ingredient.maxAmount then
-        return "x" .. ingredient.minAmount .. "-" .. ingredient.maxAmount
-    end
-
-    return "x" .. ingredient.amount
-end
-
-local function buildIngredientSlot(ingredient, container)
-    local slotWidget = g_ui.createWidget("CraftBenchIngredientSlot", container)
-
-    slotWidget.icon:setItemId(ingredient.clientId)
-    slotWidget.name:setText(ingredient.name)
-    slotWidget.amount:setText(formatIngredientAmount(ingredient))
-end
-
-local function clearIngredientSlots(tab)
-    local ingredientSlots = getTabPanel(tab).rightPanel.ingredientsPanel.ingredientSlots
-    ingredientSlots:destroyChildren()
-end
-
-local function applyIngredientSlots(tab, ingredients)
-    clearIngredientSlots(tab)
-
-    local ingredientSlots = getTabPanel(tab).rightPanel.ingredientsPanel.ingredientSlots
-
-    for _, ingredient in ipairs(ingredients) do
-        buildIngredientSlot(ingredient, ingredientSlots)
-    end
-end
-
-local function clearResultPanel(tab)
-    local rightPanel = getTabPanel(tab).rightPanel
-
-    rightPanel.resultPanel.resultIcon:setVisible(false)
-    rightPanel.resultPanel.resultName:setText(tr("Select an item"))
-    rightPanel.resultPanel.resultAmount:setText("")
-
-    rightPanel.descriptionPanel.descriptionIcon:setVisible(false)
-    rightPanel.descriptionPanel.descriptionName:setText("")
-    rightPanel.descriptionPanel.descriptionText:setText("")
-
-    clearIngredientSlots(tab)
-end
-
-local function applyResultPanel(tab, recipe)
-    local resultPanel = getTabPanel(tab).rightPanel.resultPanel
-    local hasResultIcon = (recipe.resultClientId or 0) > 0
-
-    resultPanel.resultIcon:setVisible(hasResultIcon)
-
-    if hasResultIcon then
-        resultPanel.resultIcon:setItemId(recipe.resultClientId)
-        resultPanel.resultIcon:setBorderColor(getRarityColor(recipe.resultRarity))
-    end
-
-    resultPanel.resultName:setText(recipe.resultName)
-    resultPanel.resultAmount:setText(recipe.resultAmount > 0 and ("x" .. recipe.resultAmount) or "")
-
-    local hasGoldCost = (recipe.goldCost or 0) > 0
-    resultPanel.costLabel:setVisible(hasGoldCost)
-
-    if hasGoldCost then
-        resultPanel.costLabel:setText("Cost: " .. formatGoldCost(recipe.goldCost) .. " gold")
-    end
-
-    local hasSuccessChance = (recipe.successChance or 100) < 100
-    resultPanel.chanceLabel:setVisible(hasSuccessChance)
-
-    if hasSuccessChance then
-        resultPanel.chanceLabel:setText("Success chance: " .. recipe.successChance .. "%")
-    end
-end
-
-local function applyDescriptionPanel(tab, recipe)
-    local descriptionPanel = getTabPanel(tab).rightPanel.descriptionPanel
-    local hasResultIcon = (recipe.resultClientId or 0) > 0
-
-    descriptionPanel.descriptionIcon:setVisible(hasResultIcon)
-
-    if hasResultIcon then
-        descriptionPanel.descriptionIcon:setItemId(recipe.resultClientId)
-        descriptionPanel.descriptionIcon:setBorderColor(getRarityColor(recipe.resultRarity))
-    end
-
-    descriptionPanel.descriptionName:setText(recipe.resultName)
-    descriptionPanel.descriptionText:setText(recipe.resultDescription or "")
-end
-
-local function markSelectedRow(tab, index)
-    local rowsContainer = getTabPanel(tab).leftPanel.recipeListPanel.recipeRows
-
-    for _, rowWidget in pairs(rowsContainer:getChildren()) do
-        rowWidget:setChecked(rowWidget.recipeIndex == index)
-    end
-end
-
-local function selectRecipe(tab, index)
-    local recipe = tab.recipes[index]
-
-    if not recipe then
-        return
-    end
-
-    tab.selectedIndex = index
-
-    applyIngredientSlots(tab, recipe.ingredients or {})
-    applyResultPanel(tab, recipe)
-    applyDescriptionPanel(tab, recipe)
-    markSelectedRow(tab, index)
-end
-
-function onRecipeRowClicked(rowWidget)
-    local tab = tabs[rowWidget.tabName]
-
-    if not tab then
-        return
-    end
-
-    selectRecipe(tab, rowWidget.recipeIndex)
-end
-
-local function createRecipeRowWidget(tab, recipe, rowsContainer)
-    local rowWidget = g_ui.createWidget("CraftBenchRecipeRow", rowsContainer)
-    rowWidget.recipeIndex = recipe.index
-    rowWidget.tabName = tab.name
-
-    local hasResultIcon = (recipe.resultClientId or 0) > 0
-    rowWidget.icon:setVisible(hasResultIcon)
-
-    if hasResultIcon then
-        rowWidget.icon:setItemId(recipe.resultClientId)
-        rowWidget.icon:setBorderColor(getRarityColor(recipe.resultRarity))
-    end
-
-    rowWidget.name:setText(recipe.resultName)
-    rowWidget.subtitle:setText(#(recipe.ingredients or {}) .. " ingredients")
-    rowWidget:setChecked(recipe.index == tab.selectedIndex)
-
-    local hasClassification = (recipe.classification or 0) > 0
-    rowWidget.classificationBadge:setVisible(hasClassification)
-
-    if hasClassification then
-        rowWidget.classificationBadge:setText("CLASS " .. recipe.classification)
-    end
-end
-
-local function rebuildRecipeListWidget(tab)
-    if not craftBenchWindow then
-        return
-    end
-
-    local rowsContainer = getTabPanel(tab).leftPanel.recipeListPanel.recipeRows
-    rowsContainer:destroyChildren()
-
-    for _, recipe in ipairs(tab.filteredRecipes) do
-        createRecipeRowWidget(tab, recipe, rowsContainer)
-    end
-end
-
-function onSearchChange(tabName, text)
-    local tab = tabs[tabName]
-
-    if not tab then
-        return
-    end
-
-    tab.searchText = text or ""
-    buildFilteredRecipes(tab)
-    rebuildRecipeListWidget(tab)
-end
-
-function setCategoryFilter(tabName, categoryValue)
-    local tab = tabs[tabName]
-
-    if not tab then
-        return
-    end
-
-    tab.categoryFilter = categoryValue
-    buildFilteredRecipes(tab)
-    rebuildRecipeListWidget(tab)
-end
-
-function onCategoryFilterChange(tabName, comboBoxWidget)
-    local currentOption = comboBoxWidget:getCurrentOption()
-
-    if not currentOption then
-        return
-    end
-
-    setCategoryFilter(tabName, currentOption.data)
-end
-
-function setMaterialFilter(tabName, material, isChecked)
-    local tab = tabs[tabName]
-
-    if not tab then
-        return
-    end
-
-    tab.materialFilters[material] = isChecked
-    buildFilteredRecipes(tab)
-    rebuildRecipeListWidget(tab)
-end
-
-function setOwnedOnlyFilter(tabName, isChecked)
-    local tab = tabs[tabName]
-
-    if not tab then
-        return
-    end
-
-    tab.ownedOnly = isChecked
-    buildFilteredRecipes(tab)
-    rebuildRecipeListWidget(tab)
+local function activeTab()
+	return tabStates[activeTabName], TAB_DEFINITIONS[activeTabName]
 end
 
 local function sendToServer(payload)
-    local protocol = g_game.getProtocolGame()
+	local protocol = g_game.getProtocolGame()
+	if not protocol then
+		return
+	end
 
-    if not protocol then
-        return
-    end
-
-    protocol:sendExtendedOpcode(CRAFTBENCH_OPCODE, json.encode(payload))
+	protocol:sendExtendedOpcode(CRAFTBENCH_OPCODE, json.encode(payload))
 end
 
-local function requestTabData(tab)
-    sendToServer({ action = "request", tab = tab.name })
+local function formatNumber(amount)
+	local formattedNumber = tostring(math.floor(tonumber(amount) or 0))
+	while true do
+		local replacedNumber, replacementCount = formattedNumber:gsub('^(-?%d+)(%d%d%d)', '%1,%2')
+		formattedNumber = replacedNumber
+		if replacementCount == 0 then
+			return formattedNumber
+		end
+	end
+end
+
+local function formatGoldShort(amount)
+	local value = tonumber(amount) or 0
+	if value >= 1000000 then
+		local millions = value / 1000000
+		return (millions == math.floor(millions) and string.format('%dkk', millions) or string.format('%.1fkk', millions))
+	end
+
+	if value >= 1000 then
+		return string.format('%dk', math.floor(value / 1000))
+	end
+
+	return tostring(value)
+end
+
+local function canExecuteRecipe(recipe)
+	if recipe.canExecute ~= nil then
+		return recipe.canExecute == true
+	end
+
+	return recipe.hasRequiredItems == true
+end
+
+local function resolveCategoryLabel(tabDefinition, value)
+	if tabDefinition.categoryField == 'classification' then
+		if tonumber(value) == 0 then
+			return tr('No class')
+		end
+		return tr('Class') .. ' ' .. value
+	end
+
+	local knownLabel = VOCATION_LABELS[value]
+	if knownLabel then
+		return tr(knownLabel)
+	end
+
+	local text = tostring(value or '')
+	return text:sub(1, 1):upper() .. text:sub(2)
+end
+
+local function buildMaterialIdSets()
+	local idSets = { gold = {}, platinum = {} }
+
+	if materialGroups then
+		for groupName, clientIds in pairs(materialGroups) do
+			idSets[groupName] = idSets[groupName] or {}
+			for _, clientId in ipairs(clientIds) do
+				idSets[groupName][tonumber(clientId)] = true
+			end
+		end
+		return idSets
+	end
+
+	for _, slot in ipairs(FALLBACK_RESOURCE_SLOTS) do
+		idSets[slot.group][slot.clientId] = true
+	end
+	return idSets
+end
+
+local function recipeUsesMaterialGroup(recipe, idSet)
+	for _, ingredient in ipairs(recipe.ingredients or {}) do
+		if idSet[tonumber(ingredient.clientId)] then
+			return true
+		end
+	end
+	return false
+end
+
+local function recipeMatchesFilters(recipe, tabState, tabDefinition, materialIdSets)
+	local query = tabState.searchText:lower()
+	if query ~= '' and not recipe.resultName:lower():find(query, 1, true) then
+		return false
+	end
+
+	if tabDefinition.categoryField and tabState.categoryFilter ~= 'all' then
+		local recipeCategory = recipe[tabDefinition.categoryField]
+		if tostring(recipeCategory) ~= tostring(tabState.categoryFilter) then
+			return false
+		end
+	end
+
+	local filters = tabState.materialFilters
+	if filters.gold or filters.platinum then
+		local matchesGold = filters.gold and recipeUsesMaterialGroup(recipe, materialIdSets.gold)
+		local matchesPlatinum = filters.platinum and recipeUsesMaterialGroup(recipe, materialIdSets.platinum)
+		if not matchesGold and not matchesPlatinum then
+			return false
+		end
+	end
+
+	if tabState.readyOnly and not canExecuteRecipe(recipe) then
+		return false
+	end
+
+	return true
+end
+
+local function buildFilteredRecipes()
+	local tabState, tabDefinition = activeTab()
+	local materialIdSets = buildMaterialIdSets()
+
+	tabState.filteredRecipes = {}
+	for _, recipe in ipairs(tabState.recipes) do
+		if recipeMatchesFilters(recipe, tabState, tabDefinition, materialIdSets) then
+			table.insert(tabState.filteredRecipes, recipe)
+		end
+	end
+end
+
+local function findRecipe(tabState, recipeIndex)
+	for _, recipe in ipairs(tabState.recipes) do
+		if recipe.index == recipeIndex then
+			return recipe
+		end
+	end
+	return nil
+end
+
+local function applyResourceStrip(resources)
+	if not resources or not craftBenchWindow then
+		return
+	end
+
+	local resourceStrip = craftBenchWindow.resourceStrip
+	resourceStrip.goldChip.icon:setItemId(GOLD_COIN_CLIENT_ID)
+	resourceStrip.goldChip.amount:setText(formatNumber(resources.gold or 0))
+	resourceStrip.goldChip:setTooltip(tr('Gold (backpack + bank)') .. ': ' .. formatNumber(resources.gold or 0))
+
+	local slots = resources.slots or {}
+	if #slots == 0 then
+		for _, fallbackSlot in ipairs(resourceSlots) do
+			table.insert(slots, {
+				clientId = fallbackSlot.clientId,
+				name = fallbackSlot.name,
+				amount = (resources.items or {})[tostring(fallbackSlot.clientId)] or 0
+			})
+		end
+	end
+
+	local resourceChips = resourceStrip.resourceChips
+	resourceChips:destroyChildren()
+	for _, slot in ipairs(slots) do
+		local chip = g_ui.createWidget('CraftResourceChip', resourceChips)
+		chip.icon:setItemId(slot.clientId)
+		chip.amount:setText(tostring(slot.amount or 0))
+		chip.amount:setColor((slot.amount or 0) > 0 and '#dfdfdf' or '#6a6a6a')
+		chip:setTooltip((slot.name or '') .. ': ' .. tostring(slot.amount or 0))
+	end
+end
+
+local function hideStatusMessage()
+	if statusMessageEvent then
+		removeEvent(statusMessageEvent)
+		statusMessageEvent = nil
+	end
+
+	if craftBenchWindow then
+		craftBenchWindow.workbench.statusBanner:setText('')
+	end
+end
+
+local function showStatusMessage(success, message)
+	if not message or message == '' then
+		return
+	end
+
+	hideStatusMessage()
+	local statusBanner = craftBenchWindow.workbench.statusBanner
+	statusBanner:setText(message)
+	statusBanner:setColor(success and '#6fd38a' or '#ff7a6a')
+	statusMessageEvent = scheduleEvent(function()
+		statusMessageEvent = nil
+		hideStatusMessage()
+	end, STATUS_MESSAGE_DURATION)
+end
+
+local function formatIngredientAmount(ingredient)
+	if ingredient.minAmount and ingredient.maxAmount then
+		return ingredient.minAmount .. '-' .. ingredient.maxAmount
+	end
+
+	return tostring(ingredient.amount or 0)
+end
+
+local function createMaterialRow(container, clientId, name, requiredAmount, ownedAmount, amountText)
+	local materialRow = g_ui.createWidget('CraftMaterialRow', container)
+	materialRow.icon:setItemId(clientId)
+	materialRow.icon:setTooltip(name)
+	materialRow.name:setText(name)
+
+	if ownedAmount == nil then
+		materialRow.amount:setText('x' .. amountText)
+		materialRow.amount:setColor('#c0c0c0')
+		materialRow.ownedBar:setVisible(false)
+		return
+	end
+
+	local hasEnough = ownedAmount >= requiredAmount
+	materialRow.amount:setText(formatNumber(math.min(ownedAmount, requiredAmount)) .. ' / ' .. formatNumber(requiredAmount))
+	materialRow.amount:setColor(hasEnough and '#6fd38a' or '#f0c060')
+	materialRow.ownedBar:setPercent(requiredAmount > 0 and math.min(100, ownedAmount * 100 / requiredAmount) or 100)
+	materialRow.ownedBar:setBackgroundColor(hasEnough and '#2f9e44' or '#c28400')
+end
+
+local function fillIngredientRows(container, recipe, showOwned)
+	for _, ingredient in ipairs(recipe.ingredients or {}) do
+		local ownedAmount = showOwned and tonumber(ingredient.owned) or nil
+		createMaterialRow(container, ingredient.clientId, ingredient.name or '', tonumber(ingredient.amount) or 0, ownedAmount, formatIngredientAmount(ingredient))
+	end
+end
+
+local function fillResultRow(container, recipe, showOwned)
+	local ownedAmount = showOwned and tonumber(recipe.resultOwned) or nil
+	createMaterialRow(container, recipe.resultClientId, recipe.resultName, tonumber(recipe.resultAmount) or 1, ownedAmount, tostring(recipe.resultAmount or 1))
+end
+
+local function chanceColor(successChance)
+	if successChance >= 90 then
+		return '#6fd38a'
+	end
+
+	if successChance >= 50 then
+		return '#f0c060'
+	end
+
+	return '#ff7a6a'
+end
+
+local function setWorkbenchContentVisible(isVisible)
+	local workbench = craftBenchWindow.workbench
+	for _, child in ipairs(workbench:getChildren()) do
+		child:setVisible(isVisible == (child:getId() ~= 'emptyWorkbenchLabel'))
+	end
+end
+
+local function describeRecipeTag(recipe, tabDefinition)
+	if tabDefinition.categoryField == 'vocation' and recipe.vocation and recipe.vocation ~= '' then
+		return resolveCategoryLabel(tabDefinition, recipe.vocation)
+	end
+
+	if tabDefinition.categoryField == 'classification' and (tonumber(recipe.classification) or 0) > 0 then
+		return resolveCategoryLabel(tabDefinition, recipe.classification)
+	end
+
+	return tr(tabDefinition.actionLabel)
+end
+
+local function updateWorkbench()
+	local tabState, tabDefinition = activeTab()
+	local recipe = findRecipe(tabState, tabState.selectedIndex)
+	local workbench = craftBenchWindow.workbench
+
+	if not recipe then
+		setWorkbenchContentVisible(false)
+		return
+	end
+
+	setWorkbenchContentVisible(true)
+	workbench.statusBanner:setVisible(true)
+
+	workbench.header.headerIcon:setItemId(recipe.resultClientId)
+	workbench.header.title:setText(recipe.resultName)
+	workbench.header.tag:setText(describeRecipeTag(recipe, tabDefinition))
+
+	workbench.inputHeader:setText(tr(tabDefinition.inputHeader))
+	workbench.outputHeader:setText('>> ' .. tr(tabDefinition.outputHeader))
+	workbench.inputList:destroyChildren()
+	workbench.outputList:destroyChildren()
+
+	if tabDefinition.consumesResult then
+		fillResultRow(workbench.inputList, recipe, true)
+		fillIngredientRows(workbench.outputList, recipe, false)
+	else
+		fillIngredientRows(workbench.inputList, recipe, true)
+		fillResultRow(workbench.outputList, recipe, false)
+	end
+
+	local goldCost = tonumber(recipe.goldCost) or 0
+	workbench.costChip.caption:setText(tr('Cost'))
+	workbench.costChip.value:setText(goldCost > 0 and (formatNumber(goldCost) .. ' gp') or tr('Free'))
+	workbench.costChip.value:setColor(recipe.hasEnoughGold == false and '#ff7a6a' or '#f0c060')
+
+	local successChance = tonumber(recipe.successChance) or 100
+	workbench.chanceChip.caption:setText(tr('Success chance'))
+	workbench.chanceChip.value:setText(successChance .. '%')
+	workbench.chanceChip.value:setColor(chanceColor(successChance))
+
+	workbench.description:setText(recipe.resultDescription or '')
+
+	local isReady = canExecuteRecipe(recipe)
+	workbench.actionButton:setText(tr(tabDefinition.actionLabel))
+	workbench.actionButton:setEnabled(isReady)
+end
+
+local function describeRecipeSubtitle(recipe, tabDefinition)
+	local parts = {}
+	local tag = describeRecipeTag(recipe, tabDefinition)
+	if tag ~= tr(tabDefinition.actionLabel) then
+		table.insert(parts, tag)
+	end
+
+	local successChance = tonumber(recipe.successChance) or 100
+	if successChance < 100 then
+		table.insert(parts, successChance .. '% ' .. tr('chance'))
+	end
+
+	local goldCost = tonumber(recipe.goldCost) or 0
+	if goldCost > 0 then
+		table.insert(parts, formatGoldShort(goldCost) .. ' gp')
+	end
+
+	if #parts == 0 then
+		return #(recipe.ingredients or {}) .. ' ' .. tr('materials')
+	end
+
+	return table.concat(parts, '  -  ')
+end
+
+local function onRecipeRowFocus(recipeRows, focusedRow)
+	if not focusedRow then
+		return
+	end
+
+	local tabState = activeTab()
+	tabState.selectedIndex = focusedRow.recipeIndex
+	updateWorkbench()
+end
+
+local function rebuildRecipeList()
+	local tabState, tabDefinition = activeTab()
+	local leftPanel = craftBenchWindow.leftPanel
+	local recipeRows = leftPanel.recipeRows
+
+	recipeRows.onChildFocusChange = nil
+	recipeRows:destroyChildren()
+
+	local selectedRow = nil
+	for _, recipe in ipairs(tabState.filteredRecipes) do
+		local row = g_ui.createWidget('CraftRecipeRow', recipeRows)
+		row:setId('recipe' .. recipe.index)
+		row.recipeIndex = recipe.index
+		row.icon:setItemId(recipe.resultClientId)
+		row.name:setText(recipe.resultName)
+		row.subtitle:setText(describeRecipeSubtitle(recipe, tabDefinition))
+
+		local isReady = canExecuteRecipe(recipe)
+		row.readyLabel:setText(isReady and tr('Ready') or '')
+		row.readyLabel:setColor('#6fd38a')
+		row.onClick = function()
+			recipeRows:focusChild(row, MouseFocusReason)
+			onRecipeRowFocus(recipeRows, row)
+		end
+
+		if recipe.index == tabState.selectedIndex then
+			selectedRow = row
+		end
+	end
+
+	leftPanel.listCountLabel:setText(#tabState.filteredRecipes .. ' / ' .. #tabState.recipes .. ' ' .. tr('recipes'))
+	leftPanel.emptyListLabel:setVisible(#tabState.filteredRecipes == 0)
+	recipeRows.onChildFocusChange = onRecipeRowFocus
+
+	selectedRow = selectedRow or recipeRows:getFirstChild()
+	if not selectedRow then
+		tabState.selectedIndex = 0
+		updateWorkbench()
+		return
+	end
+
+	recipeRows:focusChild(selectedRow, ActiveFocusReason)
+	recipeRows:ensureChildVisible(selectedRow)
+	onRecipeRowFocus(recipeRows, selectedRow)
+end
+
+local function refreshList()
+	buildFilteredRecipes()
+	rebuildRecipeList()
+end
+
+local function rebuildCategoryOptions()
+	local tabState, tabDefinition = activeTab()
+	local categoryFilter = craftBenchWindow.leftPanel.categoryFilter
+	categoryFilter.onOptionChange = nil
+	categoryFilter:clearOptions()
+
+	if not tabDefinition.categoryField then
+		categoryFilter:setVisible(false)
+		return
+	end
+
+	categoryFilter:setVisible(true)
+	categoryFilter:addOption(tr(tabDefinition.allCategoriesLabel), 'all')
+
+	local seenValues = {}
+	local orderedValues = {}
+	for _, recipe in ipairs(tabState.recipes) do
+		local value = recipe[tabDefinition.categoryField]
+		if value ~= nil and value ~= '' and not seenValues[tostring(value)] then
+			seenValues[tostring(value)] = true
+			table.insert(orderedValues, value)
+		end
+	end
+
+	table.sort(orderedValues, function(firstValue, secondValue)
+		return tostring(firstValue) < tostring(secondValue)
+	end)
+
+	local selectedLabel = tr(tabDefinition.allCategoriesLabel)
+	for _, value in ipairs(orderedValues) do
+		local label = resolveCategoryLabel(tabDefinition, value)
+		categoryFilter:addOption(label, value)
+		if tostring(value) == tostring(tabState.categoryFilter) then
+			selectedLabel = label
+		end
+	end
+
+	categoryFilter:setCurrentOption(selectedLabel)
+	categoryFilter.onOptionChange = function(comboBox, optionText, optionData)
+		tabState.categoryFilter = optionData or 'all'
+		refreshList()
+	end
+end
+
+local function syncFilterWidgets()
+	local tabState = activeTab()
+	local leftPanel = craftBenchWindow.leftPanel
+
+	leftPanel.searchInput:setText(tabState.searchText)
+	leftPanel.goldToggle:setChecked(tabState.materialFilters.gold)
+	leftPanel.platinumToggle:setChecked(tabState.materialFilters.platinum)
+	leftPanel.readyOnlyToggle:setChecked(tabState.readyOnly)
+	rebuildCategoryOptions()
+end
+
+local function applyTabButtons()
+	for _, tabName in ipairs(TAB_ORDER) do
+		craftBenchWindow.tabBar[TAB_DEFINITIONS[tabName].buttonId]:setOn(tabName == activeTabName)
+	end
+end
+
+function onSearchChange(text)
+	local tabState = activeTab()
+	if not tabState then
+		return
+	end
+
+	tabState.searchText = text or ''
+	refreshList()
+end
+
+function setMaterialFilter(materialGroup, isChecked)
+	local tabState = activeTab()
+	if not tabState or tabState.materialFilters[materialGroup] == isChecked then
+		return
+	end
+
+	tabState.materialFilters[materialGroup] = isChecked
+	refreshList()
+end
+
+function setReadyOnlyFilter(isChecked)
+	local tabState = activeTab()
+	if not tabState or tabState.readyOnly == isChecked then
+		return
+	end
+
+	tabState.readyOnly = isChecked
+	refreshList()
 end
 
 function performTabAction()
-    local tab = tabs[activeTabName]
+	local tabState = activeTab()
+	local recipe = findRecipe(tabState, tabState.selectedIndex)
+	if not recipe or not canExecuteRecipe(recipe) then
+		return
+	end
 
-    if tab.selectedIndex == 0 then
-        return
-    end
-
-    sendToServer({
-        action      = "execute",
-        tab         = tab.name,
-        recipeIndex = tab.selectedIndex
-    })
-end
-
-local function applyTabVisualState(tabName)
-    for name, tab in pairs(tabs) do
-        getTabPanel(tab):setVisible(name == tabName)
-        craftBenchWindow.tabBar[tab.buttonId]:setEnabled(name ~= tabName)
-    end
+	sendToServer({ action = 'execute', tab = activeTabName, recipeIndex = recipe.index })
 end
 
 function switchTab(tabName)
-    local tab = tabs[tabName]
+	if not TAB_DEFINITIONS[tabName] or tabName == activeTabName then
+		return
+	end
 
-    if not tab then
-        return
-    end
-
-    if tabName == activeTabName then
-        return
-    end
-
-    activeTabName = tabName
-    applyTabVisualState(tabName)
-    requestTabData(tab)
+	activeTabName = tabName
+	hideStatusMessage()
+	applyTabButtons()
+	syncFilterWidgets()
+	refreshList()
+	sendToServer({ action = 'request', tab = tabName })
 end
 
-local function populateCategoryFilterOptions(tab)
-    local comboBoxWidget = getTabPanel(tab).leftPanel.classFilterComboBox
-
-    for _, option in ipairs(tab.categoryFilterOptions) do
-        comboBoxWidget:addOption(tr(option.label), option.value)
-    end
+local function applyServerRules(data)
+	if type(data.materialGroups) == 'table' then
+		materialGroups = data.materialGroups
+	end
 end
 
-local function resetFilterWidgets(tab)
-    local leftPanel = getTabPanel(tab).leftPanel
-    local comboBoxWidget = leftPanel.classFilterComboBox
+local function applyServerState(tabName, data)
+	local tabState = tabStates[tabName]
+	tabState.recipes = data.recipes or {}
+	applyServerRules(data)
+	applyResourceStrip(data.resources)
 
-    if not comboBoxWidget then
-        return
-    end
+	if tabName ~= activeTabName then
+		return
+	end
 
-    comboBoxWidget:setCurrentOption(tr("All"))
-    leftPanel.materialFilterBar.materialGoldToggle:setChecked(false)
-    leftPanel.materialFilterBar.materialPlatinumToggle:setChecked(false)
+	syncFilterWidgets()
+	refreshList()
 
-    if leftPanel.ownedOnlyCheckbox then
-        leftPanel.ownedOnlyCheckbox:setChecked(false)
-    end
+	craftBenchWindow:show()
+	craftBenchWindow:raise()
+	craftBenchWindow:focus()
 end
 
-local function resetTabState(tab)
-    tab.recipes = {}
-    tab.filteredRecipes = {}
-    tab.searchText = ""
-    tab.selectedIndex = 0
-    tab.categoryFilter = "all"
-    tab.materialFilters = { gold = false, platinum = false }
-    tab.ownedOnly = false
-end
+local function applyExecutionResult(tabName, data)
+	local tabState = tabStates[tabName]
+	tabState.recipes = data.recipes or tabState.recipes
+	applyServerRules(data)
+	applyResourceStrip(data.resources)
 
-local function resetState()
-    for _, tab in pairs(tabs) do
-        resetTabState(tab)
-    end
+	if tabName ~= activeTabName then
+		return
+	end
 
-    resetFilterWidgets(tabs.craft)
-    resetFilterWidgets(tabs.desmanche)
-    activeTabName = "craft"
-end
-
-local function applyServerState(tab, data)
-    tab.recipes = data.recipes or {}
-    tab.searchText = ""
-    tab.selectedIndex = 0
-
-    buildFilteredRecipes(tab)
-    clearResultPanel(tab)
-    rebuildRecipeListWidget(tab)
-    applyResourceBar(data.resources)
-
-    getTabPanel(tab).leftPanel.searchInput:setText("")
-
-    craftBenchWindow:show()
-    craftBenchWindow:raise()
-    craftBenchWindow:focus()
-end
-
-local function applyExecutionResult(tab, data)
-    tab.recipes = data.recipes or tab.recipes
-
-    buildFilteredRecipes(tab)
-    rebuildRecipeListWidget(tab)
-    applyResourceBar(data.resources)
-    showStatusMessage(data.success, data.message)
+	refreshList()
+	showStatusMessage(data.success, data.message)
 end
 
 local function onExtendedOpcode(protocol, opcode, buffer)
-    if opcode ~= CRAFTBENCH_OPCODE then
-        return
-    end
+	if opcode ~= CRAFTBENCH_OPCODE then
+		return
+	end
 
-    local success, data = pcall(function()
-        return json.decode(buffer)
-    end)
+	local decodedSuccessfully, data = pcall(function()
+		return json.decode(buffer)
+	end)
 
-    if not success or not data then
-        return
-    end
+	if not decodedSuccessfully or not data then
+		return
+	end
 
-    local resolvedTabName = data.tab or "craft"
-    local tab = tabs[resolvedTabName]
+	local tabName = data.tab or 'craft'
+	if not tabStates[tabName] then
+		g_logger.warning('game_craftbench: unknown tab received from server: ' .. tostring(data.tab))
+		return
+	end
 
-    if not tab then
-        g_logger.warning("game_craftbench: aba desconhecida recebida do servidor: " .. tostring(data.tab))
-        return
-    end
+	if data.action == 'data' then
+		applyServerState(tabName, data)
+		return
+	end
 
-    if data.action == "data" then
-        applyServerState(tab, data)
-    elseif data.action == "result" then
-        applyExecutionResult(tab, data)
-    end
+	if data.action == 'result' then
+		applyExecutionResult(tabName, data)
+	end
 end
 
 local function onGameStart()
-    ProtocolGame.registerExtendedOpcode(CRAFTBENCH_OPCODE, onExtendedOpcode)
+	ProtocolGame.registerExtendedOpcode(CRAFTBENCH_OPCODE, onExtendedOpcode)
 end
 
 function show()
-    craftBenchWindow:show()
-    craftBenchWindow:raise()
-    craftBenchWindow:focus()
-    requestTabData(tabs[activeTabName])
+	craftBenchWindow:show()
+	craftBenchWindow:raise()
+	craftBenchWindow:focus()
+	sendToServer({ action = 'request', tab = activeTabName })
 end
 
 function hide()
-    craftBenchWindow:hide()
+	craftBenchWindow:hide()
+	hideStatusMessage()
 end
 
 function toggle()
-    if craftBenchWindow:isVisible() then
-        return hide()
-    end
+	if craftBenchWindow:isVisible() then
+		return hide()
+	end
 
-    show()
+	show()
 end
 
 local function onGameEnd()
-    ProtocolGame.unregisterExtendedOpcode(CRAFTBENCH_OPCODE)
-    hide()
-    resetState()
+	ProtocolGame.unregisterExtendedOpcode(CRAFTBENCH_OPCODE)
+	hide()
+	resetTabStates()
+	materialGroups = nil
+	activeTabName = 'craft'
+	applyTabButtons()
+	syncFilterWidgets()
+	refreshList()
 end
 
 function init()
-    connect(g_game, {
-        onGameStart = onGameStart,
-        onGameEnd   = onGameEnd
-    })
+	connect(g_game, {
+		onGameStart = onGameStart,
+		onGameEnd = onGameEnd
+	})
 
-    craftBenchWindow = g_ui.displayUI("craftbench")
-    craftBenchWindow:hide()
+	resetTabStates()
+	craftBenchWindow = g_ui.displayUI('craftbench')
+	craftBenchWindow:hide()
+	applyTabButtons()
+	syncFilterWidgets()
+	refreshList()
 
-    applyTabVisualState(activeTabName)
-    populateCategoryFilterOptions(tabs.craft)
-    populateCategoryFilterOptions(tabs.desmanche)
-
-    if g_game.isOnline() then
-        onGameStart()
-    end
+	if g_game.isOnline() then
+		onGameStart()
+	end
 end
 
 function terminate()
-    disconnect(g_game, {
-        onGameStart = onGameStart,
-        onGameEnd   = onGameEnd
-    })
+	disconnect(g_game, {
+		onGameStart = onGameStart,
+		onGameEnd = onGameEnd
+	})
 
-    if craftBenchWindow then
-        craftBenchWindow:destroy()
-    end
+	hideStatusMessage()
+
+	if craftBenchWindow then
+		craftBenchWindow:destroy()
+		craftBenchWindow = nil
+	end
 end
