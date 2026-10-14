@@ -1,505 +1,437 @@
-ElementalBuildElementRow < UIWidget
-  height: 52
-  margin-bottom: 4
-  padding: 8
-  background-color: #2e2e2e
-  border-width: 1
-  border-color: #3a3a3a
+ElementalOrb < UIWidget
+  height: 56
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000077
+  padding: 4
 
-  Button
-    id: increaseTen
-    anchors.right: parent.right
+  UIWidget
+    id: emblem
+    size: 18 18
     anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
     margin-top: 2
-    margin-right: 2
-    width: 30
-    height: 18
-    font: verdana-11px-antialised
-    text: +10
-    tooltip: +10 pts | Shift: MAX
-
-  Button
-    id: increaseOne
-    anchors.right: increaseTen.left
-    anchors.top: parent.top
-    margin-top: 2
-    margin-right: 2
-    width: 18
-    height: 18
-    font: verdana-11px-antialised
-    text: +
-    tooltip: +1 pt | Shift: MAX
+    phantom: true
 
   Label
-    id: elementPoints
-    anchors.right: increaseOne.left
-    anchors.top: parent.top
-    margin-top: 4
-    margin-right: 4
-    width: 60
-    font: verdana-11px-antialised
-    color: #4a90d9
-    text-auto-resize: false
-    text-align: center
-
-  Button
-    id: decreaseOne
-    anchors.right: elementPoints.left
-    anchors.top: parent.top
+    id: bonus
+    anchors.top: emblem.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
     margin-top: 2
-    margin-right: 2
-    width: 18
-    height: 18
-    font: verdana-11px-antialised
-    text: -
-    tooltip: -1 pt | Shift: MIN
-
-  Button
-    id: decreaseTen
-    anchors.right: decreaseOne.left
-    anchors.top: parent.top
-    margin-top: 2
-    margin-right: 2
-    width: 30
-    height: 18
-    font: verdana-11px-antialised
-    text: -10
-    tooltip: -10 pts | Shift: MIN
+    font: Verdana Bold-11px
+    color: #666666
+    text-auto-resize: true
+    phantom: true
 
   Label
     id: elementName
-    anchors.left: parent.left
-    anchors.right: decreaseTen.left
-    anchors.top: parent.top
-    margin-top: 4
-    margin-right: 4
-    font: verdana-11px-antialised
-    color: #e0e0e0
-    text-auto-resize: false
-    text-wrap: false
+    anchors.top: bonus.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    font: verdana-11px-rounded
+    color: #8a8a8a
+    text-auto-resize: true
+    phantom: true
 
-  Panel
-    id: progressBarBg
+  UIWidget
+    id: fillTrack
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    height: 4
-    margin-bottom: 4
-    background-color: #1a1a1a
+    height: 3
+    margin-left: -3
+    margin-right: -3
+    margin-bottom: -3
+    background-color: #00000099
+    phantom: true
 
-    Panel
-      id: progressBarFill
+    UIWidget
+      id: fill
       anchors.left: parent.left
       anchors.top: parent.top
       anchors.bottom: parent.bottom
       width: 0
-      background-color: #4a90d9
+      phantom: true
 
-ElementalBuildMissionRow < UIWidget
-  height: 52
-  margin-bottom: 4
-  padding: 8
-  background-color: #2e2e2e
+ElementalTab < UIButton
+  height: 26
+  width: 180
+  image-source: /images/ui/tabbutton_rounded
+  image-color: #dfdfdf
+  image-clip: 0 0 22 23
+  image-border: 3
+  font: Verdana Bold-11px
+  color: #a8a8a8
+  text-offset: 0 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !on:
+    image-clip: 0 23 22 23
+    color: #dfdfdf
+
+  $on:
+    image-clip: 0 46 22 23
+    color: #f0c060
+
+ElementalSectionHeader < UIWidget
+  height: 22
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000088
+  padding-left: 8
+  padding-right: 8
+
+  Label
+    id: title
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-rounded
+    color: #f0c060
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: detail
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-rounded
+    color: #9d9d9d
+    text-auto-resize: true
+    phantom: true
+
+ElementalActionButton < Button
+  height: 24
+  font: Verdana Bold-11px
+  color: #ffffff
+  text-offset: 0 1
+
+  $hover !disabled:
+    color: #f0c060
+
+  $disabled:
+    color: #7a7a7a
+    opacity: 0.85
+
+ElementalStepButton < Button
+  size: 26 20
+  font: Verdana Bold-11px
+  color: #ffffff
+  text-offset: 0 1
+
+  $hover !disabled:
+    color: #f0c060
+
+  $disabled:
+    color: #6a6a6a
+    opacity: 0.8
+
+JourneyNode < UIWidget
+  height: 46
+  focusable: true
+  background-color: #00000000
   border-width: 1
-  border-color: #3a3a3a
+  border-color: #00000000
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !focus:
+    background-color: #ffffff10
+
+  $focus:
+    background-color: #c2840022
+    border-color: #c28400
+
+  UIWidget
+    id: lineTop
+    anchors.top: parent.top
+    anchors.bottom: parent.verticalCenter
+    anchors.left: parent.left
+    width: 2
+    margin-left: 22
+    background-color: #3a3a3a
+    phantom: true
+
+  UIWidget
+    id: lineBottom
+    anchors.top: parent.verticalCenter
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    width: 2
+    margin-left: 22
+    background-color: #3a3a3a
+    phantom: true
+
+  UIWidget
+    id: node
+    size: 30 30
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 8
+    image-source: /images/game/wheel/backdrop_skillwheel_socket_inactive
+    image-smooth: true
+    phantom: true
+
+    Label
+      id: nodeNumber
+      anchors.centerIn: parent
+      font: Verdana Bold-11px
+      color: #8a8a8a
+      text-auto-resize: true
+      phantom: true
+
+    UIWidget
+      id: nodeCheck
+      size: 12 12
+      anchors.centerIn: parent
+      image-source: /images/game/wheel/icon-socketed
+      visible: false
+      phantom: true
 
   Label
     id: missionName
-    anchors.left: parent.left
+    anchors.left: node.right
+    anchors.right: parent.right
     anchors.top: parent.top
-    anchors.right: viewButton.left
-    margin-top: 4
-    margin-right: 4
-    font: verdana-11px-antialised
+    margin-left: 10
+    margin-top: 8
+    margin-right: 6
+    font: verdana-11px-rounded
     color: #e0e0e0
-    text-auto-resize: false
-    text-wrap: false
+    phantom: true
 
   Label
-    id: missionSubtitle
-    anchors.left: parent.left
+    id: missionState
+    anchors.left: missionName.left
     anchors.top: missionName.bottom
-    anchors.right: viewButton.left
-    margin-top: 2
-    margin-right: 4
-    font: verdana-11px-antialised
-    color: #888888
-    text-auto-resize: false
-    text-wrap: false
+    margin-top: 3
+    font: verdana-11px-rounded
+    color: #8a8a8a
+    text-auto-resize: true
+    phantom: true
 
-  Button
-    id: viewButton
-    anchors.right: parent.right
-    anchors.verticalCenter: parent.verticalCenter
-    width: 50
-    height: 22
-    margin-bottom: 3px
-    font: verdana-11px-antialised
-    text: View
-
-  Panel
-    id: progressBarBg
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    height: 6
-    background-color: #1a1a1a
-
-    Panel
-      id: progressBarFill
-      anchors.left: parent.left
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 0
-      background-color: #4a90d9
-
-ElementalBuildModalItemSlot < UIWidget
-  height: 40
-  margin-bottom: 4
-  background-color: #252525
-  border-width: 1
-  border-color: #3a3a3a
+RequiredItemRow < UIWidget
+  height: 42
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000055
+  padding: 4
 
   UIItem
     id: itemIcon
-    size: 32 32
+    size: 34 34
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
-    margin-left: 4
+    image-source: /images/ui/item
     virtual: true
 
   Label
     id: itemName
     anchors.left: itemIcon.right
     anchors.top: parent.top
-    margin-top: 6
     margin-left: 8
-    font: verdana-11px-antialised
-    color: #d0d0d0
+    margin-top: 4
+    font: verdana-11px-rounded
+    color: #dfdfdf
     text-auto-resize: true
+    phantom: true
 
   Label
     id: itemProgress
     anchors.right: parent.right
     anchors.top: parent.top
-    margin-top: 6
-    margin-right: 8
-    font: verdana-11px-antialised
-    color: #4a90d9
+    margin-right: 4
+    margin-top: 4
+    font: verdana-11px-rounded
     text-auto-resize: true
+    phantom: true
 
-  Panel
-    id: progressBarBg
+  ProgressBar
+    id: itemProgressBar
     anchors.left: itemIcon.right
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    height: 3
-    background-color: #1a1a1a
-
-    Panel
-      id: progressBarFill
-      anchors.left: parent.left
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 0
-      background-color: #4a90d9
-
-ElementalBuildInfoRow < UIWidget
-  height: 76
-  margin-bottom: 4
-  padding: 8
-  background-color: #2e2e2e
-  border-width: 1
-  border-color: #3a3a3a
-
-  Label
-    id: infoElementName
-    anchors.left: parent.left
-    anchors.top: parent.top
-    margin-top: 4
-    font: verdana-11px-antialised
-    color: #e0e0e0
-    text-auto-resize: true
-
-  Label
-    id: infoBonusLabel
-    anchors.right: parent.right
-    anchors.top: parent.top
-    margin-top: 4
+    margin-left: 8
     margin-right: 4
-    font: verdana-11px-antialised
-    color: #4a90d9
-    text-auto-resize: true
+    margin-bottom: 4
+    height: 8
+    on: true
+    phantom: true
+
+AttunementRow < UIWidget
+  height: 50
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000055
+  padding: 6
+
+  UIWidget
+    id: emblemFrame
+    size: 32 32
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    image-source: /images/game/wheel/backdrop_skillwheel_socket_inactive
+    image-smooth: true
+    phantom: true
+
+    UIWidget
+      id: emblem
+      size: 18 18
+      anchors.centerIn: parent
+      phantom: true
+
+  ElementalStepButton
+    id: increaseTen
+    anchors.right: parent.right
+    anchors.top: parent.top
+    width: 32
+    text: +10
+
+  ElementalStepButton
+    id: increaseOne
+    anchors.right: increaseTen.left
+    anchors.top: parent.top
+    margin-right: 3
+    text: +
 
   Label
-    id: infoDescription
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.top: infoElementName.bottom
-    anchors.bottom: progressBarBg.top
-    margin-top: 2
-    margin-bottom: 4
-    font: verdana-11px-antialised
-    color: #888888
-    text-auto-resize: false
-    text-wrap: true
+    id: elementPoints
+    anchors.right: increaseOne.left
+    anchors.verticalCenter: increaseOne.verticalCenter
+    margin-right: 4
+    width: 66
+    font: verdana-11px-rounded
+    color: #dfdfdf
+    text-align: center
+    phantom: true
 
-  Panel
+  ElementalStepButton
+    id: decreaseOne
+    anchors.right: elementPoints.left
+    anchors.top: parent.top
+    margin-right: 4
+    text: -
+
+  ElementalStepButton
+    id: decreaseTen
+    anchors.right: decreaseOne.left
+    anchors.top: parent.top
+    margin-right: 3
+    width: 32
+    text: -10
+
+  Label
+    id: elementName
+    anchors.left: emblemFrame.right
+    anchors.top: parent.top
+    margin-left: 10
+    margin-top: 2
+    font: Verdana Bold-11px
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: bonusPreview
+    anchors.left: elementName.right
+    anchors.verticalCenter: elementName.verticalCenter
+    margin-left: 8
+    font: verdana-11px-rounded
+    color: #9d9d9d
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: elementDescription
+    anchors.left: elementName.left
+    anchors.right: decreaseTen.left
+    anchors.top: elementName.bottom
+    margin-top: 3
+    margin-right: 8
+    font: verdana-11px-rounded
+    color: #7d7d7d
+    phantom: true
+
+  UIWidget
     id: progressBarBg
-    anchors.left: parent.left
+    anchors.left: elementName.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    height: 3
-    margin-bottom: 2
-    background-color: #1a1a1a
+    height: 4
+    background-color: #00000099
+    phantom: true
 
-    Panel
+    UIWidget
       id: progressBarFill
       anchors.left: parent.left
       anchors.top: parent.top
       anchors.bottom: parent.bottom
       width: 0
-      background-color: #4a90d9
+      phantom: true
+
+PointsSummaryBox < UIWidget
+  height: 26
+  width: 150
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000077
+  padding-left: 8
+  padding-right: 8
+
+  Label
+    id: caption
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-rounded
+    color: #9d9d9d
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: value
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: Verdana Bold-11px
+    color: #f0c060
+    text-auto-resize: true
+    phantom: true
 
 MainWindow
   id: elementalBuildWindow
-  size: 440 620
+  !text: tr('Elemental Build')
+  size: 760 590
   @onEscape: modules.game_elementalbuild.hide()
 
   Panel
-    id: bonusSummaryBar
+    id: orbBar
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
-    height: 36
-    background-color: #1a1a1a
-
-    Panel
-      id: physicalSummary
-      anchors.left: parent.left
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 60
-
-      Label
-        id: physicalLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #888780
-        text: PHY
-        text-auto-resize: true
-
-      Label
-        id: physicalBonus
-        anchors.top: physicalLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
-
-    Panel
-      id: energySummary
-      anchors.left: physicalSummary.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 60
-
-      Label
-        id: energyLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #378ADD
-        text: ENG
-        text-auto-resize: true
-
-      Label
-        id: energyBonus
-        anchors.top: energyLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
-
-    Panel
-      id: earthSummary
-      anchors.left: energySummary.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 60
-
-      Label
-        id: earthLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #639922
-        text: EAR
-        text-auto-resize: true
-
-      Label
-        id: earthBonus
-        anchors.top: earthLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
-
-    Panel
-      id: fireSummary
-      anchors.left: earthSummary.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 60
-
-      Label
-        id: fireLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #D85A30
-        text: FIRE
-        text-auto-resize: true
-
-      Label
-        id: fireBonus
-        anchors.top: fireLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
-
-    Panel
-      id: iceSummary
-      anchors.left: fireSummary.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 60
-
-      Label
-        id: iceLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #85B7EB
-        text: ICE
-        text-auto-resize: true
-
-      Label
-        id: iceBonus
-        anchors.top: iceLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
-
-    Panel
-      id: holySummary
-      anchors.left: iceSummary.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 60
-
-      Label
-        id: holyLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #EF9F27
-        text: HOLY
-        text-auto-resize: true
-
-      Label
-        id: holyBonus
-        anchors.top: holyLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
-
-    Panel
-      id: deathSummary
-      anchors.left: holySummary.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      anchors.right: parent.right
-
-      Label
-        id: deathLabel
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 4
-        font: verdana-11px-antialised
-        color: #7F77DD
-        text: DTH
-        text-auto-resize: true
-
-      Label
-        id: deathBonus
-        anchors.top: deathLabel.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        margin-top: 1
-        font: verdana-11px-antialised
-        color: #666666
-        text: 0%
-        text-auto-resize: true
+    height: 56
+    layout:
+      type: horizontalBox
+      spacing: 4
 
   Panel
     id: tabBar
-    anchors.top: bonusSummaryBar.bottom
+    anchors.top: orbBar.bottom
     anchors.left: parent.left
     anchors.right: parent.right
     height: 26
-    background-color: #1e1e1e
+    margin-top: 10
 
-    Button
+    ElementalTab
       id: missionsTabButton
       anchors.left: parent.left
       anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      anchors.right: buildTabButton.left
-      font: verdana-11px-antialised
       text: Missions
-      @onClick: modules.game_elementalbuild.switchTab("missions")
+      @onClick: modules.game_elementalbuild.switchTab('missions')
 
-    Button
+    ElementalTab
       id: buildTabButton
-      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.left: prev.right
       anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      width: 140
-      font: verdana-11px-antialised
-      text: Distribute points
-      @onClick: modules.game_elementalbuild.switchTab("build")
-
-    Button
-      id: infoTabButton
-      anchors.left: buildTabButton.right
-      anchors.top: parent.top
-      anchors.bottom: parent.bottom
-      anchors.right: parent.right
-      font: verdana-11px-antialised
-      text: Info
-      @onClick: modules.game_elementalbuild.switchTab("info")
+      margin-left: 4
+      text: Attunement
+      @onClick: modules.game_elementalbuild.switchTab('build')
 
   Panel
     id: missionsTab
@@ -507,83 +439,118 @@ MainWindow
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    padding: 8
-    visible: false
+    margin-top: 8
 
-    Panel
-      id: missionsFilterBar
+    UIWidget
+      id: journeyPanel
       anchors.top: parent.top
       anchors.left: parent.left
-      anchors.right: parent.right
-      height: 26
-
-      Label
-        id: missionsProgressLabel
-        anchors.left: parent.left
-        anchors.verticalCenter: parent.verticalCenter
-        font: verdana-11px-antialised
-        color: #888888
-        text-auto-resize: true
-        text: 0 / 0 completed
-
-      Button
-        id: filterAllButton
-        anchors.right: filterPendingButton.left
-        anchors.verticalCenter: parent.verticalCenter
-        margin-right: 4
-        width: 36
-        height: 20
-        font: verdana-11px-antialised
-        text: All
-        @onClick: modules.game_elementalbuild.setMissionFilter("all")
-
-      Button
-        id: filterPendingButton
-        anchors.right: filterDoneButton.left
-        anchors.verticalCenter: parent.verticalCenter
-        margin-right: 4
-        width: 56
-        height: 20
-        font: verdana-11px-antialised
-        text: Pending
-        @onClick: modules.game_elementalbuild.setMissionFilter("pending")
-
-      Button
-        id: filterDoneButton
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
-        width: 44
-        height: 20
-        font: verdana-11px-antialised
-        text: Done
-        @onClick: modules.game_elementalbuild.setMissionFilter("done")
-
-    FlatPanel
-      id: missionsPanel
-      anchors.top: missionsFilterBar.bottom
-      anchors.left: parent.left
-      anchors.right: parent.right
       anchors.bottom: parent.bottom
-      margin-top: 6
-      padding: 4
-      image-source: /images/ui/panel_flat
+      width: 280
+      image-source: /images/ui/1pixel-down-frame
       image-border: 1
+      background-color: #00000044
+      padding: 6
 
-      UIScrollArea
+      ElementalSectionHeader
+        id: journeyHeader
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+      ScrollablePanel
         id: missionRows
-        anchors.fill: parent
-        margin-right: 14
+        anchors.top: journeyHeader.bottom
+        anchors.left: parent.left
+        anchors.right: missionScrollBar.left
+        anchors.bottom: parent.bottom
+        margin-top: 6
+        margin-right: 3
         vertical-scrollbar: missionScrollBar
         layout:
           type: verticalBox
 
       VerticalScrollBar
         id: missionScrollBar
-        anchors.top: missionRows.top
-        anchors.bottom: missionRows.bottom
+        anchors.top: journeyHeader.bottom
+        anchors.bottom: parent.bottom
         anchors.right: parent.right
-        step: 52
-        pixels-scroll: true
+        margin-top: 6
+        step: 46
+        pixel-scroll: true
+
+    UIWidget
+      id: missionDetail
+      anchors.top: parent.top
+      anchors.left: journeyPanel.right
+      anchors.right: parent.right
+      anchors.bottom: parent.bottom
+      margin-left: 10
+      image-source: /images/ui/1pixel-down-frame
+      image-border: 1
+      background-color: #00000044
+      padding: 10
+
+      Label
+        id: missionTitle
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: missionStatus.left
+        margin-right: 8
+        font: Verdana Bold-11px
+        color: #f0c060
+
+      Label
+        id: missionStatus
+        anchors.top: parent.top
+        anchors.right: parent.right
+        font: verdana-11px-rounded
+        text-auto-resize: true
+
+      Label
+        id: missionDescription
+        anchors.top: missionTitle.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 8
+        font: verdana-11px-rounded
+        color: #c0c0c0
+        text-wrap: true
+        text-auto-resize: true
+
+      ElementalSectionHeader
+        id: itemsHeader
+        anchors.top: missionDescription.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        margin-top: 12
+
+      Panel
+        id: requiredItems
+        anchors.top: itemsHeader.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: rewardLabel.top
+        margin-top: 6
+        margin-bottom: 8
+        layout:
+          type: verticalBox
+          spacing: 4
+
+      Label
+        id: rewardLabel
+        anchors.left: parent.left
+        anchors.verticalCenter: deliverButton.verticalCenter
+        font: verdana-11px-rounded
+        color: #6fd38a
+        text-auto-resize: true
+
+      ElementalActionButton
+        id: deliverButton
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        width: 140
+        @onClick: modules.game_elementalbuild.onDeliverMission()
 
   Panel
     id: buildTab
@@ -591,254 +558,80 @@ MainWindow
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
+    margin-top: 8
     visible: false
 
-    Label
-      id: availableLabel
+    PointsSummaryBox
+      id: availableSummary
       anchors.top: parent.top
       anchors.left: parent.left
-      margin-top: 2
-      font: verdana-11px-antialised
-      color: #aaaaaa
-      text-auto-resize: true
-      text: Available: 0
+
+    PointsSummaryBox
+      id: usedSummary
+      anchors.top: parent.top
+      anchors.left: prev.right
+      margin-left: 6
+
+    PointsSummaryBox
+      id: capSummary
+      anchors.top: parent.top
+      anchors.left: prev.right
+      margin-left: 6
 
     Label
-      id: usedLabel
-      anchors.top: parent.top
-      anchors.horizontalCenter: parent.horizontalCenter
-      margin-top: 2
-      font: verdana-11px-antialised
-      color: #aaaaaa
+      id: shiftHint
+      anchors.right: parent.right
+      anchors.verticalCenter: availableSummary.verticalCenter
+      font: verdana-11px-rounded
+      color: #707070
       text-auto-resize: true
-      text: Used: 0
+      !text: tr('Shift + click: max / min')
+
+    ScrollablePanel
+      id: elementRows
+      anchors.top: availableSummary.bottom
+      anchors.left: parent.left
+      anchors.right: elementScrollBar.left
+      anchors.bottom: applyButton.top
+      margin-top: 8
+      margin-bottom: 8
+      margin-right: 3
+      vertical-scrollbar: elementScrollBar
+      layout:
+        type: verticalBox
+        spacing: 4
+
+    VerticalScrollBar
+      id: elementScrollBar
+      anchors.top: availableSummary.bottom
+      anchors.bottom: applyButton.top
+      anchors.right: parent.right
+      margin-top: 8
+      margin-bottom: 8
+      step: 54
+      pixel-scroll: true
 
     Label
-      id: capLabel
-      anchors.top: parent.top
-      anchors.right: parent.right
-      margin-top: 2
-      font: verdana-11px-antialised
-      color: #aaaaaa
+      id: pendingHint
+      anchors.left: parent.left
+      anchors.verticalCenter: applyButton.verticalCenter
+      font: verdana-11px-rounded
+      color: #f0c060
       text-auto-resize: true
-      text: Cap: 500
 
-    HorizontalSeparator
-      id: headerSeparator
-      anchors.top: availableLabel.bottom
-      anchors.left: parent.left
-      anchors.right: parent.right
-      margin-top: 6
-
-    FlatPanel
-      id: elementsPanel
-      anchors.top: headerSeparator.bottom
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.bottom: footerSeparator.top
-      margin-top: 6
-      margin-bottom: 6
-      padding: 6
-      image-source: /images/ui/panel_flat
-      image-border: 1
-
-      UIScrollArea
-        id: elementRows
-        anchors.fill: parent
-        margin-right: 14
-        vertical-scrollbar: elementScrollBar
-        layout:
-          type: verticalBox
-
-      VerticalScrollBar
-        id: elementScrollBar
-        anchors.top: elementRows.top
-        anchors.bottom: elementRows.bottom
-        anchors.right: parent.right
-        step: 56
-        pixels-scroll: true
-
-    HorizontalSeparator
-      id: footerSeparator
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.bottom: revertButton.top
-      margin-bottom: 6
-
-    Button
-      id: revertButton
-      anchors.bottom: parent.bottom
-      anchors.right: applyButton.left
-      width: 70
-      height: 24
-      margin-right: 4
-      font: verdana-11px-antialised
-      text: Revert
-      @onClick: modules.game_elementalbuild.onRevert()
-
-    Button
+    ElementalActionButton
       id: applyButton
-      anchors.bottom: parent.bottom
       anchors.right: parent.right
-      width: 70
-      height: 24
-      font: verdana-11px-antialised
-      text: Apply
+      anchors.bottom: parent.bottom
+      width: 110
+      !text: tr('Apply')
       @onClick: modules.game_elementalbuild.onApply()
 
-  Panel
-    id: infoTab
-    anchors.top: tabBar.bottom
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    padding: 8
-    visible: false
-
-    FlatPanel
-      id: infoPanel
-      anchors.fill: parent
-      padding: 6
-      image-source: /images/ui/panel_flat
-      image-border: 1
-
-      UIScrollArea
-        id: infoRows
-        anchors.fill: parent
-        margin-right: 14
-        vertical-scrollbar: infoScrollBar
-        layout:
-          type: verticalBox
-
-      VerticalScrollBar
-        id: infoScrollBar
-        anchors.top: infoRows.top
-        anchors.bottom: infoRows.bottom
-        anchors.right: parent.right
-        step: 80
-        pixels-scroll: true
-
-  Panel
-    id: missionDetailModal
-    anchors.fill: parent
-    visible: false
-    background-color: #111111dd
-
-    Panel
-      id: modalPanel
-      anchors.centerIn: parent
-      width: 380
-      height: 420
-      background-color: #2a2a2a
-      border-width: 1
-      border-color: #4a4a4a
-
-      Panel
-        id: modalHeader
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: 28
-        background-color: #1e1e1e
-
-        Label
-          id: modalMissionName
-          anchors.left: parent.left
-          anchors.verticalCenter: parent.verticalCenter
-          margin-left: 10
-          font: verdana-11px-antialised
-          color: #e0e0e0
-          text-auto-resize: true
-
-        Button
-          id: modalCloseButton
-          anchors.right: parent.right
-          anchors.verticalCenter: parent.verticalCenter
-          margin-right: 4
-          width: 20
-          height: 20
-          font: verdana-11px-antialised
-          text: X
-          @onClick: modules.game_elementalbuild.closeMissionDetail()
-
-      Label
-        id: modalDescription
-        anchors.top: modalHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        margin-top: 8
-        margin-left: 10
-        margin-right: 10
-        font: verdana-11px-antialised
-        color: #888888
-        text-auto-resize: true
-        text-wrap: true
-
-      Label
-        id: modalItemsHeader
-        anchors.top: modalDescription.bottom
-        anchors.left: parent.left
-        margin-top: 8
-        margin-left: 10
-        font: verdana-11px-antialised
-        color: #aaaaaa
-        text: Required items
-        text-auto-resize: true
-
-      FlatPanel
-        id: modalItemsPanel
-        anchors.top: modalItemsHeader.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: modalFooter.top
-        margin-top: 4
-        margin-left: 8
-        margin-right: 8
-        margin-bottom: 4
-        padding: 4
-        image-source: /images/ui/panel_flat
-        image-border: 1
-
-        UIScrollArea
-          id: modalItemSlots
-          anchors.fill: parent
-          margin-right: 14
-          vertical-scrollbar: modalItemsScrollBar
-          layout:
-            type: verticalBox
-
-        VerticalScrollBar
-          id: modalItemsScrollBar
-          anchors.top: modalItemSlots.top
-          anchors.bottom: modalItemSlots.bottom
-          anchors.right: parent.right
-          step: 40
-          pixels-scroll: true
-
-      Panel
-        id: modalFooter
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: 36
-        background-color: #1e1e1e
-
-        Label
-          id: modalRewardLabel
-          anchors.left: parent.left
-          anchors.verticalCenter: parent.verticalCenter
-          margin-left: 10
-          font: verdana-11px-antialised
-          color: #f0c060
-          text-auto-resize: true
-
-        Button
-          id: modalDeliverButton
-          anchors.right: parent.right
-          anchors.verticalCenter: parent.verticalCenter
-          margin-right: 8
-          width: 70
-          height: 22
-          font: verdana-11px-antialised
-          text: Deliver
-          @onClick: modules.game_elementalbuild.onDeliverMission()
+    ElementalActionButton
+      id: revertButton
+      anchors.right: applyButton.left
+      anchors.bottom: parent.bottom
+      margin-right: 6
+      width: 110
+      !text: tr('Revert')
+      @onClick: modules.game_elementalbuild.onRevert()
