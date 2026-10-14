@@ -4,6 +4,6 @@ Module
   author: CrystalServer
   sandboxed: true
   autoload: true
-  scripts: [runeshop]
-  @onLoad: RuneShopController:init()
-  @onUnload: RuneShopController:terminate()
+  scripts: [ runeshop ]
+  @onLoad: init()
+  @onUnload: terminate()

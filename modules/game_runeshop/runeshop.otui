@@ -1,0 +1,520 @@
+RuneShopChip < UIWidget
+  height: 28
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000077
+  padding-left: 3
+  padding-right: 8
+
+  UIItem
+    id: icon
+    size: 24 24
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    virtual: true
+    phantom: true
+
+  Label
+    id: caption
+    anchors.left: icon.right
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 5
+    font: verdana-11px-rounded
+    color: #8a8a8a
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: value
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: Verdana Bold-11px
+    color: #dfdfdf
+    text-auto-resize: true
+    phantom: true
+
+RuneShopTab < UIButton
+  height: 26
+  width: 96
+  image-source: /images/ui/tabbutton_rounded
+  image-color: #dfdfdf
+  image-clip: 0 0 22 23
+  image-border: 3
+  font: Verdana Bold-11px
+  color: #a8a8a8
+  text-offset: 0 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !on:
+    image-clip: 0 23 22 23
+    color: #dfdfdf
+
+  $on:
+    image-clip: 0 46 22 23
+    color: #f0c060
+
+RuneShopCard < UIWidget
+  size: 98 74
+  background-color: #00000044
+  border-width: 1
+  border-color: #ffffff10
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !on:
+    background-color: #ffffff12
+    border-color: #ffffff30
+
+  $on:
+    background-color: #c2840026
+    border-color: #c28400
+
+  UIItem
+    id: icon
+    size: 32 32
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 5
+    virtual: true
+    phantom: true
+
+  Label
+    id: name
+    anchors.top: icon.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 3
+    font: verdana-11px-rounded
+    color: #e8e8e8
+    text-align: center
+    phantom: true
+
+  Label
+    id: price
+    anchors.top: name.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 1
+    font: verdana-11px-rounded
+    color: #f0c060
+    text-align: center
+    phantom: true
+
+  UIWidget
+    id: categoryAccent
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    margin-left: 1
+    margin-right: 1
+    margin-bottom: 1
+    height: 2
+    phantom: true
+
+RuneShopQuantityButton < UIButton
+  height: 30
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000066
+  font: Verdana Bold-11px
+  color: #9d9d9d
+  text-offset: 0 1
+  change-cursor-image: true
+  cursor: pointer
+
+  $hover !on:
+    background-color: #ffffff14
+    color: #dfdfdf
+
+  $on:
+    background-color: #c2840044
+    color: #ffd27a
+
+RuneShopSectionHeader < Label
+  height: 18
+  font: verdana-11px-rounded
+  color: #f0c060
+  text-align: left
+
+RuneShopSummaryRow < UIWidget
+  height: 26
+  image-source: /images/ui/1pixel-down-frame
+  image-border: 1
+  background-color: #00000077
+  padding-left: 8
+  padding-right: 8
+
+  Label
+    id: caption
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    font: verdana-11px-rounded
+    color: #9d9d9d
+    text-auto-resize: true
+    phantom: true
+
+  Label
+    id: value
+    anchors.right: parent.right
+    anchors.verticalCenter: parent.verticalCenter
+    font: Verdana Bold-11px
+    color: #dfdfdf
+    text-auto-resize: true
+    phantom: true
+
+RuneShopActionButton < Button
+  height: 28
+  font: Verdana Bold-11px
+  color: #ffffff
+  text-offset: 0 1
+
+  $hover !disabled:
+    color: #f0c060
+
+  $disabled:
+    color: #7a7a7a
+    opacity: 0.85
+
+MainWindow
+  id: runeShopWindow
+  !text: tr('Rune Shop')
+  size: 820 566
+  @onEscape: modules.game_runeshop.hide()
+
+  UIWidget
+    id: headerStrip
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 36
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000088
+    padding: 4
+
+    RuneShopChip
+      id: balanceChip
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      width: 210
+
+    RuneShopChip
+      id: capacityChip
+      anchors.left: prev.right
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 6
+      width: 190
+
+    RuneShopChip
+      id: deliveryChip
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      width: 250
+
+  Panel
+    id: tabBar
+    anchors.top: headerStrip.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 26
+    margin-top: 8
+
+    RuneShopTab
+      id: allTabButton
+      anchors.left: parent.left
+      anchors.top: parent.top
+      @onClick: modules.game_runeshop.selectCategory('all')
+
+    RuneShopTab
+      id: attackTabButton
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 4
+      @onClick: modules.game_runeshop.selectCategory('attack')
+
+    RuneShopTab
+      id: healingTabButton
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 4
+      @onClick: modules.game_runeshop.selectCategory('healing')
+
+    RuneShopTab
+      id: supportTabButton
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 4
+      @onClick: modules.game_runeshop.selectCategory('support')
+
+    RuneShopTab
+      id: fieldTabButton
+      anchors.left: prev.right
+      anchors.top: parent.top
+      margin-left: 4
+      @onClick: modules.game_runeshop.selectCategory('field')
+
+  UIWidget
+    id: catalogPanel
+    anchors.top: tabBar.bottom
+    anchors.left: parent.left
+    anchors.bottom: closeButton.top
+    width: 438
+    margin-top: 6
+    margin-bottom: 8
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000044
+    padding: 6
+
+    TextEdit
+      id: searchInput
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 22
+      font: verdana-11px-rounded
+      placeholder: Search rune...
+      @onTextChange: modules.game_runeshop.onSearchChange(self:getText())
+
+    Label
+      id: listCountLabel
+      anchors.top: searchInput.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 6
+      font: verdana-11px-rounded
+      color: #707070
+
+    ScrollablePanel
+      id: runeCards
+      anchors.top: listCountLabel.bottom
+      anchors.left: parent.left
+      anchors.right: runeScrollBar.left
+      anchors.bottom: parent.bottom
+      margin-top: 4
+      margin-right: 3
+      vertical-scrollbar: runeScrollBar
+      layout:
+        type: grid
+        cell-size: 98 74
+        cell-spacing: 4
+        num-columns: 4
+
+    VerticalScrollBar
+      id: runeScrollBar
+      anchors.top: listCountLabel.bottom
+      anchors.bottom: parent.bottom
+      anchors.right: parent.right
+      margin-top: 4
+      step: 78
+      pixel-scroll: true
+
+    Label
+      id: emptyListLabel
+      anchors.centerIn: runeCards
+      font: verdana-11px-rounded
+      color: #707070
+      text-auto-resize: true
+      !text: tr('No runes match this search.')
+      visible: false
+
+  UIWidget
+    id: checkoutPanel
+    anchors.top: catalogPanel.top
+    anchors.left: catalogPanel.right
+    anchors.right: parent.right
+    anchors.bottom: catalogPanel.bottom
+    margin-left: 10
+    image-source: /images/ui/1pixel-down-frame
+    image-border: 1
+    background-color: #00000044
+    padding: 10
+
+    UIWidget
+      id: header
+      anchors.top: parent.top
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 46
+      image-source: /images/ui/1pixel-down-frame
+      image-border: 1
+      background-color: #00000088
+      padding: 5
+
+      UIItem
+        id: headerIcon
+        size: 36 36
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        image-source: /images/ui/item
+        virtual: true
+
+      Label
+        id: title
+        anchors.left: headerIcon.right
+        anchors.right: parent.right
+        anchors.top: parent.top
+        margin-left: 10
+        margin-top: 4
+        font: Verdana Bold-11px
+        color: #f0c060
+
+      Label
+        id: tag
+        anchors.left: title.left
+        anchors.top: title.bottom
+        margin-top: 4
+        font: verdana-11px-rounded
+        color: #9d9d9d
+        text-auto-resize: true
+
+    RuneShopSectionHeader
+      id: quantityHeader
+      anchors.top: header.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+      !text: tr('Quantity')
+
+    Panel
+      id: quantityButtons
+      anchors.top: quantityHeader.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 30
+      margin-top: 2
+      layout:
+        type: grid
+        cell-size: 76 30
+        cell-spacing: 4
+        num-columns: 4
+
+    RuneShopSectionHeader
+      id: deliveryHeader
+      anchors.top: quantityButtons.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+      !text: tr('Delivery')
+
+    UIWidget
+      id: deliveryCard
+      anchors.top: deliveryHeader.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      height: 46
+      margin-top: 2
+      image-source: /images/ui/1pixel-down-frame
+      image-border: 1
+      background-color: #00000055
+      padding: 4
+
+      UIItem
+        id: containerIcon
+        size: 36 36
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        image-source: /images/ui/item
+        virtual: true
+
+      UIItem
+        id: runeIcon
+        size: 36 36
+        anchors.left: containerIcon.right
+        anchors.verticalCenter: parent.verticalCenter
+        margin-left: 4
+        image-source: /images/ui/item
+        virtual: true
+
+      Label
+        id: title
+        anchors.left: runeIcon.right
+        anchors.right: parent.right
+        anchors.top: parent.top
+        margin-left: 8
+        margin-top: 5
+        font: verdana-11px-rounded
+        color: #e8e8e8
+
+      Label
+        id: subtitle
+        anchors.left: title.left
+        anchors.right: parent.right
+        anchors.top: title.bottom
+        margin-top: 3
+        font: verdana-11px-rounded
+        color: #8a8a8a
+
+    RuneShopSectionHeader
+      id: summaryHeader
+      anchors.top: deliveryCard.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 10
+      !text: tr('Summary')
+
+    RuneShopSummaryRow
+      id: totalRow
+      anchors.top: summaryHeader.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 2
+
+    RuneShopSummaryRow
+      id: balanceAfterRow
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+
+    RuneShopSummaryRow
+      id: weightRow
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+
+    ProgressBar
+      id: capacityBar
+      anchors.top: prev.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 4
+      height: 6
+      on: true
+
+    Label
+      id: statusBanner
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.bottom: buyButton.top
+      margin-bottom: 8
+      text-align: center
+      font: verdana-11px-rounded
+      text-wrap: true
+      text-auto-resize: true
+
+    RuneShopActionButton
+      id: buyButton
+      anchors.right: parent.right
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      @onClick: modules.game_runeshop.buySelectedRune()
+
+    Label
+      id: emptyCheckoutLabel
+      anchors.centerIn: parent
+      font: verdana-11px-rounded
+      color: #707070
+      text-auto-resize: true
+      !text: tr('Select a rune from the list.')
+      visible: false
+
+  RuneShopActionButton
+    id: closeButton
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    width: 90
+    !text: tr('Close')
+    @onClick: modules.game_runeshop.hide()
