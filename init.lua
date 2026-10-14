@@ -9,7 +9,7 @@ Services = {
     --createAccount = "http://localhost/clientcreateaccount.php", --./client_entergame -- createAccount.lua
     --getCoinsUrl = "http://localhost/?subtopic=shop&step=terms", --./game_market
     clientAssets = {
-        enabled = true,
+        enabled = false,
         repository = "dudantas/tibia-client",
         installSounds = true,
         strictManifestSha256 = true,
@@ -95,7 +95,7 @@ if ENABLE_SERVERS then
     }
 end
 
-g_app.setName("OTClient");
+g_app.setName("OTClient - Redemption v1.0.1");
 g_app.setCompactName("otclient");
 g_app.setOrganizationName("otcr");
 

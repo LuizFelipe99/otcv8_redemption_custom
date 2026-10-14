@@ -203,27 +203,21 @@ local exercises = {
   62107, 63492
 }
 
--- spells that can be cast on both targets and self
-local bothCastTypeSpells = {
-  258
-}
-
-
 local ignoredSpellsIds = {
-  [144] = true,  -- Cure Bleeding
-  [146] = true,  -- Cure Electrification
-  [29]  = true,  -- Cure Poison
-  [145] = true,  -- Cure Burning
-  [147] = true,   -- Cure Curse
-  [160] = true,   -- Utura Gran
-  [159] = true,   -- Utura
-  [128] = true,   -- Utura Mas Sio
-  [141] = true,   -- utori alguma coisa
-  [138] = true,   -- utori alguma coisa
-  [139] = true,   -- utori alguma coisa
-  [140] = true,   -- utori alguma coisa
-  [143] = true,   -- utori alguma coisa
-  [142] = true,   -- utori alguma coisa
+  [144] = true,
+  [146] = true,
+  [29]  = true,
+  [145] = true,
+  [147] = true,
+  [160] = true,
+  [159] = true,
+  [128] = true,
+  [141] = true,
+  [138] = true,
+  [139] = true,
+  [140] = true,
+  [143] = true,
+  [142] = true,
   [84]  =  true,
   [242] = true,
   [297] = true,
@@ -234,20 +228,20 @@ local ignoredSpellsIds = {
 }
 
 local ignoredTrainingSpells = {
-  [144] = true,  -- Cure Bleeding
-  [146] = true,  -- Cure Electrification
-  [29]  = true,  -- Cure Poison
-  [145] = true,  -- Cure Burning
-  [147] = true,   -- Cure Curse
-  [160] = true,   -- Utura Gran
-  [159] = true,   -- Utura
-  [128] = true,   -- Utura Mas Sio
-  [141] = true,   -- utori alguma coisa
-  [138] = true,   -- utori alguma coisa
-  [139] = true,   -- utori alguma coisa
-  [140] = true,   -- utori alguma coisa
-  [143] = true,   -- utori alguma coisa
-  [142] = true,   -- utori alguma coisa
+  [144] = true,
+  [146] = true,
+  [29]  = true,
+  [145] = true,
+  [147] = true,
+  [160] = true,
+  [159] = true,
+  [128] = true,
+  [141] = true,
+  [138] = true,
+  [139] = true,
+  [140] = true,
+  [143] = true,
+  [142] = true,
   [170] = true,
   [123] = true,
   [239] = true,
@@ -280,12 +274,12 @@ local potionWhitelist = {
 }
 
 local hasteWhiteList = {
-  [9] = {6, 39}, -- em
-  [8] = {6, 131}, -- ek
-  [7] = {6, 134}, -- rp
-  [6] = {6, 39}, -- ed
-  [5] = {6, 39}, -- ms
-  [0] = {}, -- rook
+  [9] = {6, 39},
+  [8] = {6, 131},
+  [7] = {6, 134},
+  [6] = {6, 39},
+  [5] = {6, 39},
+  [0] = {},
 }
 
 
@@ -314,7 +308,6 @@ function init()
   helperTracker = g_ui.createWidget('HelperTracker')
   helperRules =  g_ui.createWidget('HelperRules', rootWidget)
   helperRules:hide()
-  helperTracker:setup()
   helperTracker:close()
 
   player = g_game.getLocalPlayer()
@@ -515,7 +508,6 @@ function loadMenu(menuId)
 
   local currentPlayer = g_game.getLocalPlayer()
   if not currentPlayer then
-    -- If no player, just show default layout
     healingPanel:show(true)
     toolsPanel:hide()
     shooterPanel:hide()
@@ -529,7 +521,7 @@ function loadMenu(menuId)
     healingPanel:show(true)
     toolsPanel:hide()
     shooterPanel:hide()
-    if vocationId == 8 then -- Knight
+    if vocationId == 8 then
       helper:setSize(tosize("295 278"))
       healPanel:setHeight(160)
       friendHealingPanel:setVisible(false)
@@ -546,7 +538,7 @@ function loadMenu(menuId)
       priorityButton1:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
       priorityButton2:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
       priorityButton3:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
-    elseif vocationId == 7 then -- Paladin
+    elseif vocationId == 7 then
       helper:setSize(tosize("295 278"))
       friendHealingPanel:setVisible(false)
       granSioPanel:setVisible(false)
@@ -562,7 +554,7 @@ function loadMenu(menuId)
       priorityButton1:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.\nClick on this button to change the potion priority:\n  - Icon: Blue (Mana Priority)\n  - Icon: Red  (Health Priority)")
       priorityButton2:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.\nClick on this button to change the potion priority:\n  - Icon: Blue (Mana Priority)\n  - Icon: Red  (Health Priority)")
       priorityButton3:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.\nClick on this button to change the potion priority:\n  - Icon: Blue (Mana Priority)\n  - Icon: Red  (Health Priority)")
-    elseif vocationId == 5 then -- Sorcerer
+    elseif vocationId == 5 then
       helper:setSize(tosize("295 363"))
       healPanel:setHeight(120)
       friendHealingPanel:setVisible(true)
@@ -579,7 +571,7 @@ function loadMenu(menuId)
       priority2:setVisible(false)
       priorityButton1:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
       priorityButton2:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
-    elseif vocationId == 6 then -- Druid
+    elseif vocationId == 6 then
       helper:setSize(tosize("295 490"))
       healPanel:setHeight(120)
       friendHealingPanel:setVisible(true)
@@ -596,7 +588,7 @@ function loadMenu(menuId)
       priority2:setVisible(false)
       priorityButton1:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
       priorityButton2:setTooltip("Uses a healing or mana potion when your health or\nmana reaches the defined percentage.")
-    elseif vocationId == 9 then -- Monk
+    elseif vocationId == 9 then
       helper:setSize(tosize("295 405"))
       healPanel:setHeight(160)
       friendHealingPanel:setVisible(true)
@@ -639,7 +631,7 @@ function loadMenu(menuId)
     healingPanel:hide()
     toolsPanel:hide()
     shooterPanel:show(true)
-    if vocationId == 8 or vocationId == 9 then -- Knight
+    if vocationId == 8 or vocationId == 9 then
       helper:setSize(tosize("295 487"))
       runePanel:setVisible(false)
       spellPanel:setHeight(245)
@@ -674,7 +666,9 @@ function onCreatureDisappear(creature)
   end
 end
 
---[[ Events ]]--
+function onPartyMembersChange(localPlayer, members)
+end
+
 function assignTrainingSpell(button, isHaste)
   local radio = UIRadioGroup.create()
   window = g_ui.loadUI('styles/spell', g_ui.getRootWidget())
@@ -744,14 +738,12 @@ function assignTrainingSpell(button, isHaste)
     ::continue::
   end
 
-  -- Order the spell list
   local widgets = window.contentPanel.spellList:getChildren()
   table.sort(widgets, function(a, b) return a:getText() < b:getText() end)
   for i, widget in ipairs(widgets) do
     window.contentPanel.spellList:moveChildToIndex(widget, i)
   end
 
-  -- Callback of radio
   radio.onSelectionChange = function(widget, selected)
     if selected then
       window.contentPanel.preview:setText(selected:getText())
@@ -900,7 +892,7 @@ function sendRenameOrAddWindow(isRename)
     local input = window.contentPanel.target:getText()
     for profileName, _ in pairs(helperConfig.shooterProfiles) do
       if profileName == input then
-        return -- repeated profile
+        return
       end
     end
 
@@ -1003,14 +995,12 @@ function assignSpell(button, groupName, groups, tableToAssign)
       ::continue::
   end
 
-	-- sort alphabetically
 	local widgets = window.contentPanel.spellList:getChildren()
 	table.sort(widgets, function(a, b) return a:getText() < b:getText() end)
 	for i, widget in ipairs(widgets) do
 		window.contentPanel.spellList:moveChildToIndex(widget, i)
 	end
 
-	-- callback
 	radio.onSelectionChange = function(widget, selected)
 		if selected then
 			window.contentPanel.preview:setText(selected:getText())
@@ -1064,7 +1054,7 @@ function assignSpell(button, groupName, groups, tableToAssign)
       local selfCast = shooterPanel:recursiveGetChildById("selfCast" .. slotID)
       local spell = Spells.getSpellByClientId(tonumber(spellId))
       if spell then
-          if table.contains(bothCastTypeSpells, spell.id) then -- divine grenade self cast
+          if table.contains(bothCastTypeSpells, spell.id) then
             if not selfCast then
               selfCast = g_ui.createWidget('CheckBox', creaturesMin:getParent())
               local style = {
@@ -1595,7 +1585,6 @@ function onEnableTraining(buttonId, checked)
   helperConfig.training[slotIndex + 1].enabled = checked
 end
 
--- Bot functions
 function updateHealingPercent(buttonId, newPercent)
   local buttonIndex = string.match(buttonId, "%d+")
   if not buttonIndex then
@@ -1929,7 +1918,6 @@ function useAutoUH(target)
   helperConfig.magicShooterOnHold = false
 end
 
--- toolMenu
 function updateTrainingPercent(buttonId, newPercent)
   local buttonIndex = string.match(buttonId, "%d+")
   buttonIndex = tonumber(buttonIndex)
@@ -2491,7 +2479,6 @@ function checkMagicShooter()
           g_game.talk(spell.words, true, castOnFoot)
           g_game.doThing(true)
 
-          -- --- precooldown
           onSpellCooldown(spell.id, 500)
           for group,_ in pairs(spell.group) do
             onSpellGroupCooldown(group, 500)
@@ -2527,7 +2514,6 @@ function checkMagicShooter()
           g_game.doThing(false)
           g_game.useInventoryItemWith(config.id, bestTarget, 0, true)
           g_game.doThing(true)
-          -- precooldown
           onSpellGroupCooldown(runeSpell.group, 500)
         end
       end
@@ -2601,7 +2587,7 @@ function checkAutoTarget()
       goto continue
     end
     local health = creatureData.creature:getHealthPercent()
-    if lowestHealthTarget.id == nil then -- just to make sure it will target someone at 100% health
+    if lowestHealthTarget.id == nil then
       lowestHealthTarget = {id = creatureData.creature:getId(), health = health}
     end
     if health < lowestHealthTarget.health then
@@ -3214,7 +3200,7 @@ function saveSettings()
     return
   end
 
-  if not LoadedPlayer:isLoaded() then return end
+  if not LoadedPlayer or not LoadedPlayer:isLoaded() then return end
 
   local folder = "/characterdata/".. LoadedPlayer:getId() .."/helper.json"
 	local status, result = pcall(function() return json.encode(helperConfig, 2) end)
@@ -3230,6 +3216,8 @@ function saveSettings()
 end
 
 function loadSettings()
+  if not LoadedPlayer then return end
+
   local player = LoadedPlayer:getId()
   local folder = "/characterdata/".. player .."/helper.json"
 
@@ -3284,7 +3272,6 @@ function loadSettings()
 
 		helperConfig = result
 
-    -- hot-fix para caso ja tenha carregado vazio
     if not result.spells then
       helperConfig.spells = {
         { id = 0, percent = 80 },
@@ -3780,7 +3767,7 @@ function onSetupDropSpell(button, spellData, groups, tableToAssign)
       local creaturesMin = shooterPanel:recursiveGetChildById("countMinCreature" .. slotID)
       local forceCast = shooterPanel:recursiveGetChildById("conditionSetting" .. slotID)
       local selfCast = shooterPanel:recursiveGetChildById("selfCast" .. slotID)
-      if table.contains(bothCastTypeSpells, spell.id) then -- divine grenade self cast
+      if table.contains(bothCastTypeSpells, spell.id) then
         if not selfCast then
           selfCast = g_ui.createWidget('CheckBox', creaturesMin:getParent())
           local style = {

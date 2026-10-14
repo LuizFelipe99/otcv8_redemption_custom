@@ -50,6 +50,7 @@ local VOCATION_FILTER_OPTIONS = {
     { label = "Druid",    value = "druid" },
     { label = "Sorcerer", value = "sorcerer" },
     { label = "Monk",     value = "monk" },
+    { label = "Attribute Gem",     value = "atribute_gem" },
 }
 
 local craftBenchWindow
@@ -121,8 +122,9 @@ local function applyResourceBar(resources)
 
     local resourceBar = craftBenchWindow.resourceBar
 
-    resourceBar.goldSlot.icon:setVisible(false)
-    resourceBar.goldSlot.amount:setText("Gold: " .. tostring(resources.gold or 0))
+    resourceBar.goldSlot.icon:setVisible(true)
+    resourceBar.goldSlot.icon:setItemId(3031)
+    resourceBar.goldSlot.amount:setText(formatGoldCost(resources.gold or 0))
 
     local itemAmounts = resources.items or {}
 

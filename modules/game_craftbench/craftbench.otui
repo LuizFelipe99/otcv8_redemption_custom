@@ -214,7 +214,7 @@ MainWindow
       anchors.left: parent.left
       anchors.top: parent.top
       anchors.bottom: parent.bottom
-      width: 240
+      width: 260
       font: verdana-11px-antialised
       text: Craft
       @onClick: modules.game_craftbench.switchTab("craft")
@@ -224,7 +224,7 @@ MainWindow
       anchors.left: craftTabButton.right
       anchors.top: parent.top
       anchors.bottom: parent.bottom
-      width: 240
+      width: 260
       font: verdana-11px-antialised
       text: Dismantle
       @onClick: modules.game_craftbench.switchTab("desmanche")
@@ -322,7 +322,7 @@ MainWindow
         anchors.bottom: parent.bottom
         margin-top: 4
         padding: 2
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         UIScrollArea
@@ -370,7 +370,7 @@ MainWindow
         margin-top: 6
         margin-bottom: 6
         padding: 6
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Label
@@ -417,7 +417,7 @@ MainWindow
         height: 120
         margin-bottom: 6
         padding: 6
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Label
@@ -485,11 +485,14 @@ MainWindow
       Button
         id: actionButton
         anchors.left: parent.left
-        width: 220
+        width: 260
         anchors.bottom: parent.bottom
         height: 24
         !text: tr('CRAFT')
+        color: #fff
         @onClick: modules.game_craftbench.performTabAction()
+        image-source: /images/options/green_large
+        image-border: 1
 
       FlatPanel
         id: descriptionPanel
@@ -500,7 +503,7 @@ MainWindow
         margin-top: 6
         margin-left: 10
         padding: 8
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Panel
@@ -638,7 +641,7 @@ MainWindow
         anchors.bottom: parent.bottom
         margin-top: 4
         padding: 2
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         UIScrollArea
@@ -686,7 +689,7 @@ MainWindow
         margin-top: 6
         margin-bottom: 6
         padding: 6
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Label
@@ -733,7 +736,7 @@ MainWindow
         height: 120
         margin-bottom: 6
         padding: 6
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Label
@@ -801,10 +804,12 @@ MainWindow
       Button
         id: actionButton
         anchors.left: parent.left
-        width: 220
+        width: 260
         anchors.bottom: parent.bottom
         height: 24
         !text: tr('DISMANTLE')
+        image-source: /images/options/green_large
+        image-border: 1
         @onClick: modules.game_craftbench.performTabAction()
 
       FlatPanel
@@ -816,7 +821,7 @@ MainWindow
         margin-top: 6
         margin-left: 10
         padding: 8
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         UIItem
@@ -900,7 +905,7 @@ MainWindow
         anchors.bottom: parent.bottom
         margin-top: 4
         padding: 2
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         UIScrollArea
@@ -943,12 +948,12 @@ MainWindow
         id: ingredientsPanel
         anchors.top: processHeader.bottom
         anchors.left: parent.left
-        width: 220
+        width: 260
         anchors.bottom: resultSeparator.top
         margin-top: 6
         margin-bottom: 6
         padding: 6
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Label
@@ -983,19 +988,19 @@ MainWindow
       HorizontalSeparator
         id: resultSeparator
         anchors.left: parent.left
-        width: 220
+        width: 260
         anchors.bottom: resultPanel.top
         margin-bottom: 6
 
       FlatPanel
         id: resultPanel
         anchors.left: parent.left
-        width: 220
+        width: 260
         anchors.bottom: actionButton.top
         height: 120
         margin-bottom: 6
         padding: 6
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         Label
@@ -1063,10 +1068,12 @@ MainWindow
       Button
         id: actionButton
         anchors.left: parent.left
-        width: 220
+        width: 260
         anchors.bottom: parent.bottom
         height: 24
         !text: tr('FUSE')
+        image-source: /images/options/green_large
+        image-border: 1
         @onClick: modules.game_craftbench.performTabAction()
 
       FlatPanel
@@ -1078,7 +1085,7 @@ MainWindow
         margin-top: 6
         margin-left: 10
         padding: 8
-        image-source: /images/ui/panel_flat
+        image-source: /images/ui/1pixel-down-frame
         image-border: 1
 
         UIItem

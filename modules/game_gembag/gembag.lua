@@ -152,7 +152,7 @@ function init()
         end
     end
 
-	gemBagButton = modules.client_topmenu.addRightGameToggleButton('gemBagButton', tr('Gem Bag'), '/images/topbuttons/gembag', toggle)
+	gemBagButton = modules.client_topmenu.addRightGameToggleButton('gemBagButton', tr('Gem Bag'), '/images/game/wheel/icon-gematelier', toggle)
 	gemBagButton:setOn(false)
 
 	connect(g_game, {

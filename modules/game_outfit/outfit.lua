@@ -27,7 +27,7 @@ local currentColorBox = nil
 local previewCreature = nil
 local previewFamiliar = nil
 
-ignoreNextOutfitWindow = 0
+ignoreNextOutfitWindow = nil
 local floorTiles = 7
 local settingsFile = "/settings/outfit.json"
 local settings = {}
@@ -62,30 +62,43 @@ local function checkPresetsValidity(presets)
 end
 
 local function attachEffectIfValid(UICreature, value)
-    local creature = UICreature:getCreature()
-    if checkPresetsValidity({ value }) then
-        if creature then
-            creature:attachEffect(g_attachedEffects.getById(value))
-        end
+    if not checkPresetsValidity({ value }) then
+        return
     end
+
+    local creature = UICreature:getCreature()
+    if not creature then
+        return
+    end
+
+    creature:attachEffect(g_attachedEffects.getById(value))
 end
 
-local function attachOrDetachEffect(Id, attach)
-    local creature = previewCreature:getCreature()
-    if checkPresetsValidity({ Id }) then
-        if creature then
-            if attach then
-                if not creature:getAttachedEffectById(Id) then
-                    local effect = g_attachedEffects.getById(Id)
-                    if effect then
-                        creature:attachEffect(effect)
-                    end
-                end
-            else
-                creature:detachEffectById(Id)
-            end
-        end
+local function attachOrDetachEffect(effectId, shouldAttach)
+    if not checkPresetsValidity({ effectId }) then
+        return
     end
+
+    local creature = previewCreature:getCreature()
+    if not creature then
+        return
+    end
+
+    if not shouldAttach then
+        creature:detachEffectById(effectId)
+        return
+    end
+
+    if creature:getAttachedEffectById(effectId) then
+        return
+    end
+
+    local effect = g_attachedEffects.getById(effectId)
+    if not effect then
+        return
+    end
+
+    creature:attachEffect(effect)
 end
 
 local function showSelectionList(data, tempValue, tempField, onSelectCallback)
@@ -98,7 +111,7 @@ local function showSelectionList(data, tempValue, tempField, onSelectCallback)
 
     local focused = nil
     do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId("0")
 
         button.name:setText("None")
@@ -108,21 +121,21 @@ local function showSelectionList(data, tempValue, tempField, onSelectCallback)
     end
     if data and #data > 0 then
         for _, itemData in ipairs(data) do
-            local button = g_ui.createWidget("SelectionButton", window.selectionList)
+            local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
             button:setId(tostring(itemData[1]))
 
-            local Category = modules.game_attachedeffects.getCategory(itemData[1])
-            if Category == 1 then
+            local category = modules.game_attachedeffects.getCategory(itemData[1])
+            if category == 1 then
                 button.outfit:setOutfit({
                     type = modules.game_attachedeffects.thingId(itemData[1])
                 })
 
                 button.outfit:setMarginBottom(15)
                 button.outfit:setCenter(true)
-            elseif Category == 2 then
+            elseif category == 2 then
                 button.outfit:setOutfit(previewCreature:getCreature():getOutfit())
                 button.outfit:getCreature():attachEffect(g_attachedEffects.getById(itemData[1]))
-            elseif Category == 5 then
+            elseif category == 5 then
                 button.outfit:setImageSource(modules.game_attachedeffects.getTexture(itemData[1]))
             end
 
@@ -166,8 +179,6 @@ function terminate()
 end
 
 function onOutfitChange(creature, outfit, oldOutfit)
-    -- Dummy function to handle engine callbacks
-    -- This prevents the "luaCallLuaField(onOutfitChange) is being called outside the context of the lua call" warnings
 end
 
 function onMovementChange(checkBox, checked)
@@ -189,54 +200,56 @@ function onMovementChange(checkBox, checked)
 end
 
 function onShowFloorChange(checkBox, checked)
-    if checked then
-        floor:show()
-
-        -- Magic!
-        local delay = 50
-        periodicalEvent(function()
-            if movementCheck:isChecked() then
-                local direction = previewCreature:getDirection()
-                if direction == Directions.North then
-                    local newMargin = floor:getMarginTop() + 8
-                    floor:setMarginTop(newMargin)
-                    if newMargin >= 96 then
-                        for i = 1, floorTiles do
-                            floor:moveChildToIndex(floor:getChildByIndex(floorTiles * floorTiles), 1)
-                        end
-                        floor:setMarginTop(32)
-                    end
-                elseif direction == Directions.South then
-                    local newMargin = floor:getMarginBottom() + 8
-                    floor:setMarginBottom(newMargin)
-                    if newMargin >= 64 then
-                        for i = 1, floorTiles do
-                            floor:moveChildToIndex(floor:getChildByIndex(1), floorTiles * floorTiles)
-                        end
-                        floor:setMarginBottom(0)
-                    end
-                elseif direction == Directions.East then
-                    local newMargin = floor:getMarginRight() + 8
-                    floor:setMarginRight(newMargin)
-                    if newMargin >= 64 then
-                        floor:setMarginRight(0)
-                    end
-                elseif direction == Directions.West then
-                    local newMargin = floor:getMarginLeft() + 8
-                    floor:setMarginLeft(newMargin)
-                    if newMargin >= 64 then
-                        floor:setMarginLeft(0)
-                    end
-                end
-            else
-                floor:setMargin(0)
-            end
-        end, function()
-            return window and floor and showFloorCheck:isChecked()
-        end, delay, delay)
-    else
+    if not checked then
         floor:hide()
+        settings.showFloor = checked
+        return
     end
+
+    floor:show()
+
+    local delay = 50
+    periodicalEvent(function()
+        if not movementCheck:isChecked() then
+            floor:setMargin(0)
+            return
+        end
+
+        local direction = previewCreature:getDirection()
+        if direction == Directions.North then
+            local newMargin = floor:getMarginTop() + 8
+            floor:setMarginTop(newMargin)
+            if newMargin >= 96 then
+                for i = 1, floorTiles do
+                    floor:moveChildToIndex(floor:getChildByIndex(floorTiles * floorTiles), 1)
+                end
+                floor:setMarginTop(32)
+            end
+        elseif direction == Directions.South then
+            local newMargin = floor:getMarginBottom() + 8
+            floor:setMarginBottom(newMargin)
+            if newMargin >= 64 then
+                for i = 1, floorTiles do
+                    floor:moveChildToIndex(floor:getChildByIndex(1), floorTiles * floorTiles)
+                end
+                floor:setMarginBottom(0)
+            end
+        elseif direction == Directions.East then
+            local newMargin = floor:getMarginRight() + 8
+            floor:setMarginRight(newMargin)
+            if newMargin >= 64 then
+                floor:setMarginRight(0)
+            end
+        elseif direction == Directions.West then
+            local newMargin = floor:getMarginLeft() + 8
+            floor:setMarginLeft(newMargin)
+            if newMargin >= 64 then
+                floor:setMarginLeft(0)
+            end
+        end
+    end, function()
+        return window and floor and showFloorCheck:isChecked()
+    end, delay, delay)
 
     settings.showFloor = checked
 end
@@ -306,7 +319,8 @@ local PreviewOptions = {
     ["showEffects"] = onShowEffectsChange
 }
 
-function create(player, outfitList, creatureMount, mountList, familiarList, wingsList, auraList, effectsList, shaderList)
+function create(player, outfitList, creatureMount, mountList, familiarList, wingsList, auraList, effectsList,
+                 shaderList, healthBarList, titleList)
     if ignoreNextOutfitWindow and g_clock.millis() < ignoreNextOutfitWindow + 1000 then
         return
     end
@@ -328,11 +342,9 @@ function create(player, outfitList, creatureMount, mountList, familiarList, wing
         wings = wingsList,
         auras = auraList,
         effects = effectsList,
-        shaders = shaderList
-        --[[
-        healthBars = barsList,
-        title = titleList]]
-
+        shaders = shaderList,
+        healthBars = healthBarList or {},
+        title = titleList or {}
     }
 
     window = g_ui.displayUI("outfitwindow")
@@ -354,12 +366,10 @@ function create(player, outfitList, creatureMount, mountList, familiarList, wing
     previewFamiliar = window.preview.panel.UIfamiliar
     previewFamiliar:setCreatureSize(128)
     previewFamiliar:setCenter(true)
-    -- previewCreature:setBorderColor('red')
-    -- previewCreature:setBorderWidth(2)
 
     if settings.currentPreset == nil then
         loadDefaultSettings()
-        print("game_outfit error funtion loadSettings()")
+        g_logger.debug("game_outfit: settings.currentPreset was nil, falling back to defaults")
     end
     if settings.currentPreset > 0 then
         local preset = settings.presets[settings.currentPreset]
@@ -509,11 +519,7 @@ function create(player, outfitList, creatureMount, mountList, familiarList, wing
 
     for _, check in ipairs(checks) do
         local widget, data = check[1], check[2]
-        if not table.empty(data) then
-            widget:setVisible(true)
-        else
-            widget:setVisible(false)
-        end
+        widget:setVisible(not table.empty(data))
     end
     previewCreature:getCreature():setDirection(2)
     window.listSearch.search.onKeyPress = onFilterSearch
@@ -521,63 +527,70 @@ function create(player, outfitList, creatureMount, mountList, familiarList, wing
 end
 
 function destroy()
-    if window then
-        floor = nil
-        movementCheck = nil
-        showFloorCheck = nil
-        showOutfitCheck = nil
-        showMountCheck = nil
-        showFamiliarCheck = nil
-        showWingsCheck = nil
-        showAuraCheck = nil
-        showShaderCheck = nil
-        showBarsCheck = nil
-        showEffectsCheck = nil
-        showTitleCheck = nil
-        colorBoxes = {}
-        currentColorBox = nil
-        previewCreature:destroy()
-        previewCreature = nil
-        if previewFamiliar then
-            previewFamiliar:destroy()
-            previewFamiliar = nil
-        end
-        if appearanceGroup then
-            appearanceGroup:destroy()
-            appearanceGroup = nil
-        end
+    if not window then
+        return
+    end
+
+    floor = nil
+    movementCheck = nil
+    showFloorCheck = nil
+    showOutfitCheck = nil
+    showMountCheck = nil
+    showFamiliarCheck = nil
+    showWingsCheck = nil
+    showAuraCheck = nil
+    showShaderCheck = nil
+    showBarsCheck = nil
+    showEffectsCheck = nil
+    showTitleCheck = nil
+    colorBoxes = {}
+    currentColorBox = nil
+    previewCreature:destroy()
+    previewCreature = nil
+    if previewFamiliar then
+        previewFamiliar:destroy()
+        previewFamiliar = nil
+    end
+    if appearanceGroup then
+        appearanceGroup:destroy()
+        appearanceGroup = nil
+    end
+    if colorModeGroup then
         colorModeGroup:destroy()
         colorModeGroup = nil
+    end
+    if colorBoxGroup then
         colorBoxGroup:destroy()
         colorBoxGroup = nil
-
-        ServerData = {
-            currentOutfit = {},
-            outfits = {},
-            mounts = {},
-            familiars = {},
-            wings = {},
-            auras = {},
-            shaders = {},
-            healthBars = {},
-            effects = {},
-            title = {}
-        }
-
-        saveSettings()
-        settings = {}
-        window:destroy()
-        window = nil
-        lastSelectAura = "None"
-        lastSelectWings = "None"
-        lastSelectEffects = 0
-        lastSelectShader = "Outfit - Default"
     end
+
+    ServerData = {
+        currentOutfit = {},
+        outfits = {},
+        mounts = {},
+        familiars = {},
+        wings = {},
+        auras = {},
+        shaders = {},
+        healthBars = {},
+        effects = {},
+        title = {}
+    }
+
+    saveSettings()
+    settings = {}
+    window:destroy()
+    window = nil
+    lastSelectAura = "None"
+    lastSelectWings = "None"
+    lastSelectEffects = 0
+    lastSelectShader = "Outfit - Default"
+    lastSelectTitle = "None"
 end
 
-function configureAddons(addons)
-    local hasAddon1 = addons == 1 or addons == 3
-    local hasAddon2 = addons == 2 or addons == 3
+function configureAddons(availableAddons)
+    local hasAddon1 = availableAddons == 1 or availableAddons == 3
+    local hasAddon2 = availableAddons == 2 or availableAddons == 3
     window.configure.addon1.check:setEnabled(hasAddon1)
     window.configure.addon2.check:setEnabled(hasAddon2)
 
@@ -604,21 +617,20 @@ function newPreset()
         settings.presets = {}
     end
 
-    local presetWidget = g_ui.createWidget("PresetButton", window.presetsList)
+    local presetWidget = g_ui.createWidget("OutfitPresetButton", window.presetsList)
     local presetId = #settings.presets + 1
     presetWidget:setId(presetId)
     presetWidget.title:setText("New Preset")
     local outfitCopy = table.copy(tempOutfit)
     presetWidget.creature:setOutfit(outfitCopy)
-    --  presetWidget.creature:setCenter(true)
 
     settings.presets[presetId] = {
         title = "New Preset",
         outfit = outfitCopy,
-        aura = "None",
+        auras = "None",
         effects = 0,
         wings = "None",
-        shader = "None",
+        shaders = "Outfit - Default",
         mounted = window.configure.mount.check:isChecked(),
         familiar = "None"
     }
@@ -693,11 +705,10 @@ function savePreset()
     settings.presets[presetId].outfit = outfitCopy
     settings.presets[presetId].mounted = window.configure.mount.check:isChecked()
     settings.presets[presetId].familiar = tempOutfit.familiar or 0
-    settings.presets[presetId].shader = "Outfit - Default"
     settings.presets[presetId].auras = lastSelectAura or "None"
     settings.presets[presetId].effects = lastSelectEffects or 0
     settings.presets[presetId].wings = lastSelectWings or "None"
-    settings.presets[presetId].shaders = lastSelectShader or "None"
+    settings.presets[presetId].shaders = lastSelectShader or "Outfit - Default"
 
     settings.currentPreset = presetId
 
@@ -708,8 +719,7 @@ function savePreset()
     local hasValidAE = checkPresetsValidity(presets)
     local thingType = g_things.getThingType(tempOutfit.type, ThingCategoryCreature)
 
-    if (hasValidAE and window.presetsList[presetId].creature:getCreatureSize() == 0) then
-        -- TODO: Try changing square clipping size from Mehah PR
+    if hasValidAE and window.presetsList[presetId].creature:getCreatureSize() == 0 then
         window.presetsList[presetId].creature:setCreatureSize(thingType:getRealSize())
         window.presetsList[presetId].creature:setCenter(true)
     elseif not g_game.getFeature(GameWingsAurasEffectsShader) then
@@ -720,8 +730,6 @@ function savePreset()
         window.presetsList[presetId].creature:setCenter(true)
     end
 
-
-
     if lastSelectShader ~= "None" and lastSelectShader ~= nil then
         if window.presetsList[presetId].creature then
             local creature = window.presetsList[presetId].creature:getCreature()
@@ -730,11 +738,6 @@ function savePreset()
             end
         end
     end
-
-    --[[     if lastSelectTitle ~= "None" then
-        window.presetsList[presetId].creature:getCreature():setTitle(lastSelectTitle, "verdana-11px-rounded", "#0000ff")
-    end ]]
-    -- @
 end
 
 function renamePreset()
@@ -793,7 +796,6 @@ function onAppearanceChange(widget, selectedWidget)
         showSelectionList(ServerData.wings, tempOutfit.wings, "wings", onWingsSelect)
     elseif id == "effects" then
         showSelectionList(ServerData.effects, tempOutfit.effects, "effects", onEffectBarSelect)
-        -- strings
     elseif id == "shader" then
         showShaders()
     elseif id == "healthBar" then
@@ -811,7 +813,7 @@ function showPresets()
     local focused = nil
     if window.presetsList:getChildCount() == 0 and settings.presets then
         for presetId, preset in ipairs(settings.presets) do
-            local presetWidget = g_ui.createWidget("PresetButton", window.presetsList)
+            local presetWidget = g_ui.createWidget("OutfitPresetButton", window.presetsList)
             presetWidget:setId(presetId)
             presetWidget.title:setText(preset.title)
             presetWidget.creature:setOutfit(preset.outfit)
@@ -824,8 +826,7 @@ function showPresets()
             local hasValidAE = checkPresetsValidity(presets)
             local thingType = g_things.getThingType(tempOutfit.type, ThingCategoryCreature)
 
-            if (hasValidAE and presetWidget.creature:getCreatureSize() == 0) then
-                -- TODO: Try changing square clipping size from Mehah PR
+            if hasValidAE and presetWidget.creature:getCreatureSize() == 0 then
                 presetWidget.creature:setCenter(true)
             elseif not g_game.getFeature(GameWingsAurasEffectsShader) then
                 presetWidget.creature:setCreatureSize(thingType:getRealSize() + 32)
@@ -872,7 +873,7 @@ function showOutfits()
 
     local focused = nil
     for _, outfitData in ipairs(ServerData.outfits) do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId(outfitData[1])
 
         local outfit = table.copy(previewCreature:getCreature():getOutfit())
@@ -929,14 +930,14 @@ function showMounts()
 
     local focused = nil
 
-    local button = g_ui.createWidget("SelectionButton", window.selectionList)
+    local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
     button:setId(0)
     button.name:setText("None")
     button.state = 0
     focused = 0
 
     for _, mountData in ipairs(ServerData.mounts) do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId(mountData[1])
 
         button.outfit:setOutfit({
@@ -991,12 +992,12 @@ function showFamiliars()
 
     local focused = nil
 
-    local button = g_ui.createWidget("SelectionButton", window.selectionList)
+    local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
     button:setId(0)
     button.name:setText("None")
     focused = 0
     for _, familiarData in ipairs(ServerData.familiars) do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId(familiarData[1])
 
         button.outfit:setOutfit({
@@ -1041,7 +1042,7 @@ function showShaders()
 
     local focused = nil
     do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId("Outfit - Default")
 
         button.outfit:setOutfit({
@@ -1060,13 +1061,12 @@ function showShaders()
 
     if ServerData.shaders and #ServerData.shaders > 0 then
         for _, shaderData in ipairs(ServerData.shaders) do
-            local button = g_ui.createWidget("SelectionButton", window.selectionList)
+            local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
             button:setId(shaderData[2])
 
             button.outfit:setOutfit({
                 type = tempOutfit.type,
                 addons = tempOutfit.addons
-
             })
 
             button.outfit:setCenter(true)
@@ -1105,7 +1105,7 @@ function showHealthBars()
 
     local focused = nil
     do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId("0")
 
         button.outfit:hide()
@@ -1116,11 +1116,11 @@ function showHealthBars()
     end
     if ServerData.healthBars and #ServerData.healthBars > 0 then
         for _, barData in ipairs(ServerData.healthBars) do
-            local button = g_ui.createWidget("SelectionButton", window.selectionList)
+            local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
             button:setId(barData)
 
-            local Category = modules.game_attachedeffects.getCategory(barData)
-            if Category == 5 then
+            local category = modules.game_attachedeffects.getCategory(barData)
+            if category == 5 then
                 button.outfit:setImageSource(modules.game_attachedeffects.getTexture(barData))
                 button.outfit:setWidth(64)
                 button.outfit:setHeight(32)
@@ -1162,25 +1162,24 @@ function showTitle()
 
     local focused = nil
     do
-        local button = g_ui.createWidget("SelectionButton", window.selectionList)
+        local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
         button:setId("0")
 
-
         button.name:setText("None")
-        if tempOutfit.tile == 0 then
+        if tempOutfit.title == "None" or tempOutfit.title == nil then
             focused = 0
         end
     end
     if ServerData.title and #ServerData.title > 0 then
         for _, titleData in ipairs(ServerData.title) do
-            local button = g_ui.createWidget("SelectionButton", window.selectionList)
+            local button = g_ui.createWidget("OutfitSelectionButton", window.selectionList)
             button:setId(tostring(titleData))
 
             button.outfit:setOutfit(previewCreature:getCreature():getOutfit())
-            button.outfit:getCreature():getCreature():setTitle(titleData, "verdana-11px-rounded", "#0000ff")
+            button.outfit:getCreature():setTitle(titleData, "verdana-11px-rounded", "#0000ff")
 
             button.name:setText(tostring(titleData))
-            if tempOutfit.tile == titleData then
+            if tempOutfit.title == titleData then
                 focused = tostring(titleData)
             end
         end
@@ -1201,146 +1200,151 @@ function showTitle()
 end
 
 function onPresetSelect(list, focusedChild, unfocusedChild, reason)
-    if focusedChild then
-        local presetId = tonumber(focusedChild:getId())
-        local preset = settings.presets[presetId]
-        tempOutfit = table.copy(preset.outfit)
-
-        for _, outfitData in ipairs(ServerData.outfits) do
-            if tempOutfit.type == outfitData[1] then
-                configureAddons(outfitData[3])
-                break
-            end
-        end
-
-        if g_game.getFeature(GamePlayerMounts) then
-            window.configure.mount.check:setChecked(preset.mounted and tempOutfit.mount > 0)
-        end
-
-        settings.currentPreset = presetId
-
-        updatePreview()
-
-        updateAppearanceTexts(tempOutfit)
-
-        updateAppearanceText("preset", preset.title)
-        if g_game.getFeature(GameWingsAurasEffectsShader) then
-            updateAppearanceText("aura", modules.game_attachedeffects.getName(preset.auras))
-            updateAppearanceText("wings", modules.game_attachedeffects.getName(preset.wings))
-            updateAppearanceText("shader", preset.shaders or "Outfit - Default")
-            updateAppearanceText("effects", modules.game_attachedeffects.getName(preset.effects))
-        end
-
-        previewCreature:getCreature():clearAttachedEffects()
-
-        if settings.showEffects and preset.effects then
-            attachEffectIfValid(previewCreature, preset.effects)
-        end
-
-        if settings.showWings and preset.wings then
-            attachEffectIfValid(previewCreature, preset.wings)
-        end
-
-        if settings.showAura and preset.auras then
-            attachEffectIfValid(previewCreature, preset.auras)
-        end
-
-        if not settings.showShader or preset.shaders == "None" then
-            if previewCreature then
-                local creature = previewCreature:getCreature()
-                if creature then
-                    creature:setShader("Outfit - Default")
-                end
-            end
-        else
-            if previewCreature then
-                local creature = previewCreature:getCreature()
-                if creature then
-                    creature:setShader(preset.shaders)
-                end
-            end
-        end
-
-        tempOutfit.wings = preset.wings
-        tempOutfit.auras = preset.auras
-        tempOutfit.shaders = preset.shaders
-        tempOutfit.effects = preset.effects
-        lastSelectAura = preset.auras
-        lastSelectWings = preset.wings
-        lastSelectEffects = preset.effects
-        lastSelectShader = preset.shaders
+    if not focusedChild then
+        return
     end
+
+    local presetId = tonumber(focusedChild:getId())
+    local preset = settings.presets[presetId]
+    tempOutfit = table.copy(preset.outfit)
+
+    for _, outfitData in ipairs(ServerData.outfits) do
+        if tempOutfit.type == outfitData[1] then
+            configureAddons(outfitData[3])
+            break
+        end
+    end
+
+    if g_game.getFeature(GamePlayerMounts) then
+        window.configure.mount.check:setChecked(preset.mounted and tempOutfit.mount > 0)
+    end
+
+    settings.currentPreset = presetId
+
+    updatePreview()
+
+    updateAppearanceTexts(tempOutfit)
+
+    updateAppearanceText("preset", preset.title)
+    if g_game.getFeature(GameWingsAurasEffectsShader) then
+        updateAppearanceText("aura", modules.game_attachedeffects.getName(preset.auras))
+        updateAppearanceText("wings", modules.game_attachedeffects.getName(preset.wings))
+        updateAppearanceText("shader", preset.shaders or "Outfit - Default")
+        updateAppearanceText("effects", modules.game_attachedeffects.getName(preset.effects))
+    end
+
+    previewCreature:getCreature():clearAttachedEffects()
+
+    if settings.showEffects and preset.effects then
+        attachEffectIfValid(previewCreature, preset.effects)
+    end
+
+    if settings.showWings and preset.wings then
+        attachEffectIfValid(previewCreature, preset.wings)
+    end
+
+    if settings.showAura and preset.auras then
+        attachEffectIfValid(previewCreature, preset.auras)
+    end
+
+    if not settings.showShader or preset.shaders == "None" then
+        if previewCreature then
+            local creature = previewCreature:getCreature()
+            if creature then
+                creature:setShader("Outfit - Default")
+            end
+        end
+    else
+        if previewCreature then
+            local creature = previewCreature:getCreature()
+            if creature then
+                creature:setShader(preset.shaders)
+            end
+        end
+    end
+
+    tempOutfit.wings = preset.wings
+    tempOutfit.auras = preset.auras
+    tempOutfit.shaders = preset.shaders
+    tempOutfit.effects = preset.effects
+    lastSelectAura = preset.auras
+    lastSelectWings = preset.wings
+    lastSelectEffects = preset.effects
+    lastSelectShader = preset.shaders
 end
 
 function onOutfitSelect(list, focusedChild, unfocusedChild, reason)
-    if focusedChild then
-        local outfitType = tonumber(focusedChild:getId())
-        local outfit = focusedChild.outfit:getCreature():getOutfit()
-        tempOutfit.type = outfit.type
-        tempOutfit.addons = outfit.addons
-
-        deselectPreset()
-
-        configureAddons(outfit.addons)
-
-        if showOutfitCheck:isChecked() then
-            updatePreview()
-        end
-        updateAppearanceText("outfit", focusedChild.name:getText())
+    if not focusedChild then
+        return
     end
+
+    local outfit = focusedChild.outfit:getCreature():getOutfit()
+    tempOutfit.type = outfit.type
+    tempOutfit.addons = outfit.addons
+
+    deselectPreset()
+
+    configureAddons(outfit.addons)
+
+    if showOutfitCheck:isChecked() then
+        updatePreview()
+    end
+    updateAppearanceText("outfit", focusedChild.name:getText())
 end
 
 function onMountSelect(list, focusedChild, unfocusedChild, reason)
-    if focusedChild then
-        local mountType = tonumber(focusedChild:getId())
-        tempOutfit.mount = mountType
-
-        deselectPreset()
-
-        if showMountCheck:isChecked() then
-            updatePreview()
-        end
-
-        window.configure.mount.check:setEnabled(tempOutfit.mount > 0)
-        window.configure.mount.check:setChecked(g_game.getLocalPlayer():isMounted() and tempOutfit.mount > 0)
-
-        updateAppearanceText("mount", focusedChild.name:getText())
+    if not focusedChild then
+        return
     end
+
+    local mountType = tonumber(focusedChild:getId())
+    tempOutfit.mount = mountType
+
+    deselectPreset()
+
+    if showMountCheck:isChecked() then
+        updatePreview()
+    end
+
+    window.configure.mount.check:setEnabled(tempOutfit.mount > 0)
+    window.configure.mount.check:setChecked(g_game.getLocalPlayer():isMounted() and tempOutfit.mount > 0)
+
+    updateAppearanceText("mount", focusedChild.name:getText())
 end
 
 function onFamiliarSelect(list, focusedChild, unfocusedChild, reason)
-    if focusedChild then
-        local familiarType = tonumber(focusedChild:getId())
-
-        tempOutfit.familiar = familiarType
-
-        deselectPreset()
-
-        -- Only set outfit if familiarType is valid (not 0/None)
-        if familiarType and familiarType > 0 then
-            previewFamiliar:setOutfit({
-                type = familiarType
-            })
-        else
-            -- Hide/clear the familiar when "None" is selected
-            previewFamiliar:setVisible(false)
-        end
-
-        updatePreview()
-
-        if settings.showFamiliar and g_game.getFeature(GamePlayerFamiliars) and familiarType ~= nil and familiarType > 0 then
-            previewCreature:setMarginRight(50)
-            previewFamiliar:setCreatureSize(124)
-            previewFamiliar:setCenter(true)
-            previewFamiliar:setMarginLeft(70)
-        else
-            previewCreature:setMarginRight(0)
-            previewFamiliar:setMarginLeft(0)
-            window.preview.panel.bars:setMarginRight(20)
-        end
-
-        updateAppearanceText("familiar", focusedChild.name:getText())
+    if not focusedChild then
+        return
     end
+
+    local familiarType = tonumber(focusedChild:getId())
+
+    tempOutfit.familiar = familiarType
+
+    deselectPreset()
+
+    if familiarType and familiarType > 0 then
+        previewFamiliar:setOutfit({
+            type = familiarType
+        })
+    else
+        previewFamiliar:setVisible(false)
+    end
+
+    updatePreview()
+
+    if settings.showFamiliar and g_game.getFeature(GamePlayerFamiliars) and familiarType ~= nil and familiarType > 0 then
+        previewCreature:setMarginRight(50)
+        previewFamiliar:setCreatureSize(124)
+        previewFamiliar:setCenter(true)
+        previewFamiliar:setMarginLeft(70)
+    else
+        previewCreature:setMarginRight(0)
+        previewFamiliar:setMarginLeft(0)
+        window.preview.panel.bars:setMarginRight(20)
+    end
+
+    updateAppearanceText("familiar", focusedChild.name:getText())
 end
 
 function onAuraSelect(list, focusedChild, unfocusedChild, reason)
@@ -1351,21 +1355,23 @@ function onAuraSelect(list, focusedChild, unfocusedChild, reason)
             previewCreature:getCreature():detachEffectById(auraId)
         end
     end
-    if focusedChild then
-        local auraType = tonumber(focusedChild:getId())
+    if not focusedChild then
+        return
+    end
 
-        if checkPresetsValidity({ auraType }) then
-            previewCreature:getCreature():attachEffect(g_attachedEffects.getById(auraType))
-            lastSelectAura = auraType
-            tempOutfit.auras = auraType
-            updatePreview()
-            deselectPreset()
-            updateAppearanceText("aura", modules.game_attachedeffects.getName(auraType))
-        else
-            lastSelectAura = "None"
-            tempOutfit.auras = 0
-            updateAppearanceText("aura", "None")
-        end
+    local auraType = tonumber(focusedChild:getId())
+
+    if checkPresetsValidity({ auraType }) then
+        previewCreature:getCreature():attachEffect(g_attachedEffects.getById(auraType))
+        lastSelectAura = auraType
+        tempOutfit.auras = auraType
+        updatePreview()
+        deselectPreset()
+        updateAppearanceText("aura", modules.game_attachedeffects.getName(auraType))
+    else
+        lastSelectAura = "None"
+        tempOutfit.auras = 0
+        updateAppearanceText("aura", "None")
     end
 end
 
@@ -1378,73 +1384,77 @@ function onWingsSelect(list, focusedChild, unfocusedChild, reason)
         end
     end
 
-    if focusedChild then
-        local wingsType = tonumber(focusedChild:getId())
+    if not focusedChild then
+        return
+    end
 
-        if checkPresetsValidity({ wingsType }) then
-            previewCreature:getCreature():attachEffect(g_attachedEffects.getById(wingsType))
-            lastSelectWings = wingsType
-            tempOutfit.wings = wingsType
-            updatePreview()
-            deselectPreset()
-            updateAppearanceText("wings", modules.game_attachedeffects.getName(wingsType))
-        else
-            lastSelectWings = "None"
-            tempOutfit.wings = 0
-            updateAppearanceText("wings", "None")
-        end
+    local wingsType = tonumber(focusedChild:getId())
+
+    if checkPresetsValidity({ wingsType }) then
+        previewCreature:getCreature():attachEffect(g_attachedEffects.getById(wingsType))
+        lastSelectWings = wingsType
+        tempOutfit.wings = wingsType
+        updatePreview()
+        deselectPreset()
+        updateAppearanceText("wings", modules.game_attachedeffects.getName(wingsType))
+    else
+        lastSelectWings = "None"
+        tempOutfit.wings = 0
+        updateAppearanceText("wings", "None")
     end
 end
 
 function onShaderSelect(list, focusedChild, unfocusedChild, reason)
-    if focusedChild then
-        local shaderType = focusedChild:getId()
-        if previewCreature then
-            local creature = previewCreature:getCreature()
-            if creature then
-                if shaderType ~= "None" then
-                    -- Enable shader display when selecting a shader
-                    settings.showShader = true
-                    -- Update checkbox without triggering event
-                    if showShaderCheck then
-                        showShaderCheck.onCheckChange = nil
-                        showShaderCheck:setChecked(true)
-                        showShaderCheck.onCheckChange = onShowShaderChange
-                    end
+    if not focusedChild then
+        return
+    end
 
-                    lastSelectShader = shaderType
-                    tempOutfit.shaders = shaderType
-                    creature:setShader(shaderType)
-                else
-                    lastSelectShader = "Outfit - Default"
-                    tempOutfit.shaders = "Outfit - Default"
-                    creature:setShader("Outfit - Default")
+    local shaderType = focusedChild:getId()
+    if previewCreature then
+        local creature = previewCreature:getCreature()
+        if creature then
+            if shaderType ~= "None" then
+                settings.showShader = true
+                if showShaderCheck then
+                    showShaderCheck.onCheckChange = nil
+                    showShaderCheck:setChecked(true)
+                    showShaderCheck.onCheckChange = onShowShaderChange
                 end
+
+                lastSelectShader = shaderType
+                tempOutfit.shaders = shaderType
+                creature:setShader(shaderType)
+            else
+                lastSelectShader = "Outfit - Default"
+                tempOutfit.shaders = "Outfit - Default"
+                creature:setShader("Outfit - Default")
             end
         end
-
-        deselectPreset()
-
-        updateAppearanceText("shader", focusedChild.name:getText())
     end
+
+    deselectPreset()
+
+    updateAppearanceText("shader", focusedChild.name:getText())
 end
 
 function onHealthBarSelect(list, focusedChild, unfocusedChild, reason)
     if window.appearance.settings["healthBar"].name:getText() ~= "None" then
         previewCreature:getCreature():detachEffectById(tonumber(window.appearance.settings["healthBar"].name:getText()))
     end
-    if focusedChild then
-        local barType = tonumber(focusedChild:getId())
-        tempOutfit.healthBar = barType
-        updatePreview()
-        if barType > 0 then
-            previewCreature:getCreature():attachEffect(g_attachedEffects.getById(barType))
-        end
-
-        deselectPreset()
-
-        updateAppearanceText("healthBar", focusedChild.name:getText())
+    if not focusedChild then
+        return
     end
+
+    local barType = tonumber(focusedChild:getId())
+    tempOutfit.healthBar = barType
+    updatePreview()
+    if barType > 0 then
+        previewCreature:getCreature():attachEffect(g_attachedEffects.getById(barType))
+    end
+
+    deselectPreset()
+
+    updateAppearanceText("healthBar", focusedChild.name:getText())
 end
 
 function onEffectBarSelect(list, focusedChild, unfocusedChild, reason)
@@ -1456,21 +1466,23 @@ function onEffectBarSelect(list, focusedChild, unfocusedChild, reason)
         end
     end
 
-    if focusedChild then
-        local effect_id = tonumber(focusedChild:getId())
+    if not focusedChild then
+        return
+    end
 
-        if checkPresetsValidity({ effect_id }) then
-            previewCreature:getCreature():attachEffect(g_attachedEffects.getById(effect_id))
-            lastSelectEffects = effect_id
-            tempOutfit.effects = effect_id
-            updatePreview()
-            deselectPreset()
-            updateAppearanceText("effects", modules.game_attachedeffects.getName(effect_id))
-        else
-            lastSelectEffects = 0
-            tempOutfit.effects = 0
-            updateAppearanceText("effects", "None")
-        end
+    local effectId = tonumber(focusedChild:getId())
+
+    if checkPresetsValidity({ effectId }) then
+        previewCreature:getCreature():attachEffect(g_attachedEffects.getById(effectId))
+        lastSelectEffects = effectId
+        tempOutfit.effects = effectId
+        updatePreview()
+        deselectPreset()
+        updateAppearanceText("effects", modules.game_attachedeffects.getName(effectId))
+    else
+        lastSelectEffects = 0
+        tempOutfit.effects = 0
+        updateAppearanceText("effects", "None")
     end
 end
 
@@ -1479,21 +1491,25 @@ function onTitleSelect(list, focusedChild, unfocusedChild, reason)
         previewCreature:getCreature():clearTitle()
     end
 
-    if focusedChild then
-        local titleType = tostring(focusedChild:getId())
-
-        if titleType ~= "None" then
-            previewCreature:getCreature():setTitle(titleType, "verdana-11px-rounded", "#0000ff")
-            lastSelectTitle = titleType
-        else
-            lastSelectTitle = "None"
-            previewCreature:getCreature():clearTitle()
-        end
-
-        updatePreview()
-        deselectPreset()
-        updateAppearanceText("title", focusedChild.name:getText())
+    if not focusedChild then
+        return
     end
+
+    local titleType = tostring(focusedChild:getId())
+
+    if titleType ~= "None" and titleType ~= "0" then
+        previewCreature:getCreature():setTitle(titleType, "verdana-11px-rounded", "#0000ff")
+        lastSelectTitle = titleType
+        tempOutfit.title = titleType
+    else
+        lastSelectTitle = "None"
+        tempOutfit.title = "None"
+        previewCreature:getCreature():clearTitle()
+    end
+
+    updatePreview()
+    deselectPreset()
+    updateAppearanceText("title", focusedChild.name:getText())
 end
 
 function updateAppearanceText(widget, text)
@@ -1614,23 +1630,9 @@ function updatePreview()
         end
     end
 
-    if settings.showAura then
-        attachOrDetachEffect(lastSelectAura, true)
-    else
-        attachOrDetachEffect(lastSelectAura, false)
-    end
-
-    if settings.showWings then
-        attachOrDetachEffect(lastSelectWings, true)
-    else
-        attachOrDetachEffect(lastSelectWings, false)
-    end
-
-    if settings.showEffects then
-        attachOrDetachEffect(lastSelectEffects, true)
-    else
-        attachOrDetachEffect(lastSelectEffects, false)
-    end
+    attachOrDetachEffect(lastSelectAura, settings.showAura)
+    attachOrDetachEffect(lastSelectWings, settings.showWings)
+    attachOrDetachEffect(lastSelectEffects, settings.showEffects)
 
     if not settings.showShader then
         if previewCreature then
@@ -1739,7 +1741,10 @@ end
 
 function onFilterSearch()
     addEvent(function()
-        if not window then return end
+        if not window then
+            return
+        end
+
         local searchText = window.listSearch.search:getText():lower():trim()
         local children = window.selectionList:getChildren()
         if searchText:len() >= 1 then
@@ -1762,7 +1767,6 @@ end
 function saveSettings()
     if not g_resources.fileExists(settingsFile) then
         g_resources.makeDir("/settings")
-        -- Safely attempt to write initial file
         local writeStatus, writeError = pcall(function()
             return g_resources.writeFileContents(settingsFile, "[]")
         end)
@@ -1775,29 +1779,28 @@ function saveSettings()
 
     local fullSettings = {}
     do
-        local json_status, json_data = pcall(function()
+        local jsonStatus, jsonData = pcall(function()
             return json.decode(g_resources.readFileContents(settingsFile))
         end)
 
-        if not json_status then
-            g_logger.error("[saveSettings] Couldn't load JSON: " .. json_data)
+        if not jsonStatus then
+            g_logger.error("[saveSettings] Couldn't load JSON: " .. jsonData)
             return
         end
-        fullSettings = json_data
+        fullSettings = jsonData
     end
 
     fullSettings[g_game.getCharacterName()] = settings
 
-    local json_status, json_data = pcall(function()
+    local jsonStatus, jsonData = pcall(function()
         return json.encode(fullSettings)
     end)
 
-    if not json_status then
-        g_logger.error("[saveSettings] Couldn't save JSON: " .. json_data)
+    if not jsonStatus then
+        g_logger.error("[saveSettings] Couldn't save JSON: " .. jsonData)
         return
     end
 
-    -- Safely attempt to write the settings file
     local writeStatus, writeError = pcall(function()
         return g_resources.writeFileContents(settingsFile, json.encode(fullSettings))
     end)
@@ -1812,21 +1815,22 @@ function loadSettings()
         g_resources.makeDir("/settings")
     end
 
-    if g_resources.fileExists(settingsFile) then
-        local json_status, json_data = pcall(function()
-            return json.decode(g_resources.readFileContents(settingsFile))
-        end)
+    if not g_resources.fileExists(settingsFile) then
+        loadDefaultSettings()
+        return
+    end
 
-        if not json_status then
-            g_logger.error("[loadSettings] Couldn't load JSON: " .. json_data)
-            return
-        end
+    local jsonStatus, jsonData = pcall(function()
+        return json.decode(g_resources.readFileContents(settingsFile))
+    end)
 
-        settings = json_data[g_game.getCharacterName()]
-        if not settings then
-            loadDefaultSettings()
-        end
-    else
+    if not jsonStatus then
+        g_logger.error("[loadSettings] Couldn't load JSON: " .. jsonData)
+        return
+    end
+
+    settings = jsonData[g_game.getCharacterName()]
+    if not settings then
         loadDefaultSettings()
     end
 end
@@ -1865,11 +1869,9 @@ function accept()
     end
     if g_game.getFeature(GamePlayerFamiliars) then
         if settings.currentPreset > 0 then
-            -- Check if familiar configuration exists before accessing it
             if window.configure.familiar and window.configure.familiar.check then
                 settings.presets[settings.currentPreset].familiar = window.configure.familiar.check:isChecked()
             else
-                -- Default to false if the familiar check doesn't exist
                 settings.presets[settings.currentPreset].familiar = false
             end
         end

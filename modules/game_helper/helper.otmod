@@ -1,7 +1,8 @@
 Module
   name: game_helper
   description: RTC Helper
-  author: R!ck && ZLukSrT#8740 && Christianlb && worthdavi bjos
+  author: teste
+  website: www.crystalserver.com
   sandboxed: true
   scripts: [ helper ]
   @onLoad: init()

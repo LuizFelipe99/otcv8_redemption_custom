@@ -1,0 +1,10 @@
+{
+    "EngineID": "0",
+    "HardwareID": "013d853dbcecd0fe74b51be78ecdb01ea5d800fa",
+    "LogMessages": "[{\"Message\":\"Using spritesheet cache size of 910\",\"Timestamp\":1790774001},{\"Message\":\"\\\"Failed to load asset 'catalog-content.json': I/O error on file 'C:/Users/quero/Desktop/server/otclient-main/assets/catalog-content.json': File does not exist\\\"\",\"Timestamp\":1790774001},{\"Message\":\"Update failed. Please reinstall Tibia to update your client.\",\"Timestamp\":1790774001},{\"Message\":\"\\\"Failed to load asset 'catalog-sound.json': I/O error on file 'C:/Users/quero/Desktop/server/otclient-main/sounds/catalog-sound.json': File does not exist\\\"\",\"Timestamp\":1790774001},{\"Message\":\"Update failed. Please reinstall Tibia to update your client.\",\"Timestamp\":1790774001}]",
+    "LoginHost": "127.0.0.1",
+    "OperatingSystem": "Windows 11 Version 25H2",
+    "ProductName": "Tibia Client",
+    "Timestamp": "1790774003",
+    "Version": "15.11.c9d1cff7cde438a04830b2b6dcfbbd98dea96276"
+}

@@ -31,7 +31,6 @@ MainWindow
       size: 34 34
       anchors.left: parent.left
       anchors.top: parent.top
-      margin-left: 5
       virtual: true
       phantom: true
 
@@ -58,7 +57,6 @@ MainWindow
       size: 34 34
       anchors.left: parent.left
       anchors.top: helmetSlotIcon.bottom
-      margin-left: 5
       margin-top: 6
       virtual: true
       phantom: true
@@ -86,7 +84,6 @@ MainWindow
       size: 34 34
       anchors.left: parent.left
       anchors.top: bodySlotIcon.bottom
-      margin-left: 5
       margin-top: 6
       virtual: true
       phantom: true

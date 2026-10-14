@@ -30,7 +30,7 @@ RotateButton < UIButton
   $hover:
     image-color: #ffffff
 
-PresetButton < Panel
+OutfitPresetButton < Panel
   height: 100
   image-source: /images/ui/button
   image-color: #dfdfdf
@@ -93,7 +93,7 @@ PresetButton < Panel
       margin-left: 5
       text: Save
 
-SelectionButton < Panel
+OutfitSelectionButton < Panel
   image-source:  /images/ui/button-grey-qt
   image-clip: 0 0 98 40
   image-border: 3
