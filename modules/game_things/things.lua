@@ -2,6 +2,7 @@ ThingsLoaderController = Controller:new()
 
 local filename = nil
 local loaded = false
+local hdAssetsLoaded = nil
 
 function setFileName(name)
     filename = name
@@ -9,6 +10,10 @@ end
 
 function isLoaded()
     return loaded
+end
+
+function isHdAssetsLoaded()
+    return hdAssetsLoaded
 end
 
 local function tryLoadDatWithFallbacks(datPath)
@@ -60,7 +65,10 @@ local function load(version)
     local errorList = {}
 
     if version >= 1281 and not g_game.getFeature(GameLoadSprInsteadProtobuf) then
-        local filePath = resolvepath(resolveAssetsDirectory(version))
+        local assetsDirectory = resolveAssetsDirectory(version)
+        hdAssetsLoaded = assetsDirectory ~= string.format('/data/things/%d/', version)
+        local filePath = resolvepath(assetsDirectory)
+        g_logger.info(string.format('[game_things] Loading assets from %s', assetsDirectory))
         if not g_things.loadAppearances(filePath) then
             errorList[#errorList + 1] = "Couldn't load assets"
         end

@@ -1,3 +1,48 @@
+local hdRestartPrompt = nil
+
+local function closeHdRestartPrompt()
+    if not hdRestartPrompt then
+        return
+    end
+
+    hdRestartPrompt:destroy()
+    hdRestartPrompt = nil
+end
+
+local function restartClient()
+    closeHdRestartPrompt()
+    g_settings.save()
+    g_app.restart()
+end
+
+local function promptHdRestart(value)
+    local thingsModule = modules.game_things
+    if not thingsModule or not thingsModule.isHdAssetsLoaded then
+        return
+    end
+
+    local hdAssetsLoaded = thingsModule.isHdAssetsLoaded()
+    if hdAssetsLoaded == nil or hdAssetsLoaded == value then
+        closeHdRestartPrompt()
+        return
+    end
+
+    if hdRestartPrompt then
+        return
+    end
+
+    local message = tr('The client needs to restart to apply HD Mode.')
+    if g_game.isOnline() then
+        message = message .. '\n' .. tr('You will be disconnected from the game.')
+    end
+
+    hdRestartPrompt = displayGeneralBox(tr('HD Mode'), message, {
+        { text = tr('Restart now'), callback = restartClient },
+        { text = tr('Later'), callback = closeHdRestartPrompt },
+        anchor = AnchorHorizontalCenter
+    }, restartClient, closeHdRestartPrompt)
+end
+
 return {
     vsync                             = {
         value = true,
@@ -24,7 +69,10 @@ return {
         end
     },
     hdSprites                         = {
-        value = false
+        value = false,
+        action = function(value, options, controller, panels, extraWidgets)
+            promptHdRestart(value)
+        end
     },
     classicControl                    = {
         value = g_platform.isMobile() and true or false,
