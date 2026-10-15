@@ -14,6 +14,7 @@ local isWideLayoutActive = false
 
 local DEFAULT_LAYOUT = {
     panelHeight = 116,
+    roseImage = '/images/automap/automap_rose',
     borderSize = { width = 115, height = 111 },
     borderMarginTop = 5,
     borderMarginLeft = 8
@@ -23,10 +24,11 @@ local WIDE_LAYOUT = {
     panelHeight = 200,
     panelImage = '/images/ui/2pixel_up_frame_borderimage',
     panelImageBorder = 2,
-    borderMarginTop = 5,
-    borderMarginLeft = 8,
-    borderMarginRight = 56,
-    borderMarginBottom = 5
+    roseImage = '/images/automap/automap_rose_round',
+    borderMarginTop = 4,
+    borderMarginLeft = 4,
+    borderMarginRight = 4,
+    borderMarginBottom = 4
 }
 
 local function refreshVirtualFloors()
@@ -284,6 +286,14 @@ local function shouldUseWideLayout()
     return rightExtraPanel and rightExtraPanel:isOn()
 end
 
+local function applyRoseImage(rosePanel, roseImage)
+    for _, roseChild in ipairs(rosePanel:getChildren()) do
+        if roseChild:getId() ~= 'ambients' then
+            roseChild:setImageSource(roseImage)
+        end
+    end
+end
+
 local function applyDefaultBorderAnchors(minimapBorder)
     minimapBorder:breakAnchors()
     minimapBorder:addAnchor(AnchorTop, 'parent', AnchorTop)
@@ -328,6 +338,7 @@ local function enterWideLayout()
     mapPanel:setDraggable(false)
     mapPanel:show()
     applyWideBorderAnchors(mapPanel.minimapBorder)
+    applyRoseImage(mapPanel.rosePanel, WIDE_LAYOUT.roseImage)
     isWideLayoutActive = true
 end
 
@@ -347,6 +358,7 @@ local function leaveWideLayout()
     mapPanel:setDraggable(true)
     mapPanel:setHeight(DEFAULT_LAYOUT.panelHeight)
     applyDefaultBorderAnchors(mapPanel.minimapBorder)
+    applyRoseImage(mapPanel.rosePanel, DEFAULT_LAYOUT.roseImage)
 
     if not mainRightPanel:hasChild(mapPanel) then
         mainRightPanel:insertChild(1, mapPanel)
