@@ -15,6 +15,17 @@ local function restartClient()
     g_app.restart()
 end
 
+local PRIMARY_BUTTON_COLOR = '#ffd27a'
+local SECONDARY_BUTTON_COLOR = '#ffffff'
+
+local function highlightPromptButtons(messageBox)
+    local buttons = messageBox:getChildById('holder'):getChildren()
+    for buttonIndex, button in ipairs(buttons) do
+        button:setOpacity(1)
+        button:setColor(buttonIndex == 1 and PRIMARY_BUTTON_COLOR or SECONDARY_BUTTON_COLOR)
+    end
+end
+
 local function promptHdRestart(value)
     local thingsModule = modules.game_things
     if not thingsModule or not thingsModule.isHdAssetsLoaded then
@@ -41,6 +52,8 @@ local function promptHdRestart(value)
         { text = tr('Later'), callback = closeHdRestartPrompt },
         anchor = AnchorHorizontalCenter
     }, restartClient, closeHdRestartPrompt)
+
+    highlightPromptButtons(hdRestartPrompt)
 end
 
 return {
