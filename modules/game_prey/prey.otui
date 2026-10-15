@@ -1,3 +1,7 @@
+PreyStonePanel < Panel
+  image-source: /images/game/prey/prey_panel_stone
+  image-border: 1
+
 LockedPreyPanel < Panel
   size: 195 312
 
@@ -37,6 +41,7 @@ LockedPreyPanel < Panel
     height: 64
     background-color: #1c4161
     margin-top: 7
+    visible: false
     @onClick: modules.game_mainpanel.toggleStore()
 
     UIWidget
@@ -63,11 +68,11 @@ NoStar < UIWidget
 NoCreaturePanel < Panel
   size: 195 152
 
-  FlatPanel
+  PreyStonePanel
     size: 124 124
     anchors.top: parent.top
     anchors.left: parent.left
-    image-source: /images/ui/panel_flat
+    image-source: /images/game/prey/prey_panel_stone
     image-border: 1
 
     UIWidget
@@ -76,7 +81,7 @@ NoCreaturePanel < Panel
       anchors.horizontalCenter: parent.horizontalCenter
       image-source: /images/game/prey/prey_biginactive
 
-  FlatPanel
+  PreyStonePanel
     id: bonus
     anchors.top: parent.top
     anchors.left: prev.right
@@ -191,7 +196,7 @@ ActivePreyPanel < Panel
     anchors.right: prev.left
     margin-right: 2
 
-  FlatPanel
+  PreyStonePanel
     id: autoReroll
     size: 160 20
     anchors.top: prev.bottom
@@ -218,7 +223,7 @@ ActivePreyPanel < Panel
     anchors.bottom: prev.bottom
     anchors.right: parent.right
 
-  FlatPanel
+  PreyStonePanel
     id: lockPrey
     size: 160 20
     anchors.top: prev.bottom
@@ -254,11 +259,11 @@ CreatureAndBonus < Panel
     anchors.top: parent.top
     anchors.left: parent.left
     size: 124 124
-    image-source: /images/ui/panel_flat
+    image-source: /images/game/prey/prey_panel_stone
     image-border: 1
     padding: 5
 
-  FlatPanel
+  PreyStonePanel
     id: bonus
     anchors.top: parent.top
     anchors.left: prev.right
@@ -304,7 +309,7 @@ CreatureAndBonus < Panel
     height: 20
     background-color: #C28400
 
-BonusReroll < FlatPanel
+BonusReroll < PreyStonePanel
   padding: 2
   size: 55 92
 
@@ -349,7 +354,7 @@ InactivePreyPanel < Panel
     anchors.right: prev.left
     margin-right: 2
 
-  FlatPanel
+  PreyStonePanel
     id: preview
     anchors.left: parent.left
     anchors.right: choose.left
@@ -357,7 +362,7 @@ InactivePreyPanel < Panel
     margin-right: 6
     height: 92
     padding: 4
-    image-source: /images/ui/panel_flat
+    image-source: /images/game/prey/prey_panel_stone
     image-border: 1
     visible: false
 
@@ -376,7 +381,7 @@ InactivePreyPanel < Panel
       phantom: true
       visible: false
 
-  FlatPanel
+  PreyStonePanel
     id: list
     anchors.top: parent.top
     anchors.horizontalCenter: parent.horizontalCenter
@@ -390,7 +395,7 @@ InactivePreyPanel < Panel
       cell-spacing: 3
       num-columns: 3
 
-  FlatPanel
+  PreyStonePanel
     id: fullList
     anchors.left: parent.left
     anchors.right: parent.right
@@ -400,7 +405,7 @@ InactivePreyPanel < Panel
     margin-bottom: 8
     padding: 6
     visible: false
-    image-source: /images/ui/panel_flat
+    image-source: /images/game/prey/prey_panel_stone
     image-border: 1
 
     TextEdit
@@ -454,24 +459,21 @@ InactivePreyPanel < Panel
       step: 20
       pixel-scroll: true
 
-ChoosePrey < FlatPanel
+ChoosePrey < PreyStonePanel
   size: 55 92
-  padding: 10
 
   UIButton
     id: choosePreyButton
-    anchors.fill: parent
-    margin-bottom: 17
-    margin-top: 17
-    margin-left: 3
+    anchors.centerIn: parent
+    size: 44 35
     image-source: /images/game/prey/prey_choose
     image-clip: 1 0 44 35
     @onHoverChange: modules.game_prey.onHover(self)
 
     $pressed:
-      image-clip: 0 35 45 37
+      image-clip: 1 36 44 35
 
-SelectPreyCreature < FlatPanel
+SelectPreyCreature < PreyStonePanel
   padding: 2
   size: 70 92
 
@@ -491,11 +493,11 @@ SelectPreyCreature < FlatPanel
     anchors.top: prev.bottom
     margin-top: 2
 
-RerollButton < FlatPanel
+RerollButton < PreyStonePanel
   padding: 2
   size: 70 92
 
-  FlatPanel
+  PreyStonePanel
     id: button
     size: 66 66
     padding: 2
@@ -532,7 +534,9 @@ RerollButton < FlatPanel
     anchors.right: parent.right
     anchors.bottom: parent.bottom
 
-CardLabel < FlatPanel
+CardLabel < Panel
+  image-source: /images/ui/backdrop-dark-grey
+  image-border: 5
   padding: 5
 
   UIWidget
@@ -550,7 +554,7 @@ CardLabel < FlatPanel
     anchors.verticalCenter: parent.verticalCenter
     text-align: right
 
-GoldLabel < FlatPanel
+GoldLabel < PreyStonePanel
   image-source: /images/ui/backdrop-dark-grey
   image-border: 5
   margin: 1
@@ -570,9 +574,20 @@ GoldLabel < FlatPanel
     anchors.verticalCenter: parent.verticalCenter
     text-align: right
 
+  UIWidget
+    id: originalPrice
+    anchors.left: parent.left
+    anchors.verticalCenter: parent.verticalCenter
+    margin-left: 4
+    font: Verdana-Strikethrough-11px
+    color: #8a8a8a
+    text-auto-resize: true
+    visible: false
+
 PreyCreatureBox < UICheckBox
   border-width: 1
   border-color: #ffffff
+  background-color: alpha
   padding: 3
   @onClick: modules.game_prey.onItemBoxChecked(self)
 
@@ -583,8 +598,12 @@ PreyCreatureBox < UICheckBox
     image-color: #ffffffff
     margin-top: 3
 
-  $checked on:
+  $hover !checked:
+    background-color: #ffffff12
+
+  $checked:
     border-color: #ffffff
+    background-color: #ffffff40
 
   $!checked:
     border-color: alpha
@@ -653,17 +672,39 @@ SlotPanel < Panel
 
 MainWindow
   id: preyWindow
-  !text: tr('Preys')
-  size: 688 520
+  !text: tr('Prey')
+  size: 688 562
   @onEscape: modules.game_prey.hide()
   padding: 20
   @onHoverChange: modules.game_prey.onHover(self)
 
+  PreyStonePanel
+    id: header
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 8
+    height: 34
+
+    UIWidget
+      id: headerIcon
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+      margin-left: 5
+      size: 26 26
+      image-source: /images/game/prey/prey_header_icon
+
+    Label
+      id: headerTitle
+      anchors.centerIn: parent
+      !text: tr('Prey Creatures')
+      color: #dfdfdf
+
   SlotPanel
     id: slot1
     anchors.left: parent.left
-    anchors.top: parent.top
-    margin-top: 10
+    anchors.top: header.bottom
+    margin-top: 6
 
   SlotPanel
     id: slot2
@@ -679,6 +720,8 @@ MainWindow
 
   FlatLabel
     id: description
+    image-source: /images/game/prey/prey_panel_stone
+    image-border: 1
     anchors.left: slot1.left
     anchors.top: slot1.bottom
     anchors.right: slot3.right

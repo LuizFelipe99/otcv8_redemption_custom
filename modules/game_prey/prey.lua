@@ -38,6 +38,7 @@ local setRaceSelection
 local updateRaceSelectionDisplay
 local restoreRaceListItemBackground
 local setWidgetTreePhantom
+local showSelectedCreatureTitle
 local updatePickSpecificPreyButton
 local refreshRerollButtonState
 
@@ -489,6 +490,31 @@ function onPreyTimeLeft(slot, timeLeft)
     progressbar:setText(desc)
 end
 
+local function formatShortGold(value)
+    if value < 1000 then
+        return tostring(value)
+    end
+    return math.floor(value / 1000) .. ' k'
+end
+
+local function showRerollPrice(priceLabel, isFree)
+    local originalPrice = priceLabel.originalPrice
+    if not isFree then
+        priceLabel.text:setText(comma_value(rerollPrice))
+        originalPrice:hide()
+        return
+    end
+
+    priceLabel.text:setText('0')
+    if rerollPrice <= 0 then
+        originalPrice:hide()
+        return
+    end
+
+    originalPrice:setText(formatShortGold(rerollPrice))
+    originalPrice:show()
+end
+
 function onPreyRerollPrice(price)
     rerollPrice = price
     local t = { 'slot1', 'slot2', 'slot3' }
@@ -497,12 +523,10 @@ function onPreyRerollPrice(price)
         if panel then
             for j, state in pairs({ panel.active, panel.inactive }) do
                 if state and state.reroll and state.reroll.price and state.reroll.button then
-                    local priceWidget = state.reroll.price.text
                     local progressBar = state.reroll.button.time
-                    if progressBar:getText() ~= 'Free' then
-                        priceWidget:setText(comma_value(rerollPrice))
-                    else
-                        priceWidget:setText('0')
+                    local isFree = progressBar:getText() == 'Free'
+                    showRerollPrice(state.reroll.price, isFree)
+                    if isFree then
                         progressBar:setPercent(0)
                     end
                 end
@@ -526,12 +550,7 @@ function setTimeUntilFreeReroll(slot, timeUntilFreeReroll) -- minutes
             local reroll = panel.reroll.button.time
             reroll:setPercent(percent)
             reroll:setText(desc)
-            local price = panel.reroll.price.text
-            if timeUntilFreeReroll > 0 then
-                price:setText(comma_value(rerollPrice))
-            else
-                price:setText('Free')
-            end
+            showRerollPrice(panel.reroll.price, timeUntilFreeReroll <= 0)
         end
     end
 
@@ -691,16 +710,16 @@ local function setChoosePreyButtonEnabled(button, enabled)
         return
     end
 
-    local imagePath
     if enabled then
         button:enable()
-        imagePath = '/images/game/prey/prey_choose.png'
-    else
-        button:disable()
-        imagePath = '/images/game/prey/prey_choose_blocked.png'
+        button:setImageSource('/images/game/prey/prey_choose.png')
+        button:setImageClip('1 0 44 35')
+        return
     end
 
-    button:setImageSource(imagePath)
+    button:disable()
+    button:setImageSource('/images/game/prey/prey_choose_blocked.png')
+    button:setImageClip('0 0 44 35')
 end
 
 local function updateChoosePreyButtonState(slot)
@@ -1182,6 +1201,7 @@ function onItemBoxChecked(widget)
             if list and isDescendantOf(widget, list) then
                 uncheckChildrenExcept(list, widget)
                 widget:setChecked(true)
+                showSelectedCreatureTitle(slotWidget, widget)
                 local slotIndex = tonumber(slotId:match('slot(%d+)'))
                 if slotIndex then
                     updateChoosePreyButtonState(slotIndex - 1)
@@ -1259,6 +1279,16 @@ local function setWidgetTextToFit(widget, text, formatter)
     local _, ellipsisFormatted = setAndCheck(ellipsis)
     widget:setText(ellipsisFormatted)
     return ellipsisFormatted
+end
+
+showSelectedCreatureTitle = function(slotWidget, creatureBox)
+    if not slotWidget.title or not creatureBox.creatureName then
+        return
+    end
+
+    setWidgetTextToFit(slotWidget.title, creatureBox.creatureName, function(value)
+        return tr('Selected: %s', value)
+    end)
 end
 
 local function buildRaceEntry(raceId)
@@ -1754,9 +1784,8 @@ function onPreySelection(slot, names, outfits, timeUntilFreeReroll, wildcards, o
         local box = g_ui.createWidget('PreyCreatureBox', list)
         name = capitalFormatStr(name)
         box:setTooltip(name)
+        box.creatureName = name
         box.creature:setOutfit(outfits[i])
-        local backgroundColor = (i % 2 == 1) and '#484848' or '#414141'
-        box:setBackgroundColor(backgroundColor)
     end
     prey.inactive.choose.choosePreyButton.onClick = function()
         for i, child in pairs(list:getChildren()) do
@@ -1816,9 +1845,8 @@ function onPreySelectionChangeMonster(slot, names, outfits, bonusType, bonusValu
         local box = g_ui.createWidget('PreyCreatureBox', list)
         name = capitalFormatStr(name)
         box:setTooltip(name)
+        box.creatureName = name
         box.creature:setOutfit(outfits[i])
-        local backgroundColor = (i % 2 == 1) and '#484848' or '#414141'
-        box:setBackgroundColor(backgroundColor)
     end
     prey.inactive.choose.choosePreyButton.onClick = function()
         for i, child in pairs(list:getChildren()) do
