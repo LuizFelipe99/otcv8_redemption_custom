@@ -72,7 +72,7 @@ function reloadMainPanelSizes()
                         local combined_height = store_height + math.max(options_height, specials_height)
                         local extra_height = PANEL_CONSTANTS.HEIGHT_EXTRA_ONPANEL
                         if store_count >= 2 then
-                            extra_height = extra_height - (store_count - 1) * 5
+                            extra_height = extra_height - (store_count - 1) * 3
                         end
                         combined_height = combined_height + extra_height
                         store_panel:setHeight(store_height)

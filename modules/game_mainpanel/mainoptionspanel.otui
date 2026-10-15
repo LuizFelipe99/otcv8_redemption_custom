@@ -38,9 +38,7 @@ PhantomMiniWindow
       phantom: true
       layout:
         type: verticalBox
-        cell-size: 108 20
-        cell-spacing: 2
-        flow: true
+        spacing: 2
 		
       $pressed !disabled:
         image-clip: 0 20 108 20
