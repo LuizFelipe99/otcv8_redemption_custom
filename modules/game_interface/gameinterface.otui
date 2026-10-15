@@ -225,10 +225,21 @@ UIWidget
       width: 0
       visible: false
 
+  UIWidget
+    id: gameRightTopPanel
+    anchors.right: parent.right
+    anchors.top: parent.top
+    width: 353
+    image-source: /images/ui/2pixel_up_frame_borderimage
+    image-border: 2
+    height: 0
+    focusable: false
+    visible: false
+
   GameSidePanel
     id: gameMainRightPanel
     anchors.right: parent.right
-    anchors.top: parent.top
+    anchors.top: gameRightTopPanel.bottom
     &ignoreFillAll: true
     &onlyPhantomDrop: true
     height: 200
@@ -246,7 +257,7 @@ UIWidget
   GameSidePanel
     id: gameRightExtraPanel
     anchors.right: prev.left
-    anchors.top: parent.top
+    anchors.top: gameRightTopPanel.bottom
     anchors.bottom: parent.bottom
     margin-right: 1
     focusable: false

@@ -9,6 +9,23 @@ local currentDayTime = {
     h = 12,
     m = 0
 }
+local isExtendedViewActive = false
+local isWideLayoutActive = false
+
+local DEFAULT_LAYOUT = {
+    panelHeight = 116,
+    borderSize = { width = 115, height = 111 },
+    borderMarginTop = 5,
+    borderMarginLeft = 8
+}
+
+local WIDE_LAYOUT = {
+    panelHeight = 200,
+    borderMarginTop = 5,
+    borderMarginLeft = 8,
+    borderMarginRight = 56,
+    borderMarginBottom = 5
+}
 
 local function refreshVirtualFloors()
     mapController.ui.layersPanel.layersMark:setMarginTop(((virtualFloor + 1) * 4) - 3)
@@ -131,6 +148,7 @@ function mapController:onGameStart()
     end
 
     self.ui.minimapBorder.minimap:load()
+    addEvent(refreshWideLayout)
 end
 
 function mapController:onGameEnd()
@@ -251,11 +269,119 @@ function resetMap()
     end
 end
 
+local function shouldUseWideLayout()
+    if isExtendedViewActive then
+        return false
+    end
+
+    if not modules.client_options.getOption('wideMinimap') then
+        return false
+    end
+
+    local rightExtraPanel = modules.game_interface.getRightExtraPanel()
+    return rightExtraPanel and rightExtraPanel:isOn()
+end
+
+local function applyDefaultBorderAnchors(minimapBorder)
+    minimapBorder:breakAnchors()
+    minimapBorder:addAnchor(AnchorTop, 'parent', AnchorTop)
+    minimapBorder:addAnchor(AnchorLeft, 'parent', AnchorLeft)
+    minimapBorder:setMarginTop(DEFAULT_LAYOUT.borderMarginTop)
+    minimapBorder:setMarginLeft(DEFAULT_LAYOUT.borderMarginLeft)
+    minimapBorder:setMarginRight(0)
+    minimapBorder:setMarginBottom(0)
+    minimapBorder:setSize(DEFAULT_LAYOUT.borderSize)
+end
+
+local function applyWideBorderAnchors(minimapBorder)
+    minimapBorder:breakAnchors()
+    minimapBorder:addAnchor(AnchorTop, 'parent', AnchorTop)
+    minimapBorder:addAnchor(AnchorLeft, 'parent', AnchorLeft)
+    minimapBorder:addAnchor(AnchorRight, 'parent', AnchorRight)
+    minimapBorder:addAnchor(AnchorBottom, 'parent', AnchorBottom)
+    minimapBorder:setMarginTop(WIDE_LAYOUT.borderMarginTop)
+    minimapBorder:setMarginLeft(WIDE_LAYOUT.borderMarginLeft)
+    minimapBorder:setMarginRight(WIDE_LAYOUT.borderMarginRight)
+    minimapBorder:setMarginBottom(WIDE_LAYOUT.borderMarginBottom)
+end
+
+local function enterWideLayout()
+    local rightTopPanel = modules.game_interface.getRightTopPanel()
+    local mapPanel = mapController.ui
+    local mainRightPanel = modules.game_interface.getMainRightPanel()
+
+    if mainRightPanel:hasChild(mapPanel) then
+        mainRightPanel:removeChild(mapPanel)
+    end
+
+    local rightPanel = modules.game_interface.getRightPanel()
+    local rightExtraPanel = modules.game_interface.getRightExtraPanel()
+    rightTopPanel:setWidth(rightPanel:getWidth() + rightExtraPanel:getWidth() + rightExtraPanel:getMarginRight())
+    rightTopPanel:setHeight(WIDE_LAYOUT.panelHeight)
+    rightTopPanel:show()
+    rightTopPanel:addChild(mapPanel)
+    mapPanel:fill('parent')
+    mapPanel:setDraggable(false)
+    mapPanel:show()
+    applyWideBorderAnchors(mapPanel.minimapBorder)
+    isWideLayoutActive = true
+end
+
+local function leaveWideLayout()
+    local rightTopPanel = modules.game_interface.getRightTopPanel()
+    local mapPanel = mapController.ui
+    local mainRightPanel = modules.game_interface.getMainRightPanel()
+
+    if rightTopPanel:hasChild(mapPanel) then
+        rightTopPanel:removeChild(mapPanel)
+    end
+
+    rightTopPanel:setHeight(0)
+    rightTopPanel:hide()
+    mapPanel:breakAnchors()
+    mapPanel:setDraggable(true)
+    mapPanel:setHeight(DEFAULT_LAYOUT.panelHeight)
+    applyDefaultBorderAnchors(mapPanel.minimapBorder)
+
+    if not mainRightPanel:hasChild(mapPanel) then
+        mainRightPanel:insertChild(1, mapPanel)
+    end
+    isWideLayoutActive = false
+end
+
+function refreshWideLayout()
+    if not mapController.ui or mapController.ui:isDestroyed() then
+        return
+    end
+
+    local wideLayoutWanted = shouldUseWideLayout()
+    if wideLayoutWanted == isWideLayoutActive then
+        return
+    end
+
+    if wideLayoutWanted then
+        enterWideLayout()
+    else
+        leaveWideLayout()
+    end
+
+    modules.game_mainpanel.reloadMainPanelSizes()
+    local player = g_game.getLocalPlayer()
+    if player then
+        mapController.ui.minimapBorder.minimap:setCameraPosition(player:getPosition())
+    end
+end
+
 function getMiniMapUi()
     return mapController.ui.minimapBorder.minimap
 end
 
 function extendedView(extendedView)
+    isExtendedViewActive = extendedView
+    if extendedView and isWideLayoutActive then
+        leaveWideLayout()
+    end
+
     if extendedView then
         if not iconTopMenu then
             iconTopMenu = modules.client_topmenu.addTopRightToggleButton('miniMap', tr('Show miniMap'),
@@ -279,6 +405,7 @@ function extendedView(extendedView)
 
     end
     mapController.ui.moveOnlyToMain = not extendedView
+    refreshWideLayout()
 end
 
 function toggle()

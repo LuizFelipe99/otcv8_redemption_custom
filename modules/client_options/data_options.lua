@@ -612,12 +612,23 @@ return {
         value = false,
         action = function(value, options, controller, panels, extraWidgets)
             modules.game_interface.getRightExtraPanel():setOn(value)
+            addEvent(function()
+                modules.game_minimap.refreshWideLayout()
+            end)
             -- Update action bars when right extra panel visibility changes
             if modules.game_actionbar and modules.game_actionbar.updateVisibleWidgetsExternal then
                 addEvent(function()
                     modules.game_actionbar.updateVisibleWidgetsExternal()
                 end)
             end
+        end
+    },
+    wideMinimap                       = {
+        value = false,
+        action = function(value, options, controller, panels, extraWidgets)
+            addEvent(function()
+                modules.game_minimap.refreshWideLayout()
+            end)
         end
     },
     showSpellGroupCooldowns           = {

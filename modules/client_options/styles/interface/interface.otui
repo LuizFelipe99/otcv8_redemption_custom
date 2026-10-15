@@ -75,6 +75,23 @@ UIWidget
     OptionCheckBox
       id: showRightExtraPanel
       !text: tr('Show an extra right panel')
+
+  SmallReversedQtPanel
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: prev.bottom
+    margin-top: 7
+    height: 22
+
+    $mobile:
+      height: 0
+      margin-top: 0
+      visible: false
+
+    OptionCheckBox
+      id: wideMinimap
+      !text: tr('Wide minimap across both right panels')
+      !tooltip: tr('Requires the extra right panel to be visible')
       
   SmallReversedQtPanel
     anchors.left: parent.left
