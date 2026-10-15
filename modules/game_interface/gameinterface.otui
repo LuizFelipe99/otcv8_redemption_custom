@@ -230,8 +230,6 @@ UIWidget
     anchors.right: parent.right
     anchors.top: parent.top
     width: 353
-    image-source: /images/ui/2pixel_up_frame_borderimage
-    image-border: 2
     height: 0
     focusable: false
     visible: false

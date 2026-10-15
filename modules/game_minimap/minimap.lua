@@ -21,6 +21,8 @@ local DEFAULT_LAYOUT = {
 
 local WIDE_LAYOUT = {
     panelHeight = 200,
+    panelImage = '/images/ui/2pixel_up_frame_borderimage',
+    panelImageBorder = 2,
     borderMarginTop = 5,
     borderMarginLeft = 8,
     borderMarginRight = 56,
@@ -318,6 +320,8 @@ local function enterWideLayout()
     local rightExtraPanel = modules.game_interface.getRightExtraPanel()
     rightTopPanel:setWidth(rightPanel:getWidth() + rightExtraPanel:getWidth() + rightExtraPanel:getMarginRight())
     rightTopPanel:setHeight(WIDE_LAYOUT.panelHeight)
+    rightTopPanel:setImageSource(WIDE_LAYOUT.panelImage)
+    rightTopPanel:setImageBorder(WIDE_LAYOUT.panelImageBorder)
     rightTopPanel:show()
     rightTopPanel:addChild(mapPanel)
     mapPanel:fill('parent')
@@ -336,6 +340,7 @@ local function leaveWideLayout()
         rightTopPanel:removeChild(mapPanel)
     end
 
+    rightTopPanel:setImageSource('')
     rightTopPanel:setHeight(0)
     rightTopPanel:hide()
     mapPanel:breakAnchors()
