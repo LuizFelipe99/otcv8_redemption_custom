@@ -23,6 +23,9 @@ return {
             g_window.setFullscreen(value)
         end
     },
+    hdSprites                         = {
+        value = false
+    },
     classicControl                    = {
         value = g_platform.isMobile() and true or false,
         action = function(value, options, controller, panels, extraWidgets)

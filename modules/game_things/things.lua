@@ -41,11 +41,26 @@ local function tryLoadDatWithFallbacks(datPath)
     return false
 end
 
+local function resolveAssetsDirectory(version)
+    local defaultDirectory = string.format('/data/things/%d/', version)
+    if not g_settings.getBoolean('hdSprites') then
+        return defaultDirectory
+    end
+
+    local hdDirectory = string.format('/data/things/%d_hd/', version)
+    if not g_resources.fileExists(hdDirectory .. 'catalog-content.json') then
+        g_logger.warning(string.format('[game_things] HD mode is enabled but %s was not found, using standard sprites.', hdDirectory))
+        return defaultDirectory
+    end
+
+    return hdDirectory
+end
+
 local function load(version)
     local errorList = {}
 
     if version >= 1281 and not g_game.getFeature(GameLoadSprInsteadProtobuf) then
-        local filePath = resolvepath(string.format('/data/things/%d/', version))
+        local filePath = resolvepath(resolveAssetsDirectory(version))
         if not g_things.loadAppearances(filePath) then
             errorList[#errorList + 1] = "Couldn't load assets"
         end

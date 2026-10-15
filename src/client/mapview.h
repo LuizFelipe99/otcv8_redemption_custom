@@ -184,6 +184,7 @@ private:
     void updateLight();
     void updateViewportDirectionCache();
     void updateGeometry(const Size& visibleDimension);
+    float getIdealRenderScale(const Size& visibleDimension) const;
     void updateVisibleTiles();
     void updateRect(const Rect& rect);
     void updateViewport(const Otc::Direction dir = Otc::InvalidDirection) { m_viewport = m_viewPortDirection[dir]; }
@@ -234,6 +235,7 @@ private:
     uint16_t m_floorFading = 500;
 
     float m_minimumAmbientLight{ 0 };
+    float m_appliedIdealRenderScale{ 0 };
     float m_fadeInTime{ 0 };
     float m_fadeOutTime{ 0 };
     float m_shadowFloorIntensity{ 0 };

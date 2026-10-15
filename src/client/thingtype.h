@@ -217,6 +217,7 @@ private:
 
         TexturePtr source;
         std::vector<Pos> pos;
+        float scale{ 1.f };
     };
 
     uint32_t getSpriteIndex(int w, int h, int l, int x, int y, int z, int a) const;

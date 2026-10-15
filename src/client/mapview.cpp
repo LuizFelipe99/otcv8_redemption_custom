@@ -441,6 +441,10 @@ void MapView::updateRect(const Rect& rect) {
         m_updateMapPosInfo = false;
 
         m_posInfo.rect = rect;
+
+        if (getIdealRenderScale(m_visibleDimension) != m_appliedIdealRenderScale)
+            updateGeometry(m_visibleDimension);
+
         m_posInfo.srcRect = calcFramebufferSource(rect.size());
         m_posInfo.drawOffset = m_posInfo.srcRect.topLeft();
         m_posInfo.horizontalStretchFactor = rect.width() / static_cast<float>(m_posInfo.srcRect.width());
@@ -457,9 +461,28 @@ void MapView::updateRect(const Rect& rect) {
     }
 }
 
+static constexpr float MAX_RENDER_SCALE = 4.f;
+static constexpr float RENDER_SCALE_HYSTERESIS = 0.55f;
+
+float MapView::getIdealRenderScale(const Size& visibleDimension) const
+{
+    const float supersample = m_antiAliasingMode == Otc::ANTIALIASING_SMOOTH_RETRO ? 2.f : 1.f;
+
+    const int nativeWidth = visibleDimension.width() * g_gameConfig.getSpriteSize();
+    if (nativeWidth <= 0 || m_posInfo.rect.isEmpty())
+        return supersample;
+
+    const float ratio = m_posInfo.rect.width() / static_cast<float>(nativeWidth);
+    if (m_appliedIdealRenderScale >= 1.f && std::abs(ratio * supersample - m_appliedIdealRenderScale) <= RENDER_SCALE_HYSTERESIS * supersample)
+        return m_appliedIdealRenderScale;
+
+    return std::clamp<float>(std::round(ratio) * supersample, 1.f, MAX_RENDER_SCALE);
+}
+
 void MapView::updateGeometry(const Size& visibleDimension)
 {
-    float scaleFactor = m_antiAliasingMode == Otc::ANTIALIASING_SMOOTH_RETRO ? 2.f : 1.f;
+    float scaleFactor = getIdealRenderScale(visibleDimension);
+    m_appliedIdealRenderScale = scaleFactor;
 
     auto maxAwareRange = std::max<size_t>(visibleDimension.width(), visibleDimension.height());
 
@@ -473,18 +496,28 @@ void MapView::updateGeometry(const Size& visibleDimension)
         scaleFactor /= 2;
     }
 
+    const auto& drawDimension = visibleDimension + 3;
+    const int maxTextureSize = g_graphics.getMaxTextureSize();
+    const auto bufferSizeForScale = [&drawDimension](const float scale) {
+        return drawDimension * static_cast<uint16_t>(g_gameConfig.getSpriteSize() * scale);
+    };
+
+    auto bufferSize = bufferSizeForScale(scaleFactor);
+    while (scaleFactor > 1.f && (bufferSize.width() > maxTextureSize || bufferSize.height() > maxTextureSize)) {
+        scaleFactor -= 1.f;
+        bufferSize = bufferSizeForScale(scaleFactor);
+    }
+
+    if (bufferSize.width() > maxTextureSize || bufferSize.height() > maxTextureSize) {
+        g_logger.traceError("reached max zoom out");
+        return;
+    }
+
     m_pool->setScaleFactor(scaleFactor);
 
     m_posInfo.scaleFactor = scaleFactor;
 
-    const uint16_t tileSize = g_gameConfig.getSpriteSize() * m_pool->getScaleFactor();
-    const auto& drawDimension = visibleDimension + 3;
-    const auto& bufferSize = drawDimension * tileSize;
-
-    if (bufferSize.width() > g_graphics.getMaxTextureSize() || bufferSize.height() > g_graphics.getMaxTextureSize()) {
-        g_logger.traceError("reached max zoom out");
-        return;
-    }
+    const uint16_t tileSize = g_gameConfig.getSpriteSize() * scaleFactor;
 
     m_visibleDimension = visibleDimension;
     m_drawDimension = drawDimension;

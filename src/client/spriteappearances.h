@@ -86,11 +86,12 @@ public:
     }
 
     Size getSpriteSize() const;
+    Size getLogicalSpriteSize() const;
 
     int getSpritesPerSheet() const;
 
     // 64 pixel width == 6 columns each 64x or 32 pixels, 12 columns
-    int getColumns() const { return SIZE / getSpriteSize().width(); }
+    int getColumns() const { return SIZE / getLogicalSpriteSize().width(); }
 
     int firstId = 0;
     int lastId = 0;
@@ -116,6 +117,10 @@ public:
     void setPath(const std::string& path) { m_path = path; }
     std::string getPath() const { return m_path; }
 
+    void setSpriteScale(const uint8_t scale) { m_spriteScale = std::max<uint8_t>(1, scale); }
+    uint8_t getSpriteScale() const { return m_spriteScale; }
+    int getSheetPixelSize() const { return SpriteSheet::SIZE * m_spriteScale; }
+
     bool loadSpriteSheet(const SpriteSheetPtr& sheet) const;
     void saveSheetToFileBySprite(int id, const std::string& file);
     void saveSheetToFile(const SpriteSheetPtr& sheet, const std::string& file);
@@ -136,6 +141,7 @@ public:
 
 private:
     uint32_t m_spritesCount{ 0 };
+    uint8_t m_spriteScale{ 1 };
     std::vector<SpriteSheetPtr> m_sheets;
     std::string m_path;
 };

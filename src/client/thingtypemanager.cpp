@@ -176,6 +176,7 @@ bool ThingTypeManager::loadAppearances(const std::string& file)
 
         if (!g_game.getFeature(Otc::GameLoadSprInsteadProtobuf)) {
             g_spriteAppearances.unload();
+            g_spriteAppearances.setSpriteScale(1);
             int spritesCount = 0;
             std::string appearancesFile;
             const auto& document = getCatalogContent(file);
@@ -183,6 +184,8 @@ bool ThingTypeManager::loadAppearances(const std::string& file)
                 const auto& type = obj["type"];
                 if (type == "appearances") {
                     appearancesFile = obj["file"];
+                } else if (type == "spritescale") {
+                    g_spriteAppearances.setSpriteScale(obj["scale"].get<uint8_t>());
                 } else if (type == "sprite") {
                     int lastSpriteId = obj["lastspriteid"].get<int>();
                     const auto& sheet = std::make_shared<SpriteSheet>(obj["firstspriteid"].get<int>(), lastSpriteId, static_cast<SpriteLayout>(obj["spritetype"].get<int>()), obj["file"].get<std::string>());
