@@ -27,6 +27,8 @@ local PANEL_CONSTANTS = {
     HEIGHT_EXTRA_SHRINK = 5
 }
 
+local LARGE_BUTTON_SIZE = { width = 108, height = 20 }
+
 local optionsShrink = false
 
 local function calculatePanelHeight(panel, max_icons_per_row)
@@ -167,6 +169,83 @@ local function createButton(id, description, image, callback, special, front, in
     return button
 end
 
+local function updateBannerClip(banner)
+    local clipX = banner.isHeld and banner:getWidth() or 0
+    local clipY = banner.animationFrame * banner:getHeight()
+    banner:setImageClip(string.format('%d %d %d %d', clipX, clipY, banner:getWidth(), banner:getHeight()))
+end
+
+local function playBannerAnimation(banner)
+    if banner:isDestroyed() then
+        return
+    end
+
+    local animation = banner.animation
+    banner.animationFrame = (banner.animationFrame + 1) % animation.frameCount
+    updateBannerClip(banner)
+
+    local nextFrameDelay = banner.animationFrame == 0 and animation.pauseDuration or animation.frameDuration
+    banner.animationEvent = scheduleEvent(function()
+        playBannerAnimation(banner)
+    end, nextFrameDelay)
+end
+
+local function stopBannerAnimation(banner)
+    if not banner.animationEvent then
+        return
+    end
+
+    removeEvent(banner.animationEvent)
+    banner.animationEvent = nil
+end
+
+local function createAnimatedLargeButton(id, description, image, animation, callback)
+    local panel = optionsController.ui.onPanel.store
+    local banner = panel:getChildById(id)
+    if banner then
+        return banner
+    end
+
+    storeAmount = storeAmount + 1
+    banner = g_ui.createWidget('UIButton', panel)
+    banner:setId(id)
+    banner:setTooltip(description)
+    banner:setSize(LARGE_BUTTON_SIZE)
+    banner:setImageSource(image)
+    banner.animation = animation
+    banner.animationFrame = 0
+    banner.isHeld = false
+    updateBannerClip(banner)
+
+    banner.onMousePress = function(widget, mousePos, mouseButton)
+        if mouseButton ~= MouseLeftButton then
+            return false
+        end
+        widget.isHeld = true
+        updateBannerClip(widget)
+        return true
+    end
+    banner.onMouseRelease = function(widget, mousePos, mouseButton)
+        if not widget.isHeld then
+            return false
+        end
+        widget.isHeld = false
+        updateBannerClip(widget)
+        if widget:containsPoint(mousePos) then
+            callback()
+        end
+        return true
+    end
+    banner.onDestroy = stopBannerAnimation
+
+    if animation and animation.frameCount > 1 then
+        playBannerAnimation(banner)
+    end
+
+    refreshOptionsSizes()
+    return banner
+end
+
 optionsController = Controller:new()
 optionsController:setUI('mainoptionspanel', modules.game_interface.getMainRightPanel())
 
@@ -256,6 +335,10 @@ end
 
 function addSpecialToggleButton(id, description, image, callback, front, index)
     return createButton(id, description, image, callback, true, front, index)
+end
+
+function addAnimatedStoreButton(id, description, image, animation, callback)
+    return createAnimatedLargeButton(id, description, image, animation, callback)
 end
 
 function addStoreButton(id, description, image, callback, front)

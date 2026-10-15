@@ -18,6 +18,8 @@ local TRACK_APPEARANCE = {
 	free = { title = 'FREE', accent = '#2f9e44', titleColor = '#6fd38a' }
 }
 
+local BATTLE_PASS_BUTTON_ANIMATION = { frameCount = 18, frameDuration = 45, pauseDuration = 2600 }
+
 local battlePassWindow
 local battlePassButton
 local battlePassState
@@ -406,13 +408,12 @@ local function onGameStart()
 		return
 	end
 
-	battlePassButton = modules.game_mainpanel.addToggleButton(
+	battlePassButton = modules.game_mainpanel.addAnimatedStoreButton(
 		'battlePassButton',
 		tr('Battle Pass'),
-		'/images/options/battle_pass',
-		toggle,
-		false,
-		1007
+		'/images/options/battlepass_large',
+		BATTLE_PASS_BUTTON_ANIMATION,
+		toggle
 	)
 end
 

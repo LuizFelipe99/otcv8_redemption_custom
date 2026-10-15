@@ -179,7 +179,7 @@ local function onGameStart()
     potionCooldownButton = modules.game_mainpanel.addToggleButton(
         "potionCooldownButton",
         tr("Potion Cooldowns"),
-        "/images/options/potions_cooldown",
+        "/images/options/button_potioncooldown",
         toggle,
         false,
         1008

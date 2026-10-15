@@ -327,7 +327,7 @@ function init()
 	setupGemSlots()
 	updateBonusSummary({}, nil)
 
-	gemBagButton = modules.client_topmenu.addRightGameToggleButton('gemBagButton', tr('Gem Bag'), '/images/game/wheel/icon-gematelier', toggle)
+	gemBagButton = modules.client_topmenu.addRightGameToggleButton('gemBagButton', tr('Gem Bag'), '/images/options/button_gembag', toggle)
 	gemBagButton:setOn(false)
 
 	connect(g_game, {
