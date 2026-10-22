@@ -23,6 +23,14 @@ function UIDragIcon:hide()
     end
 end
 
+function UIDragIcon:raise()
+    if uiIcon == nil then
+        return
+    end
+
+    uiIcon:raise()
+end
+
 function UIDragIcon:destroy()
     if uiIcon ~= nil then
         disconnect(rootWidget, { onMouseMove = onMouseMove })
