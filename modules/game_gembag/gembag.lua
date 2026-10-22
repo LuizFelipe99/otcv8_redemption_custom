@@ -5,11 +5,13 @@ gemBagSlots = {}
 local gemBagOpcode = 18
 local gemBagSlotCount = 12
 
+local EMPTY_EQUIPMENT_OPACITY = 0.35
+
 local equipmentGroups = {
-	{ groupId = 'helmetGroup', iconId = 'helmetSlotIcon', title = 'Helmet', itemId = 60938 },
-	{ groupId = 'bodyGroup', iconId = 'bodySlotIcon', title = 'Armor', itemId = 60939 },
-	{ groupId = 'weaponGroup', iconId = 'weaponSlotIcon', title = 'Weapon', itemId = 60941 },
-	{ groupId = 'legsGroup', iconId = 'legsSlotIcon', title = 'Legs', itemId = 3382 }
+	{ groupId = 'helmetGroup', iconId = 'helmetSlotIcon', title = 'Helmet', inventorySlot = InventorySlotHead, fallbackItemId = 60938 },
+	{ groupId = 'bodyGroup', iconId = 'bodySlotIcon', title = 'Armor', inventorySlot = InventorySlotBody, fallbackItemId = 60939 },
+	{ groupId = 'weaponGroup', iconId = 'weaponSlotIcon', title = 'Weapon', inventorySlot = InventorySlotLeft, fallbackItemId = 60941 },
+	{ groupId = 'legsGroup', iconId = 'legsSlotIcon', title = 'Legs', inventorySlot = InventorySlotLeg, fallbackItemId = 3382 }
 }
 
 local attributeDisplayOrder = {
@@ -299,18 +301,57 @@ local function createGemSlotDropHandler(slotIndex)
 	end
 end
 
+local function getEquippedItem(inventorySlot)
+	local player = g_game.getLocalPlayer()
+	if not player then
+		return nil
+	end
+
+	return player:getInventoryItem(inventorySlot)
+end
+
+local function refreshEquipmentIcon(equipmentGroup, equippedItem)
+	local equipmentIcon = gemBagWindow:recursiveGetChildById(equipmentGroup.iconId)
+	if not equipmentIcon then
+		return
+	end
+
+	if not equippedItem then
+		equipmentIcon:setItemId(equipmentGroup.fallbackItemId)
+		equipmentIcon:setOpacity(EMPTY_EQUIPMENT_OPACITY)
+		equipmentIcon:setTooltip(tr('No %s equipped', tr(equipmentGroup.title):lower()))
+		return
+	end
+
+	equipmentIcon:setItem(equippedItem)
+	equipmentIcon:setOpacity(1)
+	equipmentIcon:setTooltip('')
+end
+
+local function refreshAllEquipmentIcons()
+	for _, equipmentGroup in ipairs(equipmentGroups) do
+		refreshEquipmentIcon(equipmentGroup, getEquippedItem(equipmentGroup.inventorySlot))
+	end
+end
+
+local function onInventoryChange(player, inventorySlot, item, oldItem)
+	for _, equipmentGroup in ipairs(equipmentGroups) do
+		if equipmentGroup.inventorySlot == inventorySlot then
+			refreshEquipmentIcon(equipmentGroup, item)
+			return
+		end
+	end
+end
+
 local function setupEquipmentGroups()
 	for _, equipmentGroup in ipairs(equipmentGroups) do
 		local groupPanel = gemBagWindow:recursiveGetChildById(equipmentGroup.groupId)
 		if groupPanel then
 			groupPanel.groupTitle:setText(tr(equipmentGroup.title))
 		end
-
-		local equipmentIcon = gemBagWindow:recursiveGetChildById(equipmentGroup.iconId)
-		if equipmentIcon then
-			equipmentIcon:setItemId(equipmentGroup.itemId)
-		end
 	end
+
+	refreshAllEquipmentIcons()
 end
 
 local function setupGemSlots()
@@ -343,6 +384,7 @@ end
 
 local function onGameStart()
 	ProtocolGame.registerExtendedOpcode(gemBagOpcode, onGemBagOpcode)
+	refreshAllEquipmentIcons()
 end
 
 function init()
@@ -360,6 +402,9 @@ function init()
 		onGameStart = onGameStart,
 		onGameEnd = onGameEnd
 	})
+	connect(LocalPlayer, {
+		onInventoryChange = onInventoryChange
+	})
 
 	if g_game.isOnline() then
 		onGameStart()
@@ -370,6 +415,9 @@ function terminate()
 	disconnect(g_game, {
 		onGameStart = onGameStart,
 		onGameEnd = onGameEnd
+	})
+	disconnect(LocalPlayer, {
+		onInventoryChange = onInventoryChange
 	})
 
 	gemBagButton:destroy()
