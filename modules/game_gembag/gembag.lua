@@ -3,22 +3,35 @@ gemBagButton = nil
 gemBagSlots = {}
 
 local gemBagOpcode = 18
-local gemBagSlotCount = 9
+local gemBagSlotCount = 12
 
 local equipmentGroups = {
 	{ groupId = 'helmetGroup', iconId = 'helmetSlotIcon', title = 'Helmet', itemId = 60938 },
 	{ groupId = 'bodyGroup', iconId = 'bodySlotIcon', title = 'Armor', itemId = 60939 },
-	{ groupId = 'weaponGroup', iconId = 'weaponSlotIcon', title = 'Weapon', itemId = 60941 }
+	{ groupId = 'weaponGroup', iconId = 'weaponSlotIcon', title = 'Weapon', itemId = 60941 },
+	{ groupId = 'legsGroup', iconId = 'legsSlotIcon', title = 'Legs', itemId = 3382 }
 }
 
-local attributeDisplayOrder = { 'health', 'mana', 'critChance', 'critDamage', 'attackSpeed' }
+local attributeDisplayOrder = {
+	'health', 'mana', 'critChance', 'critDamage', 'attackSpeed', 'onslaught', 'transcendence',
+	'resistPhysical', 'resistFire', 'resistIce', 'resistEnergy', 'resistEarth', 'resistDeath', 'resistHoly'
+}
 
 local attributeDisplay = {
 	health = { caption = 'Max health', icon = '/images/icons/icon_health', color = '#e06c6c', suffix = '' },
 	mana = { caption = 'Max mana', icon = '/images/icons/icon_magic', color = '#6ca0e0', suffix = '' },
 	critChance = { caption = 'Critical chance', icon = '/images/game/wheel/icon-crit', color = '#f0c060', suffix = '%' },
 	critDamage = { caption = 'Critical damage', icon = '/images/icons/icon-damage', color = '#f08a4b', suffix = '%' },
-	attackSpeed = { caption = 'Attack speed', icon = '/images/icons/icon_sword', color = '#6fd38a', suffix = '' }
+	attackSpeed = { caption = 'Attack speed', icon = '/images/icons/icon_sword', color = '#6fd38a', suffix = '' },
+	onslaught = { caption = 'Onslaught', icon = '/images/icons/icon-damage', color = '#e05a9c', suffix = '%', decimals = 1 },
+	transcendence = { caption = 'Transcendence', icon = '/images/game/wheel/icon-spelldamage', color = '#b48cf0', suffix = '%', decimals = 1 },
+	resistPhysical = { caption = 'Physical resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-physical-resist', color = '#c8c8c8', suffix = '%', decimals = 1 },
+	resistFire = { caption = 'Fire resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-fire-resist', color = '#f07a3c', suffix = '%', decimals = 1 },
+	resistIce = { caption = 'Ice resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-ice-resist', color = '#8fd6f0', suffix = '%', decimals = 1 },
+	resistEnergy = { caption = 'Energy resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-energy-resist', color = '#c58cf0', suffix = '%', decimals = 1 },
+	resistEarth = { caption = 'Earth resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-earth-resist', color = '#7fc65a', suffix = '%', decimals = 1 },
+	resistDeath = { caption = 'Death resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-death-resist', color = '#a0a0a0', suffix = '%', decimals = 1 },
+	resistHoly = { caption = 'Holy resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-holy-resist', color = '#f0e08c', suffix = '%', decimals = 1 }
 }
 
 local function formatNumber(number)
@@ -34,9 +47,22 @@ local function formatNumber(number)
 	end
 end
 
+local function formatDecimalNumber(number, decimals)
+	local roundedNumber = tonumber(string.format('%.' .. decimals .. 'f', tonumber(number) or 0))
+	if roundedNumber == math.floor(roundedNumber) then
+		return formatNumber(roundedNumber)
+	end
+
+	return string.format('%.' .. decimals .. 'f', roundedNumber)
+end
+
 local function formatAttributeValue(attribute, value)
 	local display = attributeDisplay[attribute]
 	local suffix = display and display.suffix or ''
+	if display and display.decimals then
+		return '+' .. formatDecimalNumber(value, display.decimals) .. suffix
+	end
+
 	return '+' .. formatNumber(value) .. suffix
 end
 

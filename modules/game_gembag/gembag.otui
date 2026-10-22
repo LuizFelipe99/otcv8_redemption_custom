@@ -133,7 +133,7 @@ GemSectionHeader < UIWidget
 MainWindow
   id: gemBagWindow
   !text: tr('Bag Gem')
-  size: 470 342
+  size: 470 422
   @onEscape: modules.game_gembag.toggle()
 
   UIWidget
@@ -244,6 +244,38 @@ MainWindow
 
       GemBagSlot
         id: gemSlot8
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 4
+        margin-bottom: -2
+
+    GemGroupPanel
+      id: legsGroup
+      anchors.top: weaponGroup.bottom
+      anchors.left: parent.left
+      anchors.right: parent.right
+      margin-top: 8
+
+      GemEquipmentIcon
+        id: legsSlotIcon
+        anchors.centerIn: equipmentFrame
+
+      GemBagSlot
+        id: gemSlot9
+        anchors.left: equipmentFrame.right
+        anchors.bottom: parent.bottom
+        margin-left: 10
+        margin-bottom: -2
+
+      GemBagSlot
+        id: gemSlot10
+        anchors.left: prev.right
+        anchors.bottom: parent.bottom
+        margin-left: 4
+        margin-bottom: -2
+
+      GemBagSlot
+        id: gemSlot11
         anchors.left: prev.right
         anchors.bottom: parent.bottom
         margin-left: 4
