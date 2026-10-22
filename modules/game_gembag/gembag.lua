@@ -291,6 +291,7 @@ end
 
 local function createGemSlotDropHandler(slotIndex)
 	return function(widget, droppedWidget, mousePosition)
+		widget:setBorderWidth(0)
 		if not droppedWidget or not droppedWidget.currentDragThing then
 			return false
 		end
@@ -364,6 +365,11 @@ local function setupGemSlots()
 		slotWidget.onDragEnter = function(widget, mousePosition)
 			UIDragIcon:raise()
 			return false
+		end
+
+		slotWidget.onHoverChange = function(widget, hovered)
+			UIItem.onHoverChange(widget, hovered)
+			widget:setBorderWidth(0)
 		end
 
 		slotWidget.onMouseRelease = function(widget, mousePosition, mouseButton)
