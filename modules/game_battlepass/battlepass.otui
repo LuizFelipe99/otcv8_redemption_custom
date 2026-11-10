@@ -415,7 +415,7 @@ MainWindow
       anchors.top: detailHeader.bottom
       anchors.left: parent.left
       anchors.right: parent.right
-      height: 178
+      height: 218
       margin-top: 8
 
     BattlePassTrack
@@ -423,7 +423,7 @@ MainWindow
       anchors.top: proTrack.bottom
       anchors.left: parent.left
       anchors.right: parent.right
-      height: 178
+      height: 138
       margin-top: 8
 
     Label
