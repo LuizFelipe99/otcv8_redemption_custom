@@ -210,15 +210,15 @@ JourneyNode < UIWidget
     phantom: true
 
 RequiredItemRow < UIWidget
-  height: 42
+  height: 36
   image-source: /images/ui/1pixel-down-frame
   image-border: 1
   background-color: #00000055
-  padding: 4
+  padding: 3
 
   UIItem
     id: itemIcon
-    size: 34 34
+    size: 30 30
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
     image-source: /images/ui/item
@@ -229,7 +229,7 @@ RequiredItemRow < UIWidget
     anchors.left: itemIcon.right
     anchors.top: parent.top
     margin-left: 8
-    margin-top: 4
+    margin-top: 2
     font: verdana-11px-rounded
     color: #dfdfdf
     text-auto-resize: true
@@ -240,7 +240,7 @@ RequiredItemRow < UIWidget
     anchors.right: parent.right
     anchors.top: parent.top
     margin-right: 4
-    margin-top: 4
+    margin-top: 2
     font: verdana-11px-rounded
     text-auto-resize: true
     phantom: true
@@ -252,7 +252,7 @@ RequiredItemRow < UIWidget
     anchors.bottom: parent.bottom
     margin-left: 8
     margin-right: 4
-    margin-bottom: 4
+    margin-bottom: 2
     height: 8
     on: true
     phantom: true
@@ -544,7 +544,7 @@ MainWindow
         margin-bottom: 8
         layout:
           type: verticalBox
-          spacing: 4
+          spacing: 3
 
       Label
         id: rewardLabel
