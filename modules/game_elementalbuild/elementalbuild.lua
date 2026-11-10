@@ -317,6 +317,34 @@ local function styleJourneyNode(nodeWidget, mission, isFirst, isLast)
 	nodeWidget.lineBottom:setBackgroundColor(appearance.lineColor)
 end
 
+local GOLD_ICON_STACK_COUNT = 100
+
+local function formatGoldAmount(goldAmount)
+	if goldAmount < 1000 then
+		return tostring(goldAmount)
+	end
+
+	if goldAmount < 1000000 then
+		return string.format('%dk', math.floor(goldAmount / 1000))
+	end
+
+	local millions = goldAmount / 1000000
+	if millions == math.floor(millions) then
+		return string.format('%dkk', millions)
+	end
+
+	return string.format('%.1fkk', millions)
+end
+
+local function describeItemProgress(item)
+	local deliveredAmount = math.min(item.progress, item.total)
+	if item.isGold then
+		return formatGoldAmount(deliveredAmount) .. ' / ' .. formatGoldAmount(item.total)
+	end
+
+	return deliveredAmount .. ' / ' .. item.total
+end
+
 local function fillRequiredItems(mission)
 	local requiredItems = elementalBuildWindow.missionsTab.missionDetail.requiredItems
 	requiredItems:destroyChildren()
@@ -327,9 +355,13 @@ local function fillRequiredItems(mission)
 		local progressColor = isItemMet and '#2f9e44' or '#c28400'
 
 		itemRow.itemIcon:setItemId(item.clientId)
+		if item.isGold then
+			itemRow.itemIcon:setItemCount(GOLD_ICON_STACK_COUNT)
+			itemRow.itemIcon:setShowCount(false)
+		end
 		itemRow.itemIcon:setTooltip(item.name)
 		itemRow.itemName:setText(item.name)
-		itemRow.itemProgress:setText(math.min(item.progress, item.total) .. ' / ' .. item.total)
+		itemRow.itemProgress:setText(describeItemProgress(item))
 		itemRow.itemProgress:setColor(isItemMet and '#6fd38a' or '#f0c060')
 		itemRow.itemProgressBar:setPercent(item.total > 0 and math.min(100, item.progress * 100 / item.total) or 0)
 		itemRow.itemProgressBar:setBackgroundColor(progressColor)

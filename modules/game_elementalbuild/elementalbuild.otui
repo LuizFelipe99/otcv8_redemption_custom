@@ -397,8 +397,16 @@ PointsSummaryBox < UIWidget
 MainWindow
   id: elementalBuildWindow
   !text: tr('Elemental Build')
-  size: 760 590
+  size: 760 622
   @onEscape: modules.game_elementalbuild.hide()
+
+  Button
+    id: closeButton
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    width: 80
+    !text: tr('Close')
+    @onClick: modules.game_elementalbuild.hide()
 
   Panel
     id: orbBar
@@ -438,8 +446,9 @@ MainWindow
     anchors.top: tabBar.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.bottom: parent.bottom
+    anchors.bottom: closeButton.top
     margin-top: 8
+    margin-bottom: 8
 
     UIWidget
       id: journeyPanel
@@ -557,8 +566,9 @@ MainWindow
     anchors.top: tabBar.bottom
     anchors.left: parent.left
     anchors.right: parent.right
-    anchors.bottom: parent.bottom
+    anchors.bottom: closeButton.top
     margin-top: 8
+    margin-bottom: 8
     visible: false
 
     PointsSummaryBox
