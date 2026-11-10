@@ -2,6 +2,20 @@ local iconTopMenu = nil
 -- @ Minimap
 local minimapWidget = nil -- bot fix
 local otmm = true
+local REVEALED_WORLD_MINIMAP_FILE = '/minimap/world.otmm'
+
+local function loadRevealedWorldMinimap()
+    if not otmm then
+        return
+    end
+
+    if not g_resources.fileExists(REVEALED_WORLD_MINIMAP_FILE) then
+        return
+    end
+
+    g_minimap.loadOtmm(REVEALED_WORLD_MINIMAP_FILE)
+end
+
 local oldPos = nil
 local fullscreenWidget
 local virtualFloor = 7
@@ -150,6 +164,8 @@ function mapController:onGameStart()
     if g_resources.fileExists(minimapFile) then
         loadFnc(minimapFile)
     end
+
+    loadRevealedWorldMinimap()
 
     self.ui.minimapBorder.minimap:load()
     addEvent(refreshWideLayout)
