@@ -400,11 +400,11 @@ MainWindow
   size: 760 622
   @onEscape: modules.game_elementalbuild.hide()
 
-  Button
+  ElementalActionButton
     id: closeButton
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    width: 80
+    width: 82
     !text: tr('Close')
     @onClick: modules.game_elementalbuild.hide()
 
