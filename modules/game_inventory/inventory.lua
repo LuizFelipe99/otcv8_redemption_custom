@@ -206,28 +206,16 @@ function getIconsPanelOff()
     return inventoryController.ui.offPanel.icons
 end
 
-local REQUIRED_BLESSINGS = {
-    Blessings.TwistOfFate,
-    Blessings.WisdomOfSolitude,
-    Blessings.SparkOfPhoenix,
-    Blessings.FireOfSuns,
-    Blessings.SpiritualShielding,
-    Blessings.EmbraceOfTibia,
-    Blessings.HeartOfMountain,
-    Blessings.BloodOfMountain
-}
+local blessedSlotsActive = false
 
-function hasAllBlessings(blessings)
-    for _, blessingFlag in ipairs(REQUIRED_BLESSINGS) do
-        if not Bit.hasBit(blessings, blessingFlag) then
-            return false
+local function applyBlessedSlotsStyle(isBlessed)
+    local ui = getInventoryUi()
+    for _, getSlotInfo in pairs(getSlotPanelBySlot) do
+        local slotPanel = getSlotInfo(ui)
+        if slotPanel then
+            slotPanel:setOn(isBlessed)
         end
     end
-    return true
-end
-
-local function isPlayerBlessed(player)
-    return player ~= nil and hasAllBlessings(player:getBlessings())
 end
 
 local function refreshInventory_panel()
@@ -240,7 +228,7 @@ local function refreshInventory_panel()
         return
     end
 
-    toggleBlessedSlotsStyle(g_game.isOnline() and isPlayerBlessed(player))
+    applyBlessedSlotsStyle(g_game.isOnline() and blessedSlotsActive)
 
     for i = InventorySlotFirst, InventorySlotPurse do
         if g_game.isOnline() then
@@ -395,7 +383,7 @@ function inventoryController:onGameEnd()
         end
         g_settings.setNode('LastCombatControls', lastCombatControls)
     end
-    toggleBlessedSlotsStyle(false)
+    applyBlessedSlotsStyle(false)
 end
 
 function inventoryController:onTerminate()
@@ -565,13 +553,8 @@ function toggle()
 end
 
 function toggleBlessedSlotsStyle(isBlessed)
-    local ui = getInventoryUi()
-    for _, getSlotInfo in pairs(getSlotPanelBySlot) do
-        local slotPanel = getSlotInfo(ui)
-        if slotPanel then
-            slotPanel:setOn(isBlessed)
-        end
-    end
+    blessedSlotsActive = isBlessed
+    applyBlessedSlotsStyle(isBlessed)
 end
 
 function getButtonBlessings()

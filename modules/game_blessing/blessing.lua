@@ -153,7 +153,7 @@ function BlessingController:onClickSendStore()
 end
 
 function onBlessingsChange(player, blessings, oldBlessings, blessVisualState)
-    modules.game_inventory.toggleBlessedSlotsStyle(modules.game_inventory.hasAllBlessings(blessings))
+    modules.game_inventory.toggleBlessedSlotsStyle(blessVisualState == GLOWSTATE.Green)
     local blessedButton = modules.game_inventory.getButtonBlessings()
     if not blessedButton then
         return
