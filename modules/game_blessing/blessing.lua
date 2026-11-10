@@ -153,10 +153,7 @@ function BlessingController:onClickSendStore()
 end
 
 function onBlessingsChange(player, blessings, oldBlessings, blessVisualState)
-    local hasAdventurerBlessing = Bit.hasBit(blessings, Blessings.Adventurer)
-    if hasAdventurerBlessing ~= Bit.hasBit(oldBlessings, Blessings.Adventurer) then
-        modules.game_inventory.toggleAdventurerStyle(hasAdventurerBlessing)
-    end
+    modules.game_inventory.toggleBlessedSlotsStyle(modules.game_inventory.hasAllBlessings(blessings))
     local blessedButton = modules.game_inventory.getButtonBlessings()
     if not blessedButton then
         return

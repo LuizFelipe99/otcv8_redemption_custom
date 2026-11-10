@@ -206,6 +206,30 @@ function getIconsPanelOff()
     return inventoryController.ui.offPanel.icons
 end
 
+local REQUIRED_BLESSINGS = {
+    Blessings.TwistOfFate,
+    Blessings.WisdomOfSolitude,
+    Blessings.SparkOfPhoenix,
+    Blessings.FireOfSuns,
+    Blessings.SpiritualShielding,
+    Blessings.EmbraceOfTibia,
+    Blessings.HeartOfMountain,
+    Blessings.BloodOfMountain
+}
+
+function hasAllBlessings(blessings)
+    for _, blessingFlag in ipairs(REQUIRED_BLESSINGS) do
+        if not Bit.hasBit(blessings, blessingFlag) then
+            return false
+        end
+    end
+    return true
+end
+
+local function isPlayerBlessed(player)
+    return player ~= nil and hasAllBlessings(player:getBlessings())
+end
+
 local function refreshInventory_panel()
     local player = g_game.getLocalPlayer()
     if player then
@@ -215,6 +239,8 @@ local function refreshInventory_panel()
     if inventoryShrink then
         return
     end
+
+    toggleBlessedSlotsStyle(g_game.isOnline() and isPlayerBlessed(player))
 
     for i = InventorySlotFirst, InventorySlotPurse do
         if g_game.isOnline() then
@@ -369,7 +395,7 @@ function inventoryController:onGameEnd()
         end
         g_settings.setNode('LastCombatControls', lastCombatControls)
     end
-    toggleAdventurerStyle(false)
+    toggleBlessedSlotsStyle(false)
 end
 
 function inventoryController:onTerminate()
@@ -538,12 +564,12 @@ function toggle()
     end
 end
 
-function toggleAdventurerStyle(hasBlessing)
-    for slot, getSlotInfo in pairs(getSlotPanelBySlot) do
-        local ui = getInventoryUi()
-        local slotPanel, toggler = getSlotInfo(ui)
+function toggleBlessedSlotsStyle(isBlessed)
+    local ui = getInventoryUi()
+    for _, getSlotInfo in pairs(getSlotPanelBySlot) do
+        local slotPanel = getSlotInfo(ui)
         if slotPanel then
-            slotPanel:setOn(hasBlessing)
+            slotPanel:setOn(isBlessed)
         end
     end
 end
