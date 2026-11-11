@@ -11,7 +11,6 @@ from pathlib import Path
 CLIENT_ROOT = Path(__file__).resolve().parents[2]
 PROTO_DIRECTORY = CLIENT_ROOT / "src" / "protobuf"
 APPEARANCE_CATEGORIES = ["object", "outfit", "effect", "missile"]
-UPSTREAM_PREFERRED_IDS = {"outfit": {1882}}
 CATALOG_FILE_NAME = "catalog-content.json"
 ASSETS_CHECKSUM_FILE_NAME = "assets.json.sha256"
 
@@ -61,8 +60,26 @@ def split_custom_sheets(custom_sheets, old_official_highest_sprite):
 
 def find_custom_appearances(custom_appearances, old_official_appearances, category):
     official_ids = {entry.id for entry in getattr(old_official_appearances, category)}
-    skipped_ids = UPSTREAM_PREFERRED_IDS.get(category, set())
-    return [entry for entry in getattr(custom_appearances, category) if entry.id not in official_ids and entry.id not in skipped_ids]
+    return [entry for entry in getattr(custom_appearances, category) if entry.id not in official_ids]
+
+
+def resolve_custom_ids(custom_entries, new_official_ids, category):
+    if category != "outfit":
+        return {entry.id: entry.id for entry in custom_entries}
+
+    custom_ids = {entry.id for entry in custom_entries}
+    next_free_id = max(new_official_ids) + 1
+    resolved_ids = {}
+    for entry in sorted(custom_entries, key=lambda custom_entry: custom_entry.id):
+        if entry.id not in new_official_ids:
+            resolved_ids[entry.id] = entry.id
+            continue
+        while next_free_id in new_official_ids or next_free_id in custom_ids:
+            next_free_id += 1
+        resolved_ids[entry.id] = next_free_id
+        print(f"{category} {entry.id} collides with a new official {category}, moved to {next_free_id}")
+        next_free_id += 1
+    return resolved_ids
 
 
 def remap_sprite_ids(appearance, old_official_highest_sprite, sprite_offset):
@@ -79,9 +96,11 @@ def merge_appearances(protobuf_module, new_official_appearances, custom_appearan
     for category in APPEARANCE_CATEGORIES:
         combined = {entry.id: entry for entry in getattr(new_official_appearances, category)}
         custom_entries = find_custom_appearances(custom_appearances, old_official_appearances, category)
+        resolved_ids = resolve_custom_ids(custom_entries, set(combined), category)
         for custom_entry in custom_entries:
             remapped_entry = protobuf_module.Appearance()
             remapped_entry.CopyFrom(custom_entry)
+            remapped_entry.id = resolved_ids[custom_entry.id]
             remap_sprite_ids(remapped_entry, old_official_highest_sprite, sprite_offset)
             combined[remapped_entry.id] = remapped_entry
         merged.ClearField(category)
