@@ -1366,9 +1366,13 @@ function ensureClientVersion(version, callback)
     return callback(false, 'Invalid client version.')
   end
 
-  local config = cloneConfig()
-  if config.enabled == false or isClientVersionInstalled(version) then
+  if isClientVersionInstalled(version) then
     return callback(true)
+  end
+
+  local config = cloneConfig()
+  if config.enabled == false then
+    return callback(false, string.format('Assets for client %s were not found in data/things/%d.', versionLabel(version), version))
   end
 
   if activeDownload then
