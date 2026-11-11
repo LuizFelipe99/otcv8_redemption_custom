@@ -13,6 +13,7 @@ PROTO_DIRECTORY = CLIENT_ROOT / "src" / "protobuf"
 APPEARANCE_CATEGORIES = ["object", "outfit", "effect", "missile"]
 UPSTREAM_PREFERRED_IDS = {"outfit": {1882}}
 CATALOG_FILE_NAME = "catalog-content.json"
+ASSETS_CHECKSUM_FILE_NAME = "assets.json.sha256"
 
 
 def load_protobuf_module():
@@ -114,6 +115,19 @@ def copy_folder_files(source_folder, output_folder, file_names):
     return missing_files
 
 
+def copy_assets_checksum(new_official_folder, custom_folder, output_folder):
+    candidate_files = [
+        new_official_folder / ASSETS_CHECKSUM_FILE_NAME,
+        new_official_folder.parent / ASSETS_CHECKSUM_FILE_NAME,
+        custom_folder / ASSETS_CHECKSUM_FILE_NAME,
+    ]
+    for candidate_file in candidate_files:
+        if candidate_file.exists():
+            shutil.copy2(candidate_file, output_folder / ASSETS_CHECKSUM_FILE_NAME)
+            return True
+    return False
+
+
 def write_merged_folder(output_folder, new_official_folder, custom_folder, new_official_catalog, sprite_entries, appended_or_replaced_sheets, merged_appearances_bytes):
     output_folder.mkdir(parents=True, exist_ok=True)
     appearances_file_name = f"appearances-{hashlib.sha256(merged_appearances_bytes).hexdigest()}.dat"
@@ -127,6 +141,8 @@ def write_merged_folder(output_folder, new_official_folder, custom_folder, new_o
     other_entries = [entry for entry in new_official_catalog if entry["type"] not in ("sprite", "appearances")]
     merged_catalog = [{"type": "appearances", "file": appearances_file_name}] + other_entries + sprite_entries
     (output_folder / CATALOG_FILE_NAME).write_text(json.dumps(merged_catalog, indent=2))
+    if not copy_assets_checksum(new_official_folder, custom_folder, output_folder):
+        print(f"warning: {ASSETS_CHECKSUM_FILE_NAME} not found, the client will not recognize the folder as installed")
     return missing_official, missing_custom
 
 
