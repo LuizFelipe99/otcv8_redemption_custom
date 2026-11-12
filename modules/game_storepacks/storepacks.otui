@@ -1,0 +1,133 @@
+StorePacksGlow < UIWidget
+  image-source: /game_storepacks/images/button_packs_glow
+  phantom: true
+  focusable: false
+
+StorePacksButton < UIButton
+  size: 42 20
+  image-source: /game_storepacks/images/button_packs
+  image-clip: 0 0 42 20
+  font: Verdana Bold-11px
+  color: #f0c060
+  text: Packs
+  text-offset: 0 1
+
+  $hover !disabled:
+    image-clip: 0 20 42 20
+    color: #ffe7a8
+
+  $pressed:
+    image-clip: 0 40 42 20
+    text-offset: 1 2
+
+StorePackItemSlot < UIItem
+  size: 34 34
+  image-source: /images/ui/item
+  virtual: true
+
+StorePackCard < UIWidget
+  size: 190 330
+  image-source: /images/ui/panel_flat
+  image-border: 2
+  padding: 8
+
+  UIWidget
+    id: banner
+    size: 172 90
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
+    phantom: true
+
+  Label
+    id: packName
+    anchors.top: banner.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 6
+    font: Verdana Bold-11px
+    color: #f0c060
+    text-auto-resize: true
+
+  ScrollablePanel
+    id: itemGrid
+    anchors.top: packName.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    margin-top: 6
+    height: 112
+    image-source: /images/ui/1pixel_down_frame
+    image-border: 1
+    background-color: #00000044
+    padding: 4
+    vertical-scrollbar: itemGridScrollBar
+    layout:
+      type: grid
+      cell-size: 34 34
+      cell-spacing: 2
+      flow: true
+
+  VerticalScrollBar
+    id: itemGridScrollBar
+    anchors.top: itemGrid.top
+    anchors.bottom: itemGrid.bottom
+    anchors.right: itemGrid.right
+    step: 36
+    pixels-scroll: true
+    visible: false
+
+  Label
+    id: price
+    anchors.top: itemGrid.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 10
+    font: Verdana Bold-11px
+    color: #f0c060
+    text-auto-resize: true
+
+  Label
+    id: limit
+    anchors.top: price.bottom
+    anchors.horizontalCenter: parent.horizontalCenter
+    margin-top: 2
+    font: Verdana Bold-11px
+    color: #6fd38a
+    text-auto-resize: true
+    !text: tr('Unlimited')
+
+  Button
+    id: buyButton
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 24
+    image-color: #4a90d9
+
+MainWindow
+  id: storePacksWindow
+  !text: tr('Packs')
+  size: 630 420
+  visible: false
+  @onEscape: modules.game_storepacks.hide()
+
+  UIWidget
+    id: cardsPanel
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 330
+
+  Label
+    id: balanceLabel
+    anchors.bottom: parent.bottom
+    anchors.left: parent.left
+    margin-bottom: 4
+    font: Verdana Bold-11px
+    color: #dfdfdf
+    text-auto-resize: true
+
+  Button
+    id: closeButton
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    width: 60
+    !text: tr('Close')
+    @onClick: modules.game_storepacks.hide()

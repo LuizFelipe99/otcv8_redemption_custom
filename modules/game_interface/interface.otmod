@@ -66,6 +66,7 @@ Module
     - game_tasks_mission
     - game_gembag
     - game_itemtooltip
+    - game_storepacks
 
   @onLoad: init()
   @onUnload: terminate()

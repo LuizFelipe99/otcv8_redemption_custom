@@ -1,0 +1,8 @@
+Module
+  name: game_storepacks
+  description: Store packs bought with transferable Tibia Coins
+  author: CrystalServer
+  sandboxed: true
+  scripts: [ storepacks ]
+  @onLoad: init()
+  @onUnload: terminate()
