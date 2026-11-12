@@ -28,6 +28,7 @@ local availablePoints = 0
 local investedPoints = {}
 local pendingPoints = {}
 local missions = {}
+local dropSources = {}
 local selectedMissionId = nil
 local activeTab = 'missions'
 
@@ -345,6 +346,19 @@ local function describeItemProgress(item)
 	return deliveredAmount .. ' / ' .. item.total
 end
 
+local function describeItemTooltip(item)
+	if item.isGold then
+		return item.name
+	end
+
+	local itemSources = dropSources[tostring(item.clientId)]
+	if not itemSources or #itemSources == 0 then
+		return item.name .. '\n' .. tr('No creature drops this item.')
+	end
+
+	return item.name .. '\n' .. tr('Dropped by:') .. '\n- ' .. table.concat(itemSources, '\n- ')
+end
+
 local function fillRequiredItems(mission)
 	local requiredItems = elementalBuildWindow.missionsTab.missionDetail.requiredItems
 	requiredItems:destroyChildren()
@@ -359,7 +373,10 @@ local function fillRequiredItems(mission)
 			itemRow.itemIcon:setItemCount(GOLD_ICON_STACK_COUNT)
 			itemRow.itemIcon:setShowCount(false)
 		end
-		itemRow.itemIcon:setTooltip(item.name)
+		local itemTooltip = describeItemTooltip(item)
+		itemRow:setTooltip(itemTooltip)
+		itemRow.itemIcon:setTooltip(itemTooltip)
+		itemRow.itemProgressBar:setTooltip(itemTooltip)
 		itemRow.itemName:setText(item.name)
 		itemRow.itemProgress:setText(describeItemProgress(item))
 		itemRow.itemProgress:setColor(isItemMet and '#6fd38a' or '#f0c060')
@@ -522,6 +539,7 @@ local function applyServerState(data)
 	initializePointTables()
 	availablePoints = data.availablePoints or 0
 	missions = data.missions or {}
+	dropSources = data.dropSources or dropSources
 	applyInvestedPoints(data.investedPoints)
 
 	rebuildOrbBar()
@@ -600,6 +618,7 @@ local function onGameEnd()
 	damageRatio = DEFAULT_DAMAGE_RATIO
 	availablePoints = 0
 	missions = {}
+	dropSources = {}
 	selectedMissionId = nil
 	activeTab = 'missions'
 	initializePointTables()
