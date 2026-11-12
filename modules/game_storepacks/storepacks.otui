@@ -33,7 +33,7 @@ StorePackCard < UIWidget
 
   UIWidget
     id: banner
-    size: 172 90
+    size: 192 96
     anchors.top: parent.top
     anchors.horizontalCenter: parent.horizontalCenter
     phantom: true
