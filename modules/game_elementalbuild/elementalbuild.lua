@@ -1,5 +1,5 @@
 local ELEMENTALBUILD_OPCODE = 14
-local DEFAULT_POINTS_CAP = 500
+local DEFAULT_POINTS_CAP = 50
 local DEFAULT_DAMAGE_RATIO = 1.0
 local EMBLEM_PATH = '/game_cyclopedia/images/bestiary/icons/monster-icon-%s-resist'
 
@@ -29,6 +29,7 @@ local investedPoints = {}
 local pendingPoints = {}
 local missions = {}
 local dropSources = {}
+local missionDetailsById = {}
 local selectedMissionId = nil
 local activeTab = 'missions'
 
@@ -257,7 +258,18 @@ local function resolveMissionState(mission)
 	return 'locked'
 end
 
+local function countMissionItems(mission)
+	if mission.items then
+		return #mission.items
+	end
+	return mission.itemCount or 0
+end
+
 local function countDeliveredItems(mission)
+	if not mission.items then
+		return mission.deliveredCount or 0
+	end
+
 	local metItemCount = 0
 	for _, item in ipairs(mission.items or {}) do
 		if item.progress >= item.total then
@@ -268,7 +280,7 @@ local function countDeliveredItems(mission)
 end
 
 local function allMissionItemsMet(mission)
-	return countDeliveredItems(mission) == #(mission.items or {})
+	return mission.items ~= nil and countDeliveredItems(mission) == countMissionItems(mission)
 end
 
 local function findMissionById(missionId)
@@ -291,7 +303,7 @@ end
 
 local function describeMissionState(mission, missionState)
 	if missionState == 'current' then
-		return tr('In progress') .. ' - ' .. countDeliveredItems(mission) .. '/' .. #(mission.items or {}) .. ' ' .. tr('items')
+		return tr('In progress') .. ' - ' .. countDeliveredItems(mission) .. '/' .. countMissionItems(mission) .. ' ' .. tr('items')
 	end
 
 	return tr(MISSION_STATE_APPEARANCE[missionState].label)
@@ -395,8 +407,12 @@ local function showMissionDetail(mission)
 	missionDetail.missionStatus:setColor(appearance.color)
 	missionDetail.missionDescription:setText(mission.description or '')
 	missionDetail.itemsHeader.title:setText(tr('Required items'))
-	missionDetail.itemsHeader.detail:setText(countDeliveredItems(mission) .. ' / ' .. #(mission.items or {}))
-	missionDetail.rewardLabel:setText(tr('Reward') .. ': +' .. mission.points .. ' ' .. (mission.points == 1 and tr('elemental point') or tr('elemental points')))
+	missionDetail.itemsHeader.detail:setText(mission.items and (countDeliveredItems(mission) .. ' / ' .. countMissionItems(mission)) or tr('Loading...'))
+	if mission.points then
+		missionDetail.rewardLabel:setText(tr('Reward') .. ': +' .. mission.points .. ' ' .. (mission.points == 1 and tr('elemental point') or tr('elemental points')))
+	else
+		missionDetail.rewardLabel:setText('')
+	end
 	fillRequiredItems(mission)
 
 	local deliverButton = missionDetail.deliverButton
@@ -408,6 +424,12 @@ local function showMissionDetail(mission)
 
 	if missionState == 'locked' then
 		deliverButton:setText(tr('Locked'))
+		deliverButton:setEnabled(false)
+		return
+	end
+
+	if not mission.items then
+		deliverButton:setText(tr('Loading...'))
 		deliverButton:setEnabled(false)
 		return
 	end
@@ -428,7 +450,8 @@ local function onJourneyNodeFocus(list, focusedChild)
 	end
 
 	selectedMissionId = mission.id
-	showMissionDetail(mission)
+	showMissionDetail(missionDetailsById[mission.id] or mission)
+	sendToServer({ action = 'missionDetail', missionId = mission.id })
 end
 
 local function rebuildJourney()
@@ -518,7 +541,7 @@ function switchTab(tabName)
 end
 
 function onDeliverMission()
-	local mission = findMissionById(selectedMissionId)
+	local mission = missionDetailsById[selectedMissionId]
 	if not mission or not mission.isCurrent or not allMissionItemsMet(mission) then
 		return
 	end
@@ -539,7 +562,7 @@ local function applyServerState(data)
 	initializePointTables()
 	availablePoints = data.availablePoints or 0
 	missions = data.missions or {}
-	dropSources = data.dropSources or dropSources
+	missionDetailsById = {}
 	applyInvestedPoints(data.investedPoints)
 
 	rebuildOrbBar()
@@ -572,10 +595,27 @@ local function applyMissionResult(data)
 
 	availablePoints = data.availablePoints or availablePoints
 	missions = data.missions or missions
+	missionDetailsById = {}
 	selectedMissionId = nil
 
 	rebuildJourney()
 	refreshAllRows()
+end
+
+local function applyMissionDetail(data)
+	local missionDetail = data.mission
+	if type(missionDetail) ~= 'table' or not missionDetail.id then
+		return
+	end
+
+	for itemKey, itemSources in pairs(data.dropSources or {}) do
+		dropSources[itemKey] = itemSources
+	end
+	missionDetailsById[missionDetail.id] = missionDetail
+
+	if selectedMissionId == missionDetail.id and elementalBuildWindow:isVisible() then
+		showMissionDetail(missionDetail)
+	end
 end
 
 local function onExtendedOpcode(protocol, opcode, buffer)
@@ -603,6 +643,11 @@ local function onExtendedOpcode(protocol, opcode, buffer)
 
 	if data.action == 'missionResult' then
 		applyMissionResult(data)
+		return
+	end
+
+	if data.action == 'missionDetail' then
+		applyMissionDetail(data)
 	end
 end
 
@@ -619,6 +664,7 @@ local function onGameEnd()
 	availablePoints = 0
 	missions = {}
 	dropSources = {}
+	missionDetailsById = {}
 	selectedMissionId = nil
 	activeTab = 'missions'
 	initializePointTables()

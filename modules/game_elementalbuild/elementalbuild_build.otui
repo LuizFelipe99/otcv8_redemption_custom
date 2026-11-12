@@ -124,4 +124,4 @@ ElementalBuildPointsHeader < UIWidget
     font: verdana-11px-antialised
     color: #666666
     text-auto-resize: true
-    text: Cap: 500
+    text: Cap: 50
