@@ -386,13 +386,13 @@ InactivePreyPanel < Panel
     anchors.top: parent.top
     anchors.horizontalCenter: parent.horizontalCenter
     margin-top: 20
-    padding-left: 4
-    padding-top: 4
+    padding-left: 2
+    padding-top: 2
     size: 195 195
     layout:
       type: grid
-      cell-size: 60 60
-      cell-spacing: 3
+      cell-size: 62 62
+      cell-spacing: 2
       num-columns: 3
 
   PreyStonePanel
@@ -588,7 +588,6 @@ PreyCreatureBox < UICheckBox
   border-width: 1
   border-color: #ffffff
   background-color: alpha
-  padding: 3
   @onClick: modules.game_prey.onItemBoxChecked(self)
 
   UICreature
@@ -596,7 +595,7 @@ PreyCreatureBox < UICheckBox
     phantom: true
     anchors.fill: parent
     image-color: #ffffffff
-    margin-top: 3
+    margin: -8
 
   $hover !checked:
     background-color: #ffffff12
