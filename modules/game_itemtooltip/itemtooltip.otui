@@ -1,42 +1,54 @@
-ItemTooltipFieldLabel < Label
-  font: verdana-11px-rounded
-  color: #9a9a9a
-  text-auto-resize: true
-  phantom: true
-
-ItemTooltipFieldValue < Label
+ItemTooltipText < Label
   font: verdana-11px-rounded
   color: #e6e6e6
   text-auto-resize: true
   phantom: true
 
-ItemTooltipFieldRow < UIWidget
+ItemTooltipBonusText < ItemTooltipText
+  color: #6fd38a
+
+ItemTooltipSeparator < UIWidget
+  height: 1
+  margin-top: 4
+  margin-bottom: 4
+  background-color: #b8923a55
   phantom: true
-  focusable: false
 
-  ItemTooltipFieldLabel
-    id: fieldLabel
+ItemTooltipList < UIWidget
+  phantom: true
+  layout:
+    type: verticalBox
+    fit-children: true
+    spacing: 1
+
+ItemTooltipInfoRow < UIWidget
+  phantom: true
+
+  ItemTooltipText
+    id: infoLabel
     anchors.top: parent.top
     anchors.left: parent.left
+    color: #9a9a9a
 
-  ItemTooltipFieldValue
-    id: fieldValue
+  ItemTooltipText
+    id: infoValue
     anchors.top: parent.top
     anchors.left: parent.left
-    margin-left: 124
+    margin-left: 90
+    color: #d8d8d8
 
 ItemTooltipPanel < UIWidget
-  width: 320
+  width: 300
   background-color: #111111fa
   border-width: 1
   border-color: #b8923a
-  padding: 7 8 7 8
+  padding: 7 9 7 9
   phantom: true
   focusable: false
   layout:
     type: verticalBox
     fit-children: true
-    spacing: 2
+    spacing: 1
 
   UIWidget
     id: header
@@ -47,20 +59,17 @@ ItemTooltipPanel < UIWidget
       id: itemIcon
       size: 32 32
       anchors.left: parent.left
-      anchors.verticalCenter: parent.verticalCenter
+      anchors.top: parent.top
       image-source: /images/ui/item
       virtual: true
       phantom: true
 
-    Label
+    ItemTooltipText
       id: itemName
       anchors.left: itemIcon.right
       anchors.verticalCenter: parent.verticalCenter
       margin-left: 8
-      font: verdana-11px-rounded
       color: #f0c060
-      text-auto-resize: true
-      phantom: true
 
     UIWidget
       id: elementIcon
@@ -72,28 +81,34 @@ ItemTooltipPanel < UIWidget
       phantom: true
       visible: false
 
-    Label
+    ItemTooltipText
       id: elementName
       anchors.left: elementIcon.right
       anchors.verticalCenter: elementIcon.verticalCenter
       margin-left: 4
-      font: verdana-11px-rounded
-      text-auto-resize: true
-      phantom: true
       visible: false
 
-  UIWidget
-    id: separator
-    height: 1
-    margin-top: 2
-    margin-bottom: 3
-    background-color: #b8923a66
-    phantom: true
+    ItemTooltipText
+      id: mainStats
+      anchors.left: elementName.right
+      anchors.verticalCenter: elementIcon.verticalCenter
+      margin-left: 8
+      visible: false
 
-  UIWidget
-    id: fieldRows
-    phantom: true
-    layout:
-      type: verticalBox
-      fit-children: true
-      spacing: 1
+  ItemTooltipSeparator
+    id: bonusSeparator
+
+  ItemTooltipList
+    id: bonusList
+
+  ItemTooltipSeparator
+    id: infoSeparator
+
+  ItemTooltipList
+    id: infoList
+
+  ItemTooltipSeparator
+    id: requirementSeparator
+
+  ItemTooltipText
+    id: requirementText
