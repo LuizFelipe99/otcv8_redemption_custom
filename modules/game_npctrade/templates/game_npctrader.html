@@ -28,7 +28,7 @@
     .borderGrey { border: 1 #444444; }
     .sunkenBorder { --border-width-top: 1; --border-color-top: #141414; --border-width-left: 1; --border-color-left: #141414; --border-width-bottom: 1; --border-color-bottom: #747474; --border-width-right: 1; --border-color-right: #747474; }
     .panelBase { width: 345px; display: block; margin-left: 15px; }
-    .windowBtn { width: 12px; height: 12px; --image-source: /images/ui/miniwindow_buttons; --image-size: 14 14; margin-top: 7px; }
+    .windowBtn { width: 12px; height: 12px; --image-source: /images/ui/miniwindow_buttons; --image-size: 14 14; }
 
     /* ==============================================================================================
        MAIN WINDOW & STRUCTURE
@@ -38,7 +38,7 @@
     .rightPanel { width: 195px; height: 368px; margin-top: 27px; margin-left: 10px; float: left;}
     .verticalSep { height: 340px; margin-top: 25px; float: left;  margin-left: -10px;}
     .dragHandle { height: 27px; background-color: alpha; }
-    .closeButton { --image-clip: 28 0 14 14; margin-right: 10px; }
+    .closeButton { --image-clip: 28 0 14 14; margin-right: 20px; }
     .closeButton:hover { --image-clip: 28 14 14 14; }
     .closeButton:active { --image-clip: 28 28 14 14; }
     .bottonOptions { --image-clip: 112 0 14 14; margin-right: 25px; }
@@ -216,10 +216,10 @@
 
     </div>
 
-    <div id="dragHandle" class="dragHandle" placement="top-left" *width="self.widthConsole" focusable="false"></div>
-
-    <UIButton class="bottonOptions windowBtn" placement="top-right" *visible="self.isTradeOpen" onclick="self:onOptionsClick()"></UIButton>
-    <UIButton class="closeButton windowBtn" placement="top-right" onclick="self:onCloseNpcTrade()"></UIButton>
+    <div id="dragHandle" class="dragHandle" placement="top-left" *width="self.widthConsole" focusable="false">
+        <UIButton class="bottonOptions windowBtn" placement="right-center" *visible="self.isTradeOpen" onclick="self:onOptionsClick()"></UIButton>
+        <UIButton class="closeButton windowBtn" placement="right-center" onclick="self:onCloseNpcTrade()"></UIButton>
+    </div>
 
 </uiwindow>
 
