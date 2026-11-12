@@ -65,6 +65,7 @@ Module
     - game_potioncooldown
     - game_tasks_mission
     - game_gembag
+    - game_itemtooltip
 
   @onLoad: init()
   @onUnload: terminate()

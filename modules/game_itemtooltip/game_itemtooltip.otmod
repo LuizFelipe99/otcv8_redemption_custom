@@ -1,0 +1,8 @@
+Module
+  name: game_itemtooltip
+  description: Shows a compact item description when hovering items the player carries
+  author: CrystalServer
+  sandboxed: true
+  scripts: [ itemtooltip ]
+  @onLoad: init()
+  @onUnload: terminate()
