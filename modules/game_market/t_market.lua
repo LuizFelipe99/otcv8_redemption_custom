@@ -1060,6 +1060,7 @@ function onItemListValueChange(scroll, value, delta)
             end
 
             widget.item:getItem():setCount(count)
+            widget.item:setDisplayCount(count)
             widget.item.itemIndex = index -- Store the actual data index, not pool index
             widget.item:setTooltip(tr("%s%s%s%s", comma_value(count), "x", (count > 65000 and "+ " or " "),
                 data.marketData.name))
@@ -1192,6 +1193,7 @@ function onSelectChildCategory(widget, selected, keepFilter)
 
         widget:setBackgroundColor('#363636')
         widget.item:getItem():setCount(count)
+        widget.item:setDisplayCount(count)
         widget.item.itemIndex = i
         widget.item:setTooltip(tr("%s%s%s%s", comma_value(count), "x", (count > 65000 and "+ " or " "),
             itemInfo.marketData.name))
@@ -1260,6 +1262,7 @@ function onUpdateChildItem(itemID, tier)
             end
 
             widget.item:getItem():setCount(count)
+            widget.item:setDisplayCount(count)
 
             widget.grayHover:setOpacity(count > 0 and '0.0' or '0.5')
             break
@@ -1306,11 +1309,9 @@ function onSelectChildItem(widget, selected, oldFocus)
         lastWidget = widget
     }
 
-    if itemID == 22118 then
-        marketWindow.contentPanel.selectedItem:getItem():setCount(getTransferableTibiaCoins())
-    else
-        marketWindow.contentPanel.selectedItem:getItem():setCount(getDepotItemCount(itemID, itemTier))
-    end
+    local selectedItemCount = itemID == 22118 and getTransferableTibiaCoins() or getDepotItemCount(itemID, itemTier)
+    marketWindow.contentPanel.selectedItem:getItem():setCount(selectedItemCount)
+    marketWindow.contentPanel.selectedItem:setDisplayCount(selectedItemCount)
     onClearMainMarket(false)
 
     marketOffersBuy = {}
@@ -1989,6 +1990,7 @@ function onSearchItem(textField)
 
         widget:setBackgroundColor('#363636')
         widget.item:getItem():setCount(count)
+        widget.item:setDisplayCount(count)
         widget.item.itemIndex = i -- Store item index as property
         widget.item:setTooltip(tr("%s%s%s%s", comma_value(count), "x", (count > 65000 and "+ " or " "),
             itemInfo.marketData.name))
@@ -2134,6 +2136,7 @@ function onShowRedirect(item)
 
         widget:setBackgroundColor('#363636')
         widget.item:getItem():setCount(count)
+        widget.item:setDisplayCount(count)
         widget.item.itemIndex = i
         widget.item:setTooltip(tr("%s%s%s%s", comma_value(count), "x", (count > 65000 and "+ " or " "),
             itemInfo.marketData.name))

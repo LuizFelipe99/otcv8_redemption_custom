@@ -608,7 +608,7 @@ MarketMainWindow < Panel
     anchors.left: parent.left
     margin-top: 1
     margin-left: 1
-    show-count: false
+    always-show-count: true
     virtual-count: true
     draggable: false
 
