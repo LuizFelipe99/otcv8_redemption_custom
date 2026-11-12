@@ -184,23 +184,62 @@
                 </div>
               </div>
               <div
+                *if="not self.fusion.isConvergence and self.fusion.hasTargetChoices"
+                height="88"
+                width="84"
+                image-size="84 88"
+                class="transfer-select-donnor-container"
+                layout="type: grid; cell-size: 34 34;cell-spacing:2;num-columns:2"
+              >
+                <div
+                  *for="local item in (self.fusion.targetChoices or {})"
+                  onclick="self:handleSelectTarget(item, false)"
+                >
+                  <div class="item-to-select">
+                    <img
+                      *image-source="item.imagePath"
+                      *image-clip="item.rarityClipObject"
+                      *border-width="1"
+                      *border-color="self.fusion.selectedTarget.key == item.key and 'white' or 'transparent'"
+                      class="item-rarity"
+                    />
+                    <UIItem
+                      *item-id="item.id"
+                      style="
+                        height: 32px;
+                        width: 32px;
+                        align-items: center;
+                        padding-left: 2px;
+                      "
+                    />
+                    <img
+                      *if="item.tier>0"
+                      class="item-tier-strip"
+                      src="/images/inventory/tiers-strip.png"
+                      *image-clip="item.clip"
+                    />
+                    <label class="item-count">{{item.count}}</label>
+                  </div>
+                </div>
+              </div>
+              <div
                 class="transfer-requirement-item-container"
-                *if="not self.fusion.isConvergence"
+                *if="not self.fusion.isConvergence and not self.fusion.hasTargetChoices"
               >
                 <div
                   class="transfer-requirement"
                   onhover="self:handleDescription('fusion-preview-item')"
                 >
                   <img
-                    *if="self.fusion.selected.id == -1"
+                    *if="self.fusion.selectedTarget.id == -1"
                     style="margin-top: 22px; margin-left: 30px"
                     src="/images/ui/icon-questionmark.png"
                     width="8"
                     height="21"
                   />
-                  <div *if="self.fusion.selected ~= -1" class="preview-item">
+                  <div *if="self.fusion.selectedTarget.id ~= -1" class="preview-item">
                     <UIItem
-                      *item-id="self.fusion.selected.id"
+                      *item-id="self.fusion.selectedTarget.id"
                       style="
                         height: 64px;
                         width: 64px;
@@ -209,10 +248,10 @@
                       "
                     />
                     <img
-                      *if="self.fusion.selected.tier>0"
+                      *if="self.fusion.selectedTarget.tier>0"
                       class="item-tier-strip"
                       src="/images/inventory/tiers-strip.png"
-                      *image-clip="self.fusion.selected.clip"
+                      *image-clip="self.fusion.selectedTarget.clip"
                     />
                   </div>
                 </div>
@@ -221,7 +260,7 @@
                   class="transfer-requirement-item-cost"
                   *color="self:getColor('fusion-preview-count-label')"
                 >
-                  {{self.fusion.selected.countLabel}}
+                  {{self.fusion.selectedTarget.countLabel}}
                 </div>
               </div>
               <div

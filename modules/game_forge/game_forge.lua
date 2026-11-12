@@ -14,6 +14,9 @@ ForgeController.callbacks = {}
 ForgeController.showResult = false
 ForgeController.showBonus = false
 
+local TRANSFER_TIER_STONE_ID = 60556
+local CONVERGENCE_CLASSIFICATION = 4
+
 local rightArrow = Helpers.rightArrow
 local filledRightArrow = Helpers.filledRightArrow
 ForgeController.result = cloneValue(Helpers.baseResult)
@@ -75,6 +78,8 @@ local function resetInfo()
     ForgeController.fusion.reduceTierLossChecked = false
     ForgeController.fusion.dustLabel = ForgeController.fusion.dust
     replaceTableContents(ForgeController.fusion.currentList, ForgeController.fusion.items)
+    replaceTableContents(ForgeController.fusion.targetChoices, {})
+    ForgeController.fusion.hasTargetChoices = false
     ForgeController.showResult = false
     ForgeController.showBonus = false
     ForgeController.result = cloneValue(Helpers.baseResult)
@@ -568,6 +573,8 @@ ForgeController.fusion = {
     selectedTarget = cloneValue(ForgeController.baseSelected),
     canFusion = false,
     currentList = {},
+    targetChoices = {},
+    hasTargetChoices = false,
 }
 
 -- Store callback in ForgeController to prevent garbage collection
@@ -671,6 +678,84 @@ local function handleFusionItems(data)
     return currentList
 end
 
+local function isTierWildcard(itemId)
+    return itemId == TRANSFER_TIER_STONE_ID
+end
+
+local function getItemClassification(itemId)
+    local itemPtr = Item.create(itemId, 1)
+    if not itemPtr or not itemPtr.getClassification then
+        return 0
+    end
+    return itemPtr:getClassification() or 0
+end
+
+local function canReceiveTier(itemId, resultTier)
+    local classification = getItemClassification(itemId)
+    if classification <= 0 then
+        return false
+    end
+    if classification == CONVERGENCE_CLASSIFICATION then
+        return true
+    end
+    return resultTier <= classification
+end
+
+local function findFusionWildcard(tier)
+    for _, entry in ipairs(ForgeController.fusion.items) do
+        if isTierWildcard(entry.id) and entry.tier == tier then
+            return entry
+        end
+    end
+    return nil
+end
+
+local function collectFusionTargets(selectedItem)
+    local targets = {}
+    if isTierWildcard(selectedItem.id) then
+        for _, entry in ipairs(ForgeController.fusion.items) do
+            local isSameTier = entry.tier == selectedItem.tier
+            if isSameTier and (not isTierWildcard(entry.id) or entry.count >= 2) then
+                table.insert(targets, entry)
+            end
+        end
+        return targets
+    end
+
+    if selectedItem.count >= 2 then
+        table.insert(targets, selectedItem)
+    end
+    local wildcard = findFusionWildcard(selectedItem.tier)
+    if wildcard then
+        table.insert(targets, wildcard)
+    end
+    return targets
+end
+
+local function buildFusionTarget(entry)
+    local target = cloneValue(entry)
+    target.targetTier = target.tier + 1
+    target.targetClip = ItemsDatabase.getTierClip(target.targetTier)
+    local _, imagePath, rarityClipObject = ItemsDatabase.getClipAndImagePath(target.id)
+    if imagePath then
+        target.imagePath = imagePath
+        target.rarityClipObject = rarityClipObject
+    end
+    return target
+end
+
+local function collectTransferReceivers(list, donor, resultTier)
+    local receivers = {}
+    for _, receiver in pairs(list.receivers) do
+        local isOtherItem = donor.id ~= receiver.id
+        local isSameGroup = donor.slot == receiver.slot
+        if isOtherItem and isSameGroup and canReceiveTier(receiver.id, resultTier) then
+            table.insert(receivers, receiver)
+        end
+    end
+    return receivers
+end
+
 function ForgeController:handleSelect(data, item, isTransfer)
     data.selected = cloneValue(ForgeController.baseSelected)
     data.selectedTarget = cloneValue(ForgeController.baseSelected)
@@ -690,14 +775,7 @@ function ForgeController:handleSelect(data, item, isTransfer)
         end
 
         local list = isConvergence and data.convergenceItems or data.items
-        local receivers = {}
-        for _, _item in pairs(list.receivers) do
-            if item.id ~= _item.id then
-                table.insert(receivers, _item)
-            end
-        end
-
-        data.currentList.receivers = receivers
+        data.currentList.receivers = collectTransferReceivers(list, item, targetTier)
     else
         data.selected = cloneValue(item)
         data.selected.targetTier = data.selected.tier + 1
@@ -709,13 +787,11 @@ function ForgeController:handleSelect(data, item, isTransfer)
         end
 
         if not isConvergence then
-            data.selectedTarget = cloneValue(item)
-            data.selectedTarget.targetTier = data.selectedTarget.tier + 1
-            data.selectedTarget.targetClip = ItemsDatabase.getTierClip(data.selectedTarget.targetTier)
-            local _, imagePath, rarityClipObject = ItemsDatabase.getClipAndImagePath(data.selectedTarget.id)
-            if imagePath then
-                data.selectedTarget.imagePath = imagePath
-                data.selectedTarget.rarityClipObject = rarityClipObject
+            local targets = collectFusionTargets(item)
+            replaceTableContents(data.targetChoices, targets)
+            data.hasTargetChoices = #targets > 1
+            if #targets == 1 then
+                data.selectedTarget = buildFusionTarget(targets[1])
             end
         end
     end
@@ -726,6 +802,7 @@ function ForgeController:handleSelect(data, item, isTransfer)
     if ForgeController.rawPrice > 0 and ForgeController.rawCurrentGold >= ForgeController.rawPrice then
         if ForgeController.currentDust >= ForgeController.fusion.dust then
             if isConvergence then return end
+            if data.selectedTarget.id == -1 then return end
             ForgeController.fusion.canFusion = true
         end
     end
@@ -794,6 +871,10 @@ function ForgeController:toggleConvergence(isTransfer)
     data.selectedTarget = cloneValue(ForgeController.baseSelected)
     ForgeController.formattedPrice = "???"
     ForgeController.rawPrice = 0
+    if not isTransfer then
+        replaceTableContents(data.targetChoices, {})
+        data.hasTargetChoices = false
+    end
 
     local source = data.isConvergence and data.convergenceItems or data.items
 
@@ -894,6 +975,8 @@ function onOpenForge(data)
     ForgeController.conversion.dustMax = data.dustLevel or ForgeController.conversion.dustMax or 100
 
     -- FUSION ITEMS
+    replaceTableContents(ForgeController.fusion.targetChoices, {})
+    ForgeController.fusion.hasTargetChoices = false
     local items = cloneValue(data.fusionItems or {})
     local fusionItems = handleFusionItems(items)
     ForgeController.fusion.items = fusionItems
