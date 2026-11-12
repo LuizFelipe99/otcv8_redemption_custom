@@ -218,12 +218,12 @@ storeCategory < UIWidget
       id: Title
       anchors.left: Icon.right
       anchors.verticalCenter: Icon.verticalCenter
-      margin-left: 10
+      margin-left: 7
       text-align: center
       text-auto-resize: true
       !text: tr('General Stats')
       color: #ffffff
-      font: cipsoftFont
+      font: Verdana Bold-11px
       $checked:
         text-offset: 12 10
       $!checked:
