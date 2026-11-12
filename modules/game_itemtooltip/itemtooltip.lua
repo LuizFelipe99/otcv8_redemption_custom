@@ -5,6 +5,16 @@ local VALUE_COLUMN_MARGIN = 124
 local LABEL_COLUMN_WIDTH = 118
 local CONTENT_WIDTH = 302
 local NAME_WIDTH = 258
+local ELEMENT_ICON_PATH = '/game_cyclopedia/images/bestiary/icons/monster-icon-%s-resist'
+local ELEMENT_STYLES = {
+    physical = { name = 'Physical', color = '#b8b6ad' },
+    energy = { name = 'Energy', color = '#5aa2ec' },
+    earth = { name = 'Earth', color = '#7fbf3a' },
+    fire = { name = 'Fire', color = '#ec6a3c' },
+    ice = { name = 'Ice', color = '#95c8f2' },
+    holy = { name = 'Holy', color = '#f2b23f' },
+    death = { name = 'Death', color = '#9a93ec' }
+}
 local MOUSE_OFFSET = 14
 local SCREEN_EDGE_MARGIN = 6
 
@@ -152,6 +162,24 @@ local function addFieldRow(field)
     fieldRow:setHeight(math.max(fieldRow.fieldLabel:getHeight(), fieldRow.fieldValue:getHeight()))
 end
 
+local function applyElement(elementKey)
+    local header = tooltipPanel.header
+    local elementStyle = ELEMENT_STYLES[elementKey or '']
+    header.elementIcon:setVisible(elementStyle ~= nil)
+    header.elementName:setVisible(elementStyle ~= nil)
+    header.itemName:breakAnchors()
+    header.itemName:addAnchor(AnchorLeft, 'itemIcon', AnchorRight)
+    if not elementStyle then
+        header.itemName:addAnchor(AnchorVerticalCenter, 'parent', AnchorVerticalCenter)
+        return
+    end
+
+    header.itemName:addAnchor(AnchorTop, 'itemIcon', AnchorTop)
+    header.elementIcon:setImageSource(string.format(ELEMENT_ICON_PATH, elementKey))
+    header.elementName:setText(elementStyle.name)
+    header.elementName:setColor(elementStyle.color)
+end
+
 local function moveTooltipToMouse()
     if not tooltipPanel or not tooltipPanel:isVisible() then
         return
@@ -185,6 +213,7 @@ local function showTooltip(item, tooltipData)
     tooltipPanel.header.itemIcon:setItemId(item:getId())
     tooltipPanel.header.itemIcon:setItemCount(item:getCount())
     setWrappedText(tooltipPanel.header.itemName, tooltipData.name or '', NAME_WIDTH)
+    applyElement(tooltipData.element)
 
     tooltipPanel.fieldRows:destroyChildren()
     local fields = tooltipData.fields or buildFallbackFields(tooltipData.description or '')

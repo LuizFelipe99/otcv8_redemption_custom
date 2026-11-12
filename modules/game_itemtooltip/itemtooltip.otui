@@ -62,6 +62,26 @@ ItemTooltipPanel < UIWidget
       text-auto-resize: true
       phantom: true
 
+    UIWidget
+      id: elementIcon
+      size: 11 11
+      anchors.left: itemIcon.right
+      anchors.bottom: itemIcon.bottom
+      margin-left: 8
+      margin-bottom: 1
+      phantom: true
+      visible: false
+
+    Label
+      id: elementName
+      anchors.left: elementIcon.right
+      anchors.verticalCenter: elementIcon.verticalCenter
+      margin-left: 4
+      font: verdana-11px-rounded
+      text-auto-resize: true
+      phantom: true
+      visible: false
+
   UIWidget
     id: separator
     height: 1
