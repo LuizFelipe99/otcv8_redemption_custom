@@ -5,7 +5,7 @@ local GLOW_PULSE_INTERVAL_MS = 60
 local GLOW_PULSE_PERIOD_MS = 1800
 local BUTTON_ROW_HEIGHT = 22
 local SPECIALS_PER_ROW = 2
-local CARD_STRIDE = 198
+local CARD_STRIDE = 219
 
 local storePacksWindow
 local packsButton
@@ -61,6 +61,7 @@ local function fillPackItems(card, pack)
         local itemSlot = g_ui.createWidget('StorePackItemSlot', card.itemGrid)
         itemSlot:setItemId(packItem.clientId)
         itemSlot:setItemCount(packItem.count)
+        itemSlot:setDisplayCount(packItem.count)
         itemSlot:setTooltip(packItem.count .. 'x ' .. (packItem.name or ''))
     end
     card.itemGridScrollBar:setVisible(#(pack.items or {}) > VISIBLE_ITEM_SLOTS)
