@@ -1,11 +1,10 @@
 local ITEM_TOOLTIP_OPCODE = 21
 local REQUEST_DELAY_MS = 300
 local INVENTORY_POSITION_X = 0xFFFF
-local LABEL_WRAP_LENGTH = 18
-local VALUE_WRAP_LENGTH = 27
-local FULL_WIDTH_WRAP_LENGTH = 46
-local NAME_WRAP_LENGTH = 36
 local VALUE_COLUMN_MARGIN = 124
+local LABEL_COLUMN_WIDTH = 118
+local CONTENT_WIDTH = 302
+local NAME_WIDTH = 258
 local MOUSE_OFFSET = 14
 local SCREEN_EDGE_MARGIN = 6
 
@@ -24,30 +23,115 @@ local function cancelPendingRequest()
     pendingRequestEvent = nil
 end
 
-local function wrapText(text, maxLineLength)
+local function measureTextWidth(label, text)
+    label:setText(text)
+    return label:getTextSize().width
+end
+
+local function wrapParagraph(label, paragraph, maxWidth)
     local wrappedLines = {}
-    for line in (text .. '\n'):gmatch('(.-)\n') do
-        local currentLine = ''
-        for word in line:gmatch('%S+') do
-            if currentLine:len() > 0 and currentLine:len() + 1 + word:len() > maxLineLength then
-                table.insert(wrappedLines, currentLine)
-                currentLine = word
-            elseif currentLine:len() > 0 then
-                currentLine = currentLine .. ' ' .. word
-            else
-                currentLine = word
-            end
+    local currentLine = ''
+    for word in paragraph:gmatch('%S+') do
+        local candidateLine = currentLine:len() > 0 and (currentLine .. ' ' .. word) or word
+        if currentLine:len() > 0 and measureTextWidth(label, candidateLine) > maxWidth then
+            table.insert(wrappedLines, currentLine)
+            currentLine = word
+        else
+            currentLine = candidateLine
         end
-        table.insert(wrappedLines, currentLine)
     end
-    return table.concat(wrappedLines, '\n')
+    table.insert(wrappedLines, currentLine)
+    return wrappedLines
+end
+
+local function setWrappedText(label, text, maxWidth)
+    local wrappedLines = {}
+    for paragraph in (text .. '\n'):gmatch('(.-)\n') do
+        for _, line in ipairs(wrapParagraph(label, paragraph, maxWidth)) do
+            table.insert(wrappedLines, line)
+        end
+    end
+    label:setText(table.concat(wrappedLines, '\n'))
+end
+
+local function capitalizeFirstLetter(text)
+    return (text:gsub('^%l', string.upper))
+end
+
+local function splitAttributeList(attributeList)
+    local attributes = {}
+    local depth = 0
+    local currentAttribute = ''
+    for character in attributeList:gmatch('.') do
+        if character == '(' then
+            depth = depth + 1
+        elseif character == ')' then
+            depth = depth - 1
+        end
+
+        if character == ',' and depth == 0 then
+            table.insert(attributes, currentAttribute)
+            currentAttribute = ''
+        else
+            currentAttribute = currentAttribute .. character
+        end
+    end
+    table.insert(attributes, currentAttribute)
+    return attributes
+end
+
+local function buildAttributeField(attribute)
+    attribute = attribute:match('^%s*(.-)%s*$')
+    local colonLabel, colonValue = attribute:match('^([^:]+):%s*(.+)$')
+    if colonLabel then
+        return { label = capitalizeFirstLetter(colonLabel), value = colonValue }
+    end
+
+    local label, value = attribute:match('^(.-)%s+([%+%-]?%d[%d%.]*%%?)$')
+    if label and label:len() > 0 then
+        return { label = capitalizeFirstLetter(label), value = value }
+    end
+
+    return { label = '', value = capitalizeFirstLetter(attribute) }
+end
+
+local function buildLineFields(line)
+    local fields = {}
+    local classification, tier = line:match('^Classification:%s*(%S+)%s+Tier:%s*(.+)$')
+    if classification then
+        table.insert(fields, { label = 'Classification', value = classification })
+        table.insert(fields, { label = 'Tier', value = (tier:gsub('%.$', '')) })
+        return fields
+    end
+
+    local label, value = line:match('^([^:]+):%s*(.+)$')
+    if label and label:len() <= 24 then
+        table.insert(fields, { label = label, value = (value:gsub('%.$', '')) })
+        return fields
+    end
+
+    table.insert(fields, { label = '', value = line })
+    return fields
 end
 
 local function buildFallbackFields(description)
     local fields = {}
+    local isFirstLine = true
     for line in (description .. '\n'):gmatch('(.-)\n') do
         if line:len() > 0 then
-            table.insert(fields, { label = '', value = line })
+            local attributeList = isFirstLine and line:match('^.-%s%((.*)%)%.?$')
+            if attributeList then
+                for _, attribute in ipairs(splitAttributeList(attributeList)) do
+                    table.insert(fields, buildAttributeField(attribute))
+                end
+            elseif isFirstLine and line:find('[%(%.]%s') then
+                table.insert(fields, { label = '', value = line })
+            elseif not isFirstLine then
+                for _, field in ipairs(buildLineFields(line)) do
+                    table.insert(fields, field)
+                end
+            end
+            isFirstLine = false
         end
     end
     return fields
@@ -58,9 +142,13 @@ local function addFieldRow(field)
     local hasLabel = type(field.label) == 'string' and field.label:len() > 0
     local value = tostring(field.value or '')
 
-    fieldRow.fieldLabel:setText(hasLabel and wrapText(field.label, LABEL_WRAP_LENGTH) or '')
+    if hasLabel then
+        setWrappedText(fieldRow.fieldLabel, field.label, LABEL_COLUMN_WIDTH)
+    else
+        fieldRow.fieldLabel:setText('')
+    end
     fieldRow.fieldValue:setMarginLeft(hasLabel and VALUE_COLUMN_MARGIN or 0)
-    fieldRow.fieldValue:setText(wrapText(value, hasLabel and VALUE_WRAP_LENGTH or FULL_WIDTH_WRAP_LENGTH))
+    setWrappedText(fieldRow.fieldValue, value, hasLabel and (CONTENT_WIDTH - VALUE_COLUMN_MARGIN) or CONTENT_WIDTH)
     fieldRow:setHeight(math.max(fieldRow.fieldLabel:getHeight(), fieldRow.fieldValue:getHeight()))
 end
 
@@ -96,7 +184,7 @@ end
 local function showTooltip(item, tooltipData)
     tooltipPanel.header.itemIcon:setItemId(item:getId())
     tooltipPanel.header.itemIcon:setItemCount(item:getCount())
-    tooltipPanel.header.itemName:setText(wrapText(tooltipData.name or '', NAME_WRAP_LENGTH))
+    setWrappedText(tooltipPanel.header.itemName, tooltipData.name or '', NAME_WIDTH)
 
     tooltipPanel.fieldRows:destroyChildren()
     local fields = tooltipData.fields or buildFallbackFields(tooltipData.description or '')
