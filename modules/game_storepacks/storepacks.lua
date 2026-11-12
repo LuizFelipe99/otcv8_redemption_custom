@@ -138,6 +138,25 @@ local function onPurchaseResult(data)
     displayErrorBox(tr('Purchase failed'), data.message)
 end
 
+local ANNOUNCEMENT_BASE_COLOR = '#ffffff'
+local ANNOUNCEMENT_HIGHLIGHT_COLOR = '#ffff00'
+local ANNOUNCEMENT_SCREEN_TARGET = 'middleCenterLabel'
+
+local function highlight(text)
+    return '{' .. text .. ', ' .. ANNOUNCEMENT_HIGHLIGHT_COLOR .. '}'
+end
+
+local function onPurchaseAnnouncement(data)
+    if type(data.playerName) ~= 'string' or type(data.packName) ~= 'string' then
+        return
+    end
+
+    local plainText = data.playerName .. ' has just purchased the ' .. data.packName .. '!'
+    local coloredText = highlight(data.playerName) .. ' has just purchased the ' .. highlight(data.packName) .. '!'
+    modules.game_textmessage.displayColoredScreenMessage(coloredText, plainText, ANNOUNCEMENT_SCREEN_TARGET, ANNOUNCEMENT_BASE_COLOR)
+    modules.game_console.addText(coloredText, { color = ANNOUNCEMENT_BASE_COLOR, colored = true }, tr('Default'))
+end
+
 local function onExtendedOpcode(protocol, opcode, buffer)
     local decoded, data = pcall(json.decode, buffer)
     if not decoded or type(data) ~= 'table' then
@@ -148,6 +167,8 @@ local function onExtendedOpcode(protocol, opcode, buffer)
         onPacksReceived(data)
     elseif data.action == 'purchaseResult' then
         onPurchaseResult(data)
+    elseif data.action == 'announcement' then
+        onPurchaseAnnouncement(data)
     end
 end
 

@@ -285,6 +285,25 @@ function displayMessage(mode, text)
     end
 end
 
+function displayColoredScreenMessage(coloredText, plainText, screenTarget, baseColor)
+    if not g_game.isOnline() then
+        return
+    end
+
+    local label = messagesPanel:recursiveGetChildById(screenTarget)
+    if not label then
+        return
+    end
+
+    label:setColor(baseColor)
+    label:setColoredText(coloredText)
+    label:setVisible(true)
+    removeEvent(label.hideEvent)
+    label.hideEvent = scheduleEvent(function()
+        label:setVisible(false)
+    end, calculateVisibleTime(plainText))
+end
+
 function displayPrivateMessage(text)
     if not g_game.isOnline() then
         return
