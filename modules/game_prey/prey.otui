@@ -3,7 +3,7 @@ PreyStonePanel < Panel
   image-border: 1
 
 LockedPreyPanel < Panel
-  size: 195 312
+  size: 235 352
 
   NoCreaturePanel
     id: noCreature
@@ -66,7 +66,7 @@ NoStar < UIWidget
   image-source: /images/game/prey/prey_nostar
 
 NoCreaturePanel < Panel
-  size: 195 152
+  size: 235 152
 
   PreyStonePanel
     size: 124 124
@@ -171,7 +171,7 @@ NoCreaturePanel < Panel
     @onHoverChange: modules.game_prey.onHover(self)
 
 ActivePreyPanel < Panel
-  size: 195 312
+  size: 235 352
 
   CreatureAndBonus
     id: creatureAndBonus
@@ -251,7 +251,7 @@ ActivePreyPanel < Panel
     anchors.right: parent.right
 
 CreatureAndBonus < Panel
-  size: 195 152
+  size: 235 152
 
   UICreature
     id: creature
@@ -335,7 +335,7 @@ BonusReroll < PreyStonePanel
     margin-top: 2
 
 InactivePreyPanel < Panel
-  size: 195 312
+  size: 235 352
 
   ChoosePrey
     id: choose
@@ -388,10 +388,10 @@ InactivePreyPanel < Panel
     margin-top: 20
     padding-left: 2
     padding-top: 2
-    size: 195 195
+    size: 235 235
     layout:
       type: grid
-      cell-size: 62 62
+      cell-size: 76 76
       cell-spacing: 2
       num-columns: 3
 
@@ -595,7 +595,7 @@ PreyCreatureBox < UICheckBox
     phantom: true
     anchors.fill: parent
     image-color: #ffffffff
-    margin: -8
+    margin: 2
 
   $hover !checked:
     background-color: #ffffff12
@@ -636,7 +636,7 @@ PreyCreatureListItem < UICheckBox
     border-color: alpha
 
 SlotPanel < Panel
-  size: 210 320
+  size: 250 360
   image-source: /images/ui/window
   image-border: 25
   padding-top: 2
@@ -672,7 +672,7 @@ SlotPanel < Panel
 MainWindow
   id: preyWindow
   !text: tr('Prey')
-  size: 688 562
+  size: 808 602
   @onEscape: modules.game_prey.hide()
   padding: 20
   @onHoverChange: modules.game_prey.onHover(self)
