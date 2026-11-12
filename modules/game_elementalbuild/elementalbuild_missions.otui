@@ -13,7 +13,7 @@ ElementalBuildMissionRow < UIWidget
     anchors.right: viewButton.left
     margin-top: 4
     margin-right: 4
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #e0e0e0
     text-auto-resize: false
     text-wrap: false
@@ -25,7 +25,7 @@ ElementalBuildMissionRow < UIWidget
     anchors.right: viewButton.left
     margin-top: 2
     margin-right: 4
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #888888
     text-auto-resize: false
     text-wrap: false
@@ -36,7 +36,7 @@ ElementalBuildMissionRow < UIWidget
     anchors.verticalCenter: parent.verticalCenter
     width: 50
     height: 22
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: View
 
   Panel
@@ -63,7 +63,7 @@ ElementalBuildMissionFilterPanel < UIWidget
     id: progressLabel
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #888888
     text-auto-resize: true
 
@@ -74,7 +74,7 @@ ElementalBuildMissionFilterPanel < UIWidget
     margin-right: 4
     width: 36
     height: 20
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: All
     @onClick: setMissionFilter("all")
 
@@ -85,7 +85,7 @@ ElementalBuildMissionFilterPanel < UIWidget
     margin-right: 4
     width: 56
     height: 20
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: Pending
     @onClick: setMissionFilter("pending")
 
@@ -95,7 +95,7 @@ ElementalBuildMissionFilterPanel < UIWidget
     anchors.verticalCenter: parent.verticalCenter
     width: 44
     height: 20
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: Done
     @onClick: setMissionFilter("done")
 
@@ -112,7 +112,7 @@ ElementalBuildModalItemSlot < UIWidget
     anchors.top: parent.top
     margin-top: 6
     margin-left: 8
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #d0d0d0
     text-auto-resize: true
 
@@ -122,7 +122,7 @@ ElementalBuildModalItemSlot < UIWidget
     anchors.top: parent.top
     margin-top: 6
     margin-right: 8
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #4a90d9
     text-auto-resize: true
 

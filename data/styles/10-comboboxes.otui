@@ -65,7 +65,7 @@ ComboBox < UIComboBox
 
 ComboBoxRoundedPopupScrollMenuButton < UIButton
   height: 23
-  font: verdana-11px-antialised
+  font: Verdana Bold-11px
   text-align: left
   text-offset: 4 0
   color: #dfdfdf
@@ -85,7 +85,7 @@ ComboBoxRoundedPopupScrollMenu < UIPopupScrollMenu
 
 ComboBoxRoundedPopupMenuButton < UIButton
   height: 23
-  font: verdana-11px-antialised
+  font: Verdana Bold-11px
   text-align: left
   text-offset: 4 0
   color: #dfdfdf
@@ -109,7 +109,7 @@ ComboBoxRounded < ComboBox
 
 QtComboBoxPopupScrollMenuButton < UIButton
   height: 23
-  font: verdana-11px-antialised
+  font: Verdana Bold-11px
   text-align: left
   text-offset: 4 0
   color: #dfdfdf

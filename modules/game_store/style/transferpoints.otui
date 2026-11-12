@@ -9,7 +9,7 @@ StoreWindow
     id: transferPointsLabel
     !text: tr('Gift Tibia Coins')
     text-align: center
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
@@ -30,7 +30,7 @@ StoreWindow
     !text: tr('Recipient:')
     anchors.top: descriptionText.bottom
     anchors.left: parent.left
-    size: 57 12
+    size: 70 12
     margin: 7
     margin-top: 12
 
@@ -50,7 +50,7 @@ StoreWindow
     !text: tr('Transferable Tibia Coins:')
     anchors.top: recipient.bottom
     anchors.left: parent.left
-    size: 155 12
+    size: 170 12
     margin: 7
     margin-top: 10
 

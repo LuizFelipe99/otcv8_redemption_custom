@@ -723,7 +723,7 @@ UIWidget
       !text: tr('Transfer Date:')
       color: #909090
       text-align: right
-      size: 90 15
+      size: 104 15
       anchors.top: paid.bottom
       anchors.left: parent.left
       margin-top: 8
@@ -813,7 +813,7 @@ UIWidget
       !text: tr('Transfer Price:')
       color: #909090
       text-align: right
-      size: 90 15
+      size: 104 15
       anchors.top: owner.bottom
       anchors.left: parent.left
       margin-top: 3
@@ -832,7 +832,7 @@ UIWidget
       margin-left: 5
       image-source: /game_cyclopedia/images/icon_gold
     Label
-      !text: tr('Please remeber to take your personal belongings out of\nthe house before you move out. Items remaining in the\nhouse become the property of the new owner after the transfer.\nThe only exception are items which have been purchased\nin the Store. They will be sent yo your inbox.')
+      !text: tr('Please remember to take your personal belongings out\nof the house before you move out. Items remaining in\nthe house become the property of the new owner after\nthe transfer. The only exception are items which have\nbeen purchased in the Store. They will be sent to\nyour inbox.')
       text-auto-resize: true
       anchors.top: prev.bottom
       anchors.left: parent.left
@@ -984,7 +984,7 @@ UIWidget
       !text: tr('Transfer Date:')
       color: #909090
       text-align: right
-      size: 90 15
+      size: 104 15
       anchors.top: prev.bottom
       anchors.left: parent.left
       margin-top: 2
@@ -1169,7 +1169,7 @@ UIWidget
       !text: tr('Transfer Date:')
       color: #909090
       text-align: right
-      size: 90 15
+      size: 104 15
       anchors.top: prev.bottom
       anchors.left: parent.left
       margin-top: 2
@@ -1354,7 +1354,7 @@ UIWidget
       !text: tr('Transfer Date:')
       color: #909090
       text-align: right
-      size: 90 15
+      size: 104 15
       anchors.top: prev.bottom
       anchors.left: parent.left
       margin-top: 2

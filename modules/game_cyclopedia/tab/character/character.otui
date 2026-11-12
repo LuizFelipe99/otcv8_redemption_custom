@@ -1069,7 +1069,7 @@ UIWidget
     visible: false
     UIWidget
       id: achievements
-      width: 150
+      width: 180
       anchors.top: parent.top
       anchors.bottom: ListBase.top
       anchors.left: parent.left

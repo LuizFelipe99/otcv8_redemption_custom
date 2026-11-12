@@ -648,7 +648,7 @@ MainWindow
           layout: horizontalBox
 
           Label
-            width: 110
+            width: 120
             color: #dfdfdf
             text: Creation Date
 
@@ -663,7 +663,7 @@ MainWindow
           layout: horizontalBox
 
           Label
-            width: 110
+            width: 120
             color: #dfdfdf
             text: BattleEye Status:
 
@@ -678,7 +678,7 @@ MainWindow
           layout: horizontalBox
 
           Label
-            width: 110
+            width: 120
             color: #dfdfdf
             text: Premium Only:
 
@@ -693,7 +693,7 @@ MainWindow
           layout: horizontalBox
 
           Label
-            width: 110
+            width: 120
             color: #dfdfdf
             text: Transfer Type:
 

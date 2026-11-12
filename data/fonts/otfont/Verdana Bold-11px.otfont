@@ -4,3 +4,4 @@ Font
   height: 15
   glyph-size: 22 15
   space-width: 3
+  default: true

@@ -197,7 +197,7 @@ MainWindow
 
   Label
     !text: tr('Options')
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     margin-top: -35
     text-align: top
     anchors.top: parent.top

@@ -177,7 +177,7 @@ MainWindow
 
   ButtonBox
     id: useAtCursor
-    !text: tr('Use at cursor position')
+    !text: tr('Use at cursor')
     width: 128
     enabled: false
     anchors.left: prev.left

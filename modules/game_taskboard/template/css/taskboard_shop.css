@@ -87,7 +87,7 @@
     width: 201px;
     max-width: 201px;
     margin-right: 0;
-    font: verdana-11px-antialised;
+    font: Verdana Bold-11px;
     color: #c0c0c0;
     text-wrap: true;
     --text-auto-resize: false;
@@ -125,7 +125,7 @@
     display: inline-block;
     vertical-align: top;
     text-align: center;
-    font: verdana-11px-antialised;
+    font: Verdana Bold-11px;
     color: #666666;
     margin-top: 4px;
 }

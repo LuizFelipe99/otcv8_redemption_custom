@@ -14,7 +14,7 @@ ElementalBuildPointRow < UIWidget
     margin-right: 2
     width: 30
     height: 18
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: +10
     tooltip: +10 pts | Shift: MAX
 
@@ -26,7 +26,7 @@ ElementalBuildPointRow < UIWidget
     margin-right: 2
     width: 18
     height: 18
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: +
     tooltip: +1 pt | Shift: MAX
 
@@ -37,7 +37,7 @@ ElementalBuildPointRow < UIWidget
     margin-top: 4
     margin-right: 4
     width: 60
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #4a90d9
     text-auto-resize: false
     text-align: center
@@ -50,7 +50,7 @@ ElementalBuildPointRow < UIWidget
     margin-right: 2
     width: 18
     height: 18
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: -
     tooltip: -1 pt | Shift: MIN
 
@@ -62,7 +62,7 @@ ElementalBuildPointRow < UIWidget
     margin-right: 2
     width: 30
     height: 18
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     text: -10
     tooltip: -10 pts | Shift: MIN
 
@@ -73,7 +73,7 @@ ElementalBuildPointRow < UIWidget
     anchors.top: parent.top
     margin-top: 4
     margin-right: 4
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #e0e0e0
     text-auto-resize: false
     text-wrap: false
@@ -103,7 +103,7 @@ ElementalBuildPointsHeader < UIWidget
     id: availableLabel
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #4a90d9
     text-auto-resize: true
     text: Available: 0
@@ -112,7 +112,7 @@ ElementalBuildPointsHeader < UIWidget
     id: usedLabel
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenter: parent.verticalCenter
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #aaaaaa
     text-auto-resize: true
     text: Used: 0
@@ -121,7 +121,7 @@ ElementalBuildPointsHeader < UIWidget
     id: capLabel
     anchors.right: parent.right
     anchors.verticalCenter: parent.verticalCenter
-    font: verdana-11px-antialised
+    font: Verdana Bold-11px
     color: #666666
     text-auto-resize: true
     text: Cap: 50

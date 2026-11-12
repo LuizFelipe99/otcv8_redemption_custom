@@ -152,7 +152,7 @@ MainWindow
       anchors.top: prev.bottom
       margin-top: 5
       margin-left: 5
-      width: 85
+      width: 98
 
     NPCOfferLabel
       id: capacity

@@ -26,7 +26,7 @@
     height: 22px;
     display: block;
     margin-bottom: 6px;
-    font: verdana-11px-antialised;
+    font: Verdana Bold-11px;
     --placeholder: "Type to search";
     --placeholder-color: #6E706F;
 }
