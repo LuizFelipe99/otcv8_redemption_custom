@@ -1,11 +1,11 @@
 local STORE_PACKS_OPCODE = 22
 local BANNER_PATH = '/game_storepacks/images/%s'
-local VISIBLE_ITEM_SLOTS = 12
+local VISIBLE_ITEM_SLOTS = 20
 local GLOW_PULSE_INTERVAL_MS = 60
 local GLOW_PULSE_PERIOD_MS = 1800
 local BUTTON_ROW_HEIGHT = 22
 local SPECIALS_PER_ROW = 2
-local CARD_STRIDE = 219
+local CARD_STRIDE = 263
 
 local storePacksWindow
 local packsButton

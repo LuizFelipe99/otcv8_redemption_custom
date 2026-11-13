@@ -26,7 +26,7 @@ StorePackItemSlot < UIItem
   virtual: true
 
 StorePackCard < UIWidget
-  size: 210 350
+  size: 254 410
   image-source: /images/ui/1pixel-down-frame
   image-border: 1
   padding: 9
@@ -53,11 +53,12 @@ StorePackCard < UIWidget
     anchors.left: parent.left
     anchors.right: parent.right
     margin-top: 8
-    height: 136
+    height: 180
     image-source: /images/ui/1pixel-down-frame
     image-border: 1
     background-color: #00000033
     padding: 6
+    padding-right: 18
     vertical-scrollbar: itemGridScrollBar
     layout:
       type: grid
@@ -104,7 +105,7 @@ StorePackCard < UIWidget
 MainWindow
   id: storePacksWindow
   !text: tr('Packs')
-  size: 680 440
+  size: 812 500
   visible: false
   @onEscape: modules.game_storepacks.hide()
 
@@ -113,7 +114,7 @@ MainWindow
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
-    height: 350
+    height: 410
 
   Label
     id: balanceLabel
