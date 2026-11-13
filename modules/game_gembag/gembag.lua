@@ -15,7 +15,7 @@ local equipmentGroups = {
 }
 
 local attributeDisplayOrder = {
-	'health', 'mana', 'critChance', 'critDamage', 'attackSpeed', 'attackSpeedPercent', 'onslaught', 'transcendence',
+	'health', 'mana', 'critChance', 'critDamage', 'attackSpeed', 'attackSpeedPercent', 'onslaught', 'transcendence', 'dodge',
 	'resistPhysical', 'resistFire', 'resistIce', 'resistEnergy', 'resistEarth', 'resistDeath', 'resistHoly'
 }
 
@@ -28,6 +28,7 @@ local attributeDisplay = {
 	attackSpeedPercent = { caption = 'Attack speed', icon = '/images/icons/icon_sword', color = '#6fd38a', suffix = '%', decimals = 1 },
 	onslaught = { caption = 'Onslaught', icon = '/images/icons/icon-damage', color = '#e05a9c', suffix = '%', decimals = 1 },
 	transcendence = { caption = 'Transcendence', icon = '/images/game/wheel/icon-spelldamage', color = '#b48cf0', suffix = '%', decimals = 1 },
+	dodge = { caption = 'Ruse (dodge)', icon = '/images/icons/icon_shielding', color = '#5fd8e8', suffix = '%', decimals = 1 },
 	resistPhysical = { caption = 'Physical resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-physical-resist', color = '#c8c8c8', suffix = '%', decimals = 1 },
 	resistFire = { caption = 'Fire resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-fire-resist', color = '#f07a3c', suffix = '%', decimals = 1 },
 	resistIce = { caption = 'Ice resistance', icon = '/game_cyclopedia/images/bestiary/icons/monster-icon-ice-resist', color = '#8fd6f0', suffix = '%', decimals = 1 },
