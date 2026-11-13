@@ -281,6 +281,20 @@ local forgeActions = {
     TRANSFER = 1
 }
 
+local function isWildcardFusionResult(result)
+    if result.actionType ~= forgeActions.FUSION or result.convergence then
+        return false
+    end
+    return result.leftItemId ~= result.rightItemId
+end
+
+local function getAttemptLabel(result)
+    if result.actionType == forgeActions.FUSION then
+        return "Your fusion attempt was "
+    end
+    return "Your transfer attempt was "
+end
+
 -- Named callback functions to prevent garbage collection issues
 ForgeController.callbacks.closeResultCallback = function()
     ForgeController.showResult = false
@@ -410,7 +424,7 @@ function ForgeController:resultSystemEvent()
 
         if ForgeController.result.success then
             ForgeController.result.rightShader = "Outfit - ForgeSuccess"
-            ForgeController.result.label = "Your transfer attempt was "
+            ForgeController.result.label = getAttemptLabel(ForgeController.result)
             ForgeController.result.labelResult = "successful."
             ForgeController.result.color = Helpers.green
 
@@ -418,7 +432,7 @@ function ForgeController:resultSystemEvent()
             ForgeController.result.leftItemId = -1
             ForgeController.result.leftTier = 0
         else
-            ForgeController.result.label = "Your transfer attempt was "
+            ForgeController.result.label = getAttemptLabel(ForgeController.result)
             ForgeController.result.labelResult = "failed."
             ForgeController.result.rightShader = "Outfit - ForgeFailed"
             ForgeController.result.leftShader = ""
@@ -468,6 +482,12 @@ function forgeResultData(rawData)
         for key, value in pairs(data) do
             ForgeController.result[key] = value
         end
+    end
+
+    if isWildcardFusionResult(ForgeController.result) then
+        local fusedItemId = ForgeController.result.leftItemId
+        ForgeController.result.leftItemId = ForgeController.result.rightItemId
+        ForgeController.result.rightItemId = fusedItemId
     end
 
     if ForgeController.result.leftTier > 0 then
